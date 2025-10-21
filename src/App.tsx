@@ -7,9 +7,9 @@ import UserApp from "./site/user.site/user-app";
 function App() {
   const host = window.location.hostname;
 
-  if (host.startsWith("admin.")) return <AdminApp />;
-  if (host.startsWith("user.")) return <UserApp />;
-  if (host.startsWith("doctor.")) return <DoctorApp />;
+  if (host.includes("admin")) return <AdminApp />;
+  if (host.includes("user")) return <UserApp />;
+  if (host.includes("doctor")) return <DoctorApp />;
 
   return <NotFound />;
 }
