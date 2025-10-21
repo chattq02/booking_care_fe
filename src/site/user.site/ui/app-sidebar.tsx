@@ -13,35 +13,45 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { vi } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, HandHeart, HeartPulse, Plus, User } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
-import { useNavigate } from "react-router-dom";
+import { CalendarDays, HandHeart, HeartPulse, Plus, SquareTerminal, User } from "lucide-react";
 import { PATH_ROUTE } from "../libs/enum/path";
+import { NavMain } from "./nav-main";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const nav = useNavigate();
 
-  const data_sidebar: {
-    name: string;
-    icon: React.ReactNode;
-    link: string;
-  }[] = [
-    {
-      name: "Chuyên khoa",
-      icon: <HandHeart size={20} />,
-      link: PATH_ROUTE.SPECIALISTEXAMINATION,
-    },
-    {
-      name: "Bác sĩ",
-      icon: <User size={20} />,
-      link: PATH_ROUTE.DOCTORS,
-    },
-    {
-      name: "Gói khám",
-      icon: <HeartPulse size={20} />,
-      link: PATH_ROUTE.GENERALEXAMINATION,
-    },
-  ];
+  const navMain = [{
+    title: "Đặt khám",
+    url: "#",
+    icon: <SquareTerminal size={20} />,
+    isActive: true,
+    items: [
+      {
+        name: "Bệnh viện",
+        icon: <HandHeart size={20} />,
+        link: PATH_ROUTE.SPECIALISTEXAMINATION,
+      },
+      {
+        name: "Bác sĩ",
+        icon: <User size={20} />,
+        link: PATH_ROUTE.DOCTORS,
+      },
+      {
+        name: "Tiêm chủng",
+        icon: <HeartPulse size={20} />,
+        link: PATH_ROUTE.GENERALEXAMINATION,
+      },
+      {
+        name: "Xét nghiệm",
+        icon: <HeartPulse size={20} />,
+        link: PATH_ROUTE.GENERALEXAMINATION,
+      },
+      {
+        name: "Phòng khám",
+        icon: <HeartPulse size={20} />,
+        link: PATH_ROUTE.GENERALEXAMINATION,
+      },
+    ],
+  }]
 
   return (
     <Sidebar {...props}>
@@ -56,27 +66,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="px-4 flex-col space-y-3">
           <Button variant="outline" className="bg-white w-full">
             <Plus />
-            Tạo lịch hẹn
+            Tạo lịch khám
           </Button>
           <SidebarSeparator className="mx-0" />
           <Button className="w-full bg-[#01aaa8]">
             <CalendarDays />
-            Lịch hẹn của tôi
+            Lịch khám của tôi
           </Button>
         </div>
+        <SidebarMenuItem>
+          <SidebarMenuButton className="h-10 px-4 gap-3 cursor-pointer">
+
+            <span className="text-[16px] font-bold">aaaa</span>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+        <SidebarSeparator className="mx-0" />
         <SidebarMenu>
           <SidebarSeparator className="mx-0" />
-          {data_sidebar.map((item) => (
-            <>
-              <SidebarMenuItem key={uuidv4()} onClick={() => nav(item.link)}>
-                <SidebarMenuButton className="h-10 px-4 gap-3 cursor-pointer">
-                  <div>{item.icon}</div>
-                  <span className="text-[16px] font-bold">{item.name}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarSeparator className="mx-0" />
-            </>
-          ))}
+          <NavMain items={navMain} />
         </SidebarMenu>
       </SidebarContent>
       <SidebarRail />

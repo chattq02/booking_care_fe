@@ -54,7 +54,7 @@ export function DoctorCard({
       <Separator className="mr-2 data-[orientation=vertical]:h-4" />
       <div className="flex justify-end items-center gap-2 p-2 mr-2">
         <Button variant="outline" className="bg-white">
-          <Plus /> Tạo lịch hẹn
+          <Plus /> Tạo lịch khám
         </Button>
         <Button className="bg-[#01aaa8]">
           <Send />
