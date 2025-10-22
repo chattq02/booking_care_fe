@@ -53,10 +53,10 @@ export function DoctorCard({
       </div>
       <Separator className="mr-2 data-[orientation=vertical]:h-4" />
       <div className="flex justify-end items-center gap-2 p-2 mr-2">
-        <Button variant="outline" className="bg-white">
+        <Button className="bg-main">
           <Plus /> Tạo lịch khám
         </Button>
-        <Button className="bg-[#01aaa8]">
+        <Button variant="outline" className="bg-white">
           <Send />
           Liên hệ
         </Button>

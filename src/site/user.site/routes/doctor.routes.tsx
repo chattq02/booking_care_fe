@@ -1,4 +1,3 @@
-// src/routes/user.routes.tsx
 import { PATH_ROUTE } from "../libs/enum/path";
 import { lazy } from "react";
 

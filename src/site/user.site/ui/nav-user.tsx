@@ -1,4 +1,4 @@
-import { BadgeCheck, ChevronsUpDown, CreditCard, LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut, User2 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -15,6 +15,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { PATH_ROUTE } from "../libs/enum/path";
+import { useNavigate } from "react-router-dom";
 
 export function NavUser({
   user,
@@ -25,6 +27,7 @@ export function NavUser({
     avatar: string;
   };
 }) {
+  const nav = useNavigate();
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -65,13 +68,9 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
+              <DropdownMenuItem onClick={() => nav(`${PATH_ROUTE.PROFILE}`)}>
+                <User2 />
+                Thông tin các nhân
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

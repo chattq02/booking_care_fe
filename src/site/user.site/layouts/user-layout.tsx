@@ -1,10 +1,4 @@
 import { AppSidebar } from "@/site/user.site/ui/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -15,7 +9,7 @@ import { Outlet } from "react-router-dom";
 import { NavUser } from "../ui/nav-user";
 import { Bell, MessageSquare } from "lucide-react";
 import { SearchBox } from "../components/search-box";
-import { Button } from "@/components/ui/button";
+import { BreadcrumbPath } from "../components/bread-crumb-path";
 
 export default function UserLayout() {
   const data = {
@@ -24,44 +18,19 @@ export default function UserLayout() {
       email: "m@example.com",
       avatar: "/avatars/shadcn.jpg",
     },
-    calendars: [
-      {
-        name: "My Calendars",
-        items: ["Personal", "Work", "Family"],
-      },
-      {
-        name: "Favorites",
-        items: ["Holidays", "Birthdays"],
-      },
-      {
-        name: "Other",
-        items: ["Travel", "Reminders", "Deadlines"],
-      },
-    ],
   };
   return (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 sticky top-0 border-b px-4 bg-white z-99999">
+        <header className="flex h-16 shrink-0 items-center gap-2 sticky top-0 border-b px-4 z-10 bg-white">
           <div className="flex flex-1 items-center gap-2 px-3">
             <SidebarTrigger />
             <Separator
               orientation="vertical"
               className="mr-2 data-[orientation=vertical]:h-4"
             />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <Button>Today</Button>
-                </BreadcrumbItem>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="line-clamp-1">
-                    October 2024
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <BreadcrumbPath />
           </div>
           <div className="relative w-1/4">
             <SearchBox />
@@ -78,7 +47,7 @@ export default function UserLayout() {
             </div>
           </div>
         </header>
-        <div className="bg-[#f3f5f7]">
+        <div className="bg-[#f3f5f7] flex flex-1 flex-col">
           <Outlet />
         </div>
       </SidebarInset>

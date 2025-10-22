@@ -3,7 +3,7 @@ export const PATH_ROUTE = {
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
-  PROFILE: "/profile",
+  PROFILE: "/thong-tin-ca-nhan",
   DASHBOARD: "/dashboard",
   DOCTORS: "/bac-si",
   SPECIALISTEXAMINATION: "/kham-chuyen-khoa",
