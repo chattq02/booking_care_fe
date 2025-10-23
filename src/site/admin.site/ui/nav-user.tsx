@@ -15,8 +15,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { PATH_ROUTE } from "../lib/enums/path";
+
 import { useNavigate } from "react-router-dom";
+import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
 
 export function NavUser({
   user,
@@ -68,7 +69,7 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => nav(`${PATH_ROUTE.PROFILE}`)}>
+              <DropdownMenuItem onClick={() => nav(`${PATH_ROUTE_ADMIN.HOME}`)}>
                 <User2 />
                 Thông tin các nhân
               </DropdownMenuItem>

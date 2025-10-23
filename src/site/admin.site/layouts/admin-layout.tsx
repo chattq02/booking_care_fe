@@ -1,4 +1,3 @@
-import { AppSidebar } from "@/site/user.site/ui/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -8,10 +7,10 @@ import {
 import { Outlet } from "react-router-dom";
 import { NavUser } from "../ui/nav-user";
 import { Bell, MessageSquare } from "lucide-react";
-import { SearchBox } from "../components/search-box";
 import { BreadcrumbPath } from "../components/bread-crumb-path";
+import { AppSidebar } from "../ui/app-sidebar";
 
-export default function UserLayout() {
+export default function AdminLayout() {
   const data = {
     user: {
       name: "shadcn",
@@ -31,9 +30,6 @@ export default function UserLayout() {
               className="mr-2 data-[orientation=vertical]:h-4"
             />
             <BreadcrumbPath />
-          </div>
-          <div className="relative w-1/4">
-            <SearchBox />
           </div>
           <div className="ml-auto px-3">
             <div className="flex items-center gap-6">

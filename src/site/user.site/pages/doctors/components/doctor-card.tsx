@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Plus, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { PATH_ROUTE } from "@/site/user.site/libs/enum/path";
+import { PATH_ROUTE } from "@/site/user.site/lib/enums/path";
 
 interface DoctorCardProps {
   id: string;

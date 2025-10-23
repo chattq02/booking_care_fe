@@ -9,6 +9,7 @@ export function formatSlug(slug: string) {
     "dich-vu": "Dịch vụ",
     "bac-si": "Bác sĩ",
     "thong-tin-ca-nhan": "Thông tin cá nhân",
+    "danh-sach-bac-si": "Danh sách bác sĩ",
   };
 
   return (

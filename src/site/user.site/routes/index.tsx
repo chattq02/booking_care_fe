@@ -1,6 +1,6 @@
 // src/routes/user.routes.tsx
 import UserLayout from "@/site/user.site/layouts/user-layout";
-import { PATH_ROUTE } from "../libs/enum/path";
+import { PATH_ROUTE } from "../lib/enums/path";
 import NotFound from "@/site/NotFound";
 import { lazy } from "react";
 import { doctorRoutes } from "./doctor.routes";

@@ -10,8 +10,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation, useNavigate } from "react-router-dom";
-import { PATH_ROUTE } from "../lib/enums/path";
-import { formatSlug } from "../../../helpers/format-path-breadcrumd";
+import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
+import { formatSlug } from "@/helpers/format-path-breadcrumd";
 
 export function BreadcrumbPath() {
   const location = useLocation(); // ✅ Theo dõi URL động
@@ -29,7 +29,7 @@ export function BreadcrumbPath() {
           <BreadcrumbLink asChild>
             <span
               className="cursor-pointer"
-              onClick={() => nav(`${PATH_ROUTE.HOME}`)}
+              onClick={() => nav(`${PATH_ROUTE_ADMIN.HOME}`)}
             >
               Trang chủ
             </span>
@@ -40,7 +40,7 @@ export function BreadcrumbPath() {
         {paths.map((segment, index) => {
           const href = generateHref(index);
           const isLast = index === paths.length - 1;
-          const label = formatSlug(segment);
+          const label = formatSlug(segment); // 👈 xử lý đẹp slug
 
           return (
             <React.Fragment key={href}>

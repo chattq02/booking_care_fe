@@ -1,4 +1,4 @@
-import { PATH_ROUTE } from "../libs/enum/path";
+import { PATH_ROUTE } from "../lib/enums/path";
 import { lazy } from "react";
 
 const Profile = lazy(() => import("../pages/profile/profile"));

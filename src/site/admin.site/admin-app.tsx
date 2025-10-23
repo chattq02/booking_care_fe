@@ -1,18 +1,6 @@
-import { Route, Routes } from "react-router-dom";
-import NotFound from "../NotFound";
+import { useRoutes } from "react-router-dom";
+import { adminRoutes } from "./routes";
 
 export default function AdminApp() {
-  return (
-    <Routes>
-      {/* Trang chính */}
-      <Route path="/" element={<div>Dashboard</div>} />
-
-      {/* Các route khác */}
-      <Route path="/users" element={<div>aâ</div>} />
-      <Route path="/settings" element={<div>settings</div>} />
-
-      {/* Route cuối cùng — 404 */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
+  return useRoutes([adminRoutes]);
 }

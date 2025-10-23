@@ -19,10 +19,11 @@ import {
   Syringe,
   TestTubeDiagonal,
 } from "lucide-react";
-import { PATH_ROUTE } from "../libs/enum/path";
+
 import { NavMain } from "./nav-main";
 import { useNavigate } from "react-router-dom";
 import { DialogCreateAppointment } from "../components/create-appointment-dialog";
+import { PATH_ROUTE } from "../lib/enums/path";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const nav = useNavigate();
