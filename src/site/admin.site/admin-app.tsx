@@ -1,6 +1,7 @@
 import { useRoutes } from "react-router-dom";
-import { adminRoutes } from "./routes";
+import { adminPrivateRoutes } from "./routes/private-route";
+import { adminPublicRoutes } from "./routes/public-route";
 
 export default function AdminApp() {
-  return useRoutes([adminRoutes]);
+  return useRoutes([adminPrivateRoutes, ...adminPublicRoutes]);
 }
