@@ -50,11 +50,9 @@ export default function Login() {
       },
       {
         onSuccess: async (res) => {
-          console.log("data", data);
-          toast.success("Đăng nhập thành công");
           await saveTokens({
-            at: res.data.access_token,
-            rt: res.data.refresh_token,
+            at: String(res.data?.access_token),
+            rt: String(res.data?.refresh_token),
             atMaxAge: 24 * 60 * 60 * 1000, // 24 hours
             rtMaxAge: 100 * 24 * 60 * 60 * 1000, // 100 days
           });

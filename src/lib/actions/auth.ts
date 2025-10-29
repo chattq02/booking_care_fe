@@ -9,17 +9,19 @@ interface TokenParams {
 }
 
 export async function saveTokens({ at, rt, atMaxAge, rtMaxAge }: TokenParams) {
+  const atExpires = atMaxAge ? atMaxAge / (1000 * 60 * 60 * 24) : undefined;
+  const rtExpires = rtMaxAge ? rtMaxAge / (1000 * 60 * 60 * 24) : undefined;
   Cookies.set(COOKIE_KEYS.at, at, {
     httpOnly: false,
     secure: true,
-    maxAge: atMaxAge,
+    expires: atExpires,
     path: "/",
     sameSite: "Lax",
   });
   Cookies.set(COOKIE_KEYS.rt, rt, {
     httpOnly: false,
     secure: true,
-    maxAge: rtMaxAge,
+    expires: rtExpires,
     path: "/",
     sameSite: "Lax",
   });
