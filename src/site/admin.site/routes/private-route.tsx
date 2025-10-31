@@ -3,7 +3,7 @@ import AdminLayout from "../layouts/admin-layout";
 import Dashboard from "../pages/dashboard/dashboard";
 import InfoDoctor from "../pages/info-doctor/info-doctor";
 import type { RouteObject } from "react-router-dom";
-import Login from "../pages/auth/login/login";
+import Login from "../../../pages/auth/login/login";
 import GuardRouteLayout from "../layouts/private-router";
 
 export const adminRoutes: RouteObject[] = [

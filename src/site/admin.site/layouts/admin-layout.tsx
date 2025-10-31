@@ -9,8 +9,12 @@ import { NavUser } from "../ui/nav-user";
 import { Bell, MessageSquare } from "lucide-react";
 import { BreadcrumbPath } from "../components/bread-crumb-path";
 import { AppSidebar } from "../ui/app-sidebar";
+import { useAtomValue } from "jotai";
+import { userAtom } from "@/stores/auth";
 
 export default function AdminLayout() {
+  const user = useAtomValue(userAtom);
+  console.log("user", user);
   const data = {
     user: {
       name: "shadcn",

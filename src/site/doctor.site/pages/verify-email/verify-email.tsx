@@ -11,7 +11,11 @@ export default function VerifyEmail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) mutate(token);
+    if (token)
+      mutate({
+        token,
+        type: "Verify",
+      });
   }, [token]);
 
   // ✅ Chuyển sang login khi xác thực thành công
@@ -23,6 +27,13 @@ export default function VerifyEmail() {
       return () => clearTimeout(timer);
     }
   }, [isSuccess, navigate]);
+
+  const handleResendVerifyEmail = () => {
+    mutate({
+      token,
+      type: "Verify",
+    });
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -43,10 +54,23 @@ export default function VerifyEmail() {
         )}
 
         {isError && (
-          <p className="text-red-600 font-semibold">
-            ❌ Lỗi:{" "}
-            {(error as any)?.response?.data?.message || "Xác thực thất bại"}
-          </p>
+          <>
+            <p className="text-red-600 font-semibold">
+              ❌ Lỗi:{" "}
+              {(error as any)?.response?.data?.message || "Xác thực thất bại"}
+            </p>
+            {(error as any)?.response?.data?.status === 401 && (
+              <p>
+                Vui lòng xác thực lại{" "}
+                <span
+                  className="underline cursor-pointer"
+                  onClick={handleResendVerifyEmail}
+                >
+                  Gửi lại
+                </span>
+              </p>
+            )}
+          </>
         )}
       </div>
     </div>
