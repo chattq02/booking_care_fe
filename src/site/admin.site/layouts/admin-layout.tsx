@@ -14,14 +14,7 @@ import { userAtom } from "@/stores/auth";
 
 export default function AdminLayout() {
   const user = useAtomValue(userAtom);
-  console.log("user", user);
-  const data = {
-    user: {
-      name: "shadcn",
-      email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
-    },
-  };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -43,7 +36,13 @@ export default function AdminLayout() {
               <div>
                 <Bell size={20} className="block" />
               </div>
-              <NavUser user={data.user} />
+              <NavUser
+                user={{
+                  name: user?.fullName ?? "",
+                  email: user?.email ?? "",
+                  avatar: "",
+                }}
+              />
             </div>
           </div>
         </header>

@@ -1,34 +1,44 @@
+import { accessTokenStore } from "@/stores/auth";
 import axios from "axios";
-import { addTokensBeforeRequest } from "./axios-helpers";
+import { clearTokens, saveCookies } from "../actions/auth";
 
 const axiosWithToken = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true, // ✅ gửi cookie cùng request
 });
 
-axiosWithToken.interceptors.request.use(
-  (config) => addTokensBeforeRequest(config),
-  (error) => Promise.reject(error)
-);
 // ❌ Không tự set Content-Type ở đây
 axiosWithToken.interceptors.response.use(
   (response) => response.data,
   async (error) => {
     const originalRequest = error.config;
+    // những api không cần check
+    if (
+      originalRequest.url.includes("/auth/login") ||
+      originalRequest.url.includes("/auth/logout") ||
+      originalRequest.url.includes("/auth/refresh-token")
+    ) {
+      return Promise.reject(error);
+    }
 
-    // ✅ Xử lý refresh token khi 401
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
+    originalRequest._retryCount = originalRequest._retryCount || 0;
+
+    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
+      originalRequest._retryCount += 1;
+
       try {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        const res = await axiosWithToken.post("/auth/refresh-token");
+        const newAccessToken = res.data.access_token;
+        accessTokenStore.set(newAccessToken);
+        saveCookies({
+          at: String(newAccessToken),
+          atbMaxAge: 24 * 60 * 60 * 1000, // 24 hours
+        });
         return axiosWithToken(originalRequest);
-      } catch (refreshErr) {
-        window.location.href = "/login";
-        return Promise.reject(refreshErr);
+      } catch (refreshError) {
+        clearTokens();
+        window.location.replace("/login");
+        return Promise.reject(refreshError);
       }
     }
 

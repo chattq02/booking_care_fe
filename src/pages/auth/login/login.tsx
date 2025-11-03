@@ -9,11 +9,12 @@ import { useLogin } from "../hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { saveTokens } from "@/lib/actions/auth";
+import { accessTokenStore } from "@/stores/auth";
+import { saveCookies } from "@/lib/actions/auth";
 
 // ✅ Schema validate với Zod
 const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
+  email: z.email("Email không hợp lệ"),
   password: z
     .string()
     .min(6, "Password phải ít nhất 6 ký tự")
@@ -50,11 +51,10 @@ export default function Login() {
       },
       {
         onSuccess: async (res) => {
-          await saveTokens({
+          accessTokenStore.set(res.data?.access_token);
+          await saveCookies({
             at: String(res.data?.access_token),
-            rt: String(res.data?.refresh_token),
-            atMaxAge: 24 * 60 * 60 * 1000, // 24 hours
-            rtMaxAge: 100 * 24 * 60 * 60 * 1000, // 100 days
+            atbMaxAge: 24 * 60 * 60 * 1000, // 24 hours
           });
 
           setTimeout(() => {
@@ -62,9 +62,7 @@ export default function Login() {
           }, 1000);
         },
         onError: (error: any) => {
-          toast.error(
-            `${error?.response?.data?.message}` || "Đăng nhập thất bại"
-          );
+          toast.error(error?.response?.data?.message || "Đăng nhập thất bại");
         },
       }
     );

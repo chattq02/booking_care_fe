@@ -7,6 +7,7 @@ import type {
   GetMeResponseData,
   LoginForm,
   LoginResponseData,
+  RefreshTokenResponse,
 } from "@/types/auth";
 
 const authApi = {
@@ -28,6 +29,11 @@ const authApi = {
   },
   getMe: async (): Promise<ResponseResult<GetMeResponseData | null>> => {
     return await axiosWithToken.post("/auth/me");
+  },
+  refreshToken: async (): Promise<
+    ResponseResult<RefreshTokenResponse | null>
+  > => {
+    return await axiosWithToken.post("/auth/refresh-token");
   },
 };
 

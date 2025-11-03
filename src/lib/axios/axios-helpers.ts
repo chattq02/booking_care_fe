@@ -1,7 +1,7 @@
 import type { InternalAxiosRequestConfig } from "axios";
+import { COOKIE_KEYS } from "@/constants";
+import { accessTokenStore } from "@/stores/auth";
 import { getCookie } from "@/utils/cookie";
-import { COOKIE_KEYS, HEADER_KEYS } from "@/constants";
-import { getTimezone } from "@/utils/time";
 
 /**
  * ✅ Thêm token + header phụ trước mỗi request (dùng cho axiosPrivate)
@@ -12,18 +12,16 @@ export const addTokensBeforeRequest = (
   config: InternalAxiosRequestConfig
 ): InternalAxiosRequestConfig => {
   try {
-    const accessToken = getCookie(COOKIE_KEYS.at);
-    const language = getCookie(COOKIE_KEYS.lng) || "vi";
-    const timezone = getTimezone();
+    const accessToken = accessTokenStore.get();
+
+    const accessTokenCookie = getCookie(COOKIE_KEYS.at);
 
     // 🔥 Nếu có access token → gắn Bearer
     if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+      config.headers.Authorization = `Bearer ${
+        accessToken || accessTokenCookie
+      }`;
     }
-
-    // ✅ Thêm header phụ
-    config.headers[HEADER_KEYS.language] = language;
-    config.headers[HEADER_KEYS.timezone] = timezone;
 
     return config;
   } catch (error) {
@@ -40,12 +38,6 @@ export const addPublicHeaders = (
   config: InternalAxiosRequestConfig
 ): InternalAxiosRequestConfig => {
   try {
-    const language = getCookie(COOKIE_KEYS.lng) || "vi";
-    const timezone = getTimezone();
-
-    config.headers[HEADER_KEYS.language] = language;
-    config.headers[HEADER_KEYS.timezone] = timezone;
-
     return config;
   } catch (error) {
     console.error("❌ addPublicHeaders error:", error);

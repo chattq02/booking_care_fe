@@ -1,7 +1,5 @@
 export const COOKIE_KEYS = {
-  at: "access_token",
-  rt: "refresh_token",
-  lng: "language",
+  at: "at",
 } as const;
 
 export const HEADER_KEYS = {
