@@ -1,32 +1,45 @@
 import { Navigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
-import { accessTokenStore, fetchUserAtom, userAtom } from "@/stores/auth";
+import { accessTokenStore, userAtom } from "@/stores/auth";
 import { COOKIE_KEYS } from "@/constants";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
+import { useQuery } from "@tanstack/react-query";
+import { getProfile } from "@/pages/auth/hooks/useAuth";
 import { useEffect } from "react";
 
 export default function GuardRouteLayout({
   auth = false,
   redirect = "/login",
 }) {
-  const [user, setUser] = useAtom(userAtom);
+  const setUser = useSetAtom(userAtom);
 
   // 🔐 Lấy token từ store hoặc cookie
   const token = accessTokenStore.get() || Cookies.get(COOKIE_KEYS.at);
   const isAuth = !!token;
 
-  const fetchUser = useSetAtom(fetchUserAtom);
+  // 🧠 Dùng React Query để gọi getProfile
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["me", token],
+    queryFn: getProfile,
+    enabled: isAuth,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+  });
 
   useEffect(() => {
-    if (!user) {
-      fetchUser()
+    if (user) {
+      setUser(user);
+    } else if (isError) {
+      setUser(null);
     }
-  }, [user, setUser]);
-
-
+  }, [user, isError, setUser]);
 
   // 🔄 Nếu route yêu cầu login mà chưa có token hoặc lỗi token → về login
-  if (auth && !isAuth) {
+  if (auth && (!isAuth || isError)) {
     return <Navigate to={redirect} replace />;
   }
 

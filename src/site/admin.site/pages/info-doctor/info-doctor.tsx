@@ -27,7 +27,7 @@ export default function InfoDoctor() {
     ],
     queryFn: async () =>
       await getListDoctor({
-        keyword: param.keyword,
+        keyword: param.keyword.trim(),
         page: param.page,
         per_page: param.per_page,
         status: param.status,

@@ -29,7 +29,7 @@ export const doctorParamsAtom = atomWithHash<DoctorParams>(
       return stringify(cleaned, {
         addQueryPrefix: false,
         skipNulls: true,
-        encode: false,
+        encode: true,
       });
     },
 
@@ -41,9 +41,6 @@ export const doctorParamsAtom = atomWithHash<DoctorParams>(
         per_page: Number(q.per_page) || 100,
         status: (q.status as UserStatus) ?? "All",
       };
-    },
-    setHash: (hash) => {
-      window.location.hash = hash;
     },
   }
 );

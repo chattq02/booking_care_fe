@@ -32,7 +32,6 @@ export function DataGrid<T>({
       pagination={pagination}
       scroll={{ y: tableHeight - 245, x: 500 }}
       bordered
-      virtual
       onChange={onChange}
       style={{ maxHeight: tableHeight - 245 }}
     />
