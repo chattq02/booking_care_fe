@@ -1,54 +1,32 @@
 import { Navigate, Outlet } from "react-router-dom";
 import Cookies from "js-cookie";
-import { accessTokenStore, userAtom } from "@/stores/auth";
+import { accessTokenStore, fetchUserAtom, userAtom } from "@/stores/auth";
 import { COOKIE_KEYS } from "@/constants";
-import { useSetAtom } from "jotai";
-import { useQuery } from "@tanstack/react-query";
-import { getProfile } from "@/pages/auth/hooks/useAuth";
+import { useAtom, useSetAtom } from "jotai";
 import { useEffect } from "react";
 
 export default function GuardRouteLayout({
   auth = false,
   redirect = "/login",
 }) {
-  const setUser = useSetAtom(userAtom);
+  const [user, setUser] = useAtom(userAtom);
 
   // 🔐 Lấy token từ store hoặc cookie
   const token = accessTokenStore.get() || Cookies.get(COOKIE_KEYS.at);
   const isAuth = !!token;
 
-  // 🧠 Dùng React Query để gọi getProfile
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["me", token],
-    queryFn: getProfile,
-    enabled: isAuth,
-    retry: false,
-    staleTime: 1000 * 60 * 5,
-  });
+  const fetchUser = useSetAtom(fetchUserAtom);
 
   useEffect(() => {
-    if (user) {
-      setUser(user);
-    } else if (isError) {
-      setUser(null);
+    if (!user) {
+      fetchUser()
     }
-  }, [user, isError, setUser]);
+  }, [user, setUser]);
 
-  // 🕐 Hiển thị loading khi đang fetch user
-  if (auth && isAuth && isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p>Đang tải thông tin người dùng...</p>
-      </div>
-    );
-  }
+
 
   // 🔄 Nếu route yêu cầu login mà chưa có token hoặc lỗi token → về login
-  if (auth && (!isAuth || isError)) {
+  if (auth && !isAuth) {
     return <Navigate to={redirect} replace />;
   }
 

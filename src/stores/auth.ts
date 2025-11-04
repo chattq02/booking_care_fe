@@ -1,3 +1,4 @@
+import { getProfile } from "@/pages/auth/hooks/useAuth";
 import type { GetMeResponseData } from "@/types/auth";
 import { atom } from "jotai";
 
@@ -16,3 +17,12 @@ export const accessTokenStore = {
     accessTokenCache = null;
   },
 };
+
+
+export const fetchUserAtom = atom(
+  null,
+  async (_get, set) => {
+    const result = await getProfile();
+    set(userAtom, result ?? null);
+  }
+);
