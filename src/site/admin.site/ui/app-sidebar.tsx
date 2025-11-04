@@ -65,7 +65,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Hàm vị, học vị",
           icon: <GraduationCap size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
+          link: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
         },
         {
           name: "Chuyên khoa",

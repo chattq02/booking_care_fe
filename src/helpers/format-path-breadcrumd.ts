@@ -11,6 +11,7 @@ export function formatSlug(slug: string) {
     "thong-tin-ca-nhan": "Thông tin cá nhân",
     "danh-sach-bac-si": "Danh sách bác sĩ",
     "lich-kham": "Lịch khám",
+    "ham-vi": "Hàm vị - học vị"
   };
 
   return (
