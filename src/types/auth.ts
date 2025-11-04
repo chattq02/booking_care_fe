@@ -9,6 +9,7 @@ export interface LoginResponseData {
 }
 
 export type UserRole = "ADMIN" | "USER" | "DOCTOR";
+export type UserStatus = "Active" | "InActive" | "Pending" | "Banned" | "All";
 
 export interface GetMeResponseData {
   id: number;

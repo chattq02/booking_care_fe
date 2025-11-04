@@ -21,6 +21,16 @@ axiosWithToken.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    // ✅ Nếu API /me trả về 404 → về trang login
+    if (
+      error.response?.status === 404 &&
+      originalRequest.url.includes("/auth/me")
+    ) {
+      clearTokens();
+      window.location.replace("/login");
+      return Promise.reject(error);
+    }
+
     originalRequest._retryCount = originalRequest._retryCount || 0;
 
     if (error.response?.status === 401 && originalRequest._retryCount < 4) {

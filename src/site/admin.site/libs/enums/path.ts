@@ -4,4 +4,5 @@ export const PATH_ROUTE_ADMIN = {
   LOGIN: "/login",
   REGISTER: "/register",
   LIST_DOCTOR: "/danh-sach-bac-si",
+  MEDICAL_SCHEDULE: "/lich-kham",
 } as const;

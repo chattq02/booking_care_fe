@@ -47,7 +47,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Khung giờ khám",
           icon: <CalendarDays size={20} />,
-          link: PATH_ROUTE.DOCTORS,
+          link: PATH_ROUTE_ADMIN.MEDICAL_SCHEDULE,
         },
       ],
     },
