@@ -11,9 +11,12 @@ import { BreadcrumbPath } from "../components/bread-crumb-path";
 import { AppSidebar } from "../ui/app-sidebar";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/stores/auth";
+import LoadingProvider from "@/layouts/loading";
+import { message } from "antd";
 
 export default function AdminLayout() {
   const user = useAtomValue(userAtom);
+  const [_, contextHolder] = message.useMessage();
 
   return (
     <SidebarProvider>
@@ -47,7 +50,10 @@ export default function AdminLayout() {
           </div>
         </header>
         <div className="@container/main bg-[#f3f5f7] flex flex-1 flex-col">
-          <Outlet />
+          <LoadingProvider>
+            {contextHolder}
+            <Outlet />
+          </LoadingProvider>
         </div>
       </SidebarInset>
     </SidebarProvider>

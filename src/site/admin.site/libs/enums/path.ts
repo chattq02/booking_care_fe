@@ -5,5 +5,6 @@ export const PATH_ROUTE_ADMIN = {
   REGISTER: "/register",
   LIST_DOCTOR: "/danh-sach-bac-si",
   MEDICAL_SCHEDULE: "/lich-kham",
-  ACADEMIC_TITLE: "/ham-vi"
+  ACADEMIC_TITLE: "/ham-vi",
+  SPECIALTY: "/chuyen-khoa",
 } as const;

@@ -18,12 +18,8 @@ export default function GuardRouteLayout({
   const isAuth = !!token;
 
   // 🧠 Dùng React Query để gọi getProfile
-  const {
-    data: user,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["me", token],
+  const { data: user, isError } = useQuery({
+    queryKey: ["me"],
     queryFn: getProfile,
     enabled: isAuth,
     retry: false,

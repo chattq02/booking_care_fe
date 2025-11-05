@@ -34,8 +34,7 @@ axiosWithToken.interceptors.response.use(
 
     originalRequest._retryCount = originalRequest._retryCount || 0;
 
-    if (error.response?.status === 401 &&
-      window.location.pathname !== "/login" && originalRequest._retryCount < 4) {
+    if (error.response?.status === 401 && originalRequest._retryCount < 4) {
       originalRequest._retryCount += 1;
 
       try {

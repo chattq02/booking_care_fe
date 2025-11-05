@@ -18,6 +18,13 @@ import {
 
 import { useNavigate } from "react-router-dom";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
+import { useMemo } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { logOut } from "@/hooks/use-auth";
+import { clearTokens } from "@/lib/actions/auth";
+import { toast } from "sonner";
+import { useSetAtom } from "jotai";
+import { loadingAtom } from "@/stores/loading";
 
 export function NavUser({
   user,
@@ -29,6 +36,38 @@ export function NavUser({
   };
 }) {
   const nav = useNavigate();
+  const getFirstLetter = (str: string) => {
+    if (!str) return "";
+    return str.trim().charAt(0).toUpperCase();
+  };
+  const setLoad = useSetAtom(loadingAtom);
+
+  const avatar = useMemo(() => {
+    return (
+      <Avatar>
+        <AvatarImage src={user.avatar} alt={user.name} />
+        <AvatarFallback>{getFirstLetter(user.name)}</AvatarFallback>
+      </Avatar>
+    );
+  }, [user.avatar, user.name]);
+
+  const mutation = useMutation({
+    mutationFn: logOut,
+    onSuccess: () => {
+      toast.success("Đăng xuất thành công");
+      clearTokens();
+      setTimeout(() => {
+        setLoad(false);
+        window.location.href = PATH_ROUTE_ADMIN.LOGIN;
+      }, 500);
+    },
+  });
+
+  const handleLogout = () => {
+    setLoad(true);
+    mutation.mutate();
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -38,10 +77,7 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground flex-1 border"
             >
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+              {avatar}
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
@@ -57,10 +93,7 @@ export function NavUser({
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
+                {avatar}
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
@@ -75,7 +108,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>

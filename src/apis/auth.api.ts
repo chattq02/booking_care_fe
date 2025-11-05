@@ -24,8 +24,8 @@ const authApi = {
       ? await axiosPublic.post("/auth/verify-email", { token })
       : await axiosPublic.post("/auth/re-send-verify-email", { token });
   },
-  logout: async (refresh_token: string): Promise<ResponseResult> => {
-    return await axiosWithToken.post("/auth/logout", refresh_token);
+  logout: () => {
+    return axiosWithToken.post("/auth/logout");
   },
   getMe: async (): Promise<ResponseResult<GetMeResponseData | null>> => {
     return await axiosWithToken.post("/auth/me");

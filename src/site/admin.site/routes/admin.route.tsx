@@ -8,6 +8,7 @@ import GuardRouteLayout from "../../../layouts/private-router";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
 import MedicalSchedule from "../pages/medical-schedule/medical-schedule";
 import AcademicTitle from "../pages/academic-title/academic-title";
+import Specialty from "../pages/specialty/specialty";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -29,6 +30,10 @@ export const adminRoutes: RouteObject[] = [
           {
             path: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
             element: <AcademicTitle />,
+          },
+          {
+            path: PATH_ROUTE_ADMIN.SPECIALTY,
+            element: <Specialty />,
           },
           { path: "*", element: <NotFound /> },
         ],

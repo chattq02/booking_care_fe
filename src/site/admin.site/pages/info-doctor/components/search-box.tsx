@@ -6,9 +6,16 @@ import _ from "lodash";
 interface SearchBoxProps {
   onSearch: (value: string) => void;
   value: string;
+  width?: number;
+  placeholder?: string;
 }
 
-export default function SearchBox({ onSearch, value }: SearchBoxProps) {
+export default function SearchBox({
+  onSearch,
+  value,
+  width = 285,
+  placeholder = "Tìm kiếm...",
+}: SearchBoxProps) {
   const [keyword, setKeyword] = useState(value);
 
   // ⚡ debounce khi người dùng đang gõ
@@ -36,11 +43,11 @@ export default function SearchBox({ onSearch, value }: SearchBoxProps) {
   };
 
   return (
-    <div style={{ width: 285 }}>
+    <div style={{ width: width }}>
       <Input
         size="middle"
         allowClear
-        placeholder="Nhập tên, CCCD, email, điện thoại để tìm kiếm"
+        placeholder={placeholder}
         prefix={<SearchOutlined />}
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}

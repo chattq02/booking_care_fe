@@ -1,39 +1,26 @@
 import { useWindowSize } from "@/hooks/use-window-size";
 import { Table } from "antd";
-import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
+import type { TableProps } from "antd";
 
-interface GenericTableProps<T> {
+interface GenericTableProps<T> extends TableProps<T> {
   data: T[];
-  columns: ColumnsType<T>;
-  loading?: boolean;
-  pagination?: TablePaginationConfig;
-  rowSelection?: any;
-  onChange?: (pagination: TablePaginationConfig) => void;
-  rowKey: string | ((record: T) => string | number);
+  customHeight?: number;
 }
 
 export function DataGrid<T>({
   data,
-  columns,
-  loading,
-  pagination,
-  rowSelection,
-  onChange,
-  rowKey,
+  customHeight = 245,
+  ...rest
 }: GenericTableProps<T>) {
   const { height: tableHeight } = useWindowSize();
+
   return (
     <Table<T>
-      columns={columns}
       dataSource={data}
-      rowKey={rowKey}
-      loading={loading}
-      rowSelection={rowSelection}
-      pagination={pagination}
-      scroll={{ y: tableHeight - 245, x: 500 }}
+      scroll={{ y: tableHeight - customHeight, x: 500 }}
       bordered
-      onChange={onChange}
-      style={{ maxHeight: tableHeight - 245 }}
+      style={{ maxHeight: tableHeight - customHeight }}
+      {...rest}
     />
   );
 }

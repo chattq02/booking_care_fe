@@ -10,12 +10,12 @@ export interface DoctorParams {
 }
 
 export const doctorParamsAtom = atomWithHash<DoctorParams>(
-  "params",
+  "doctor_params",
   {
     keyword: "",
     page: 1,
     per_page: 100,
-    status: "All",
+    status: "Active",
   },
   {
     serialize: (value) => {

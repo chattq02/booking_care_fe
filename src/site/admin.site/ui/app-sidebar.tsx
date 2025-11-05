@@ -70,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Chuyên khoa",
           icon: <BriefcaseBusiness size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
+          link: PATH_ROUTE_ADMIN.SPECIALTY,
         },
         {
           name: "Gói khám",
