@@ -16,6 +16,7 @@ const authApi = {
   ): Promise<ResponseResult<LoginResponseData>> => {
     return await axiosPublic.post("/auth/login", data);
   },
+
   verifyEmail: async (
     token: string,
     type: VerifyEmailType
@@ -24,12 +25,15 @@ const authApi = {
       ? await axiosPublic.post("/auth/verify-email", { token })
       : await axiosPublic.post("/auth/re-send-verify-email", { token });
   },
+
   logout: () => {
     return axiosWithToken.post("/auth/logout");
   },
+
   getMe: async (): Promise<ResponseResult<GetMeResponseData | null>> => {
     return await axiosWithToken.post("/auth/me");
   },
+
   refreshToken: async (): Promise<
     ResponseResult<RefreshTokenResponse | null>
   > => {

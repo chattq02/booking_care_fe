@@ -3,7 +3,7 @@ import {
   useGetTreeDepartment,
 } from "./hooks/use-specialty";
 import type { ColumnsType } from "antd/es/table";
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDepartment } from "./type";
 import {
@@ -76,7 +76,11 @@ export default function Specialty() {
         <DropdownMenu>
           {record.children?.length === 0 ? (
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-9 w-9 p-0 cursor-pointer">
+              <Button
+                variant="ghost"
+                className="h-9 w-9 p-0 cursor-pointer"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreHorizontal size={30} />
               </Button>
             </DropdownMenuTrigger>
@@ -86,7 +90,12 @@ export default function Specialty() {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleUpdate(record)}>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                handleUpdate(record);
+              }}
+            >
               <ButtonAnt
                 icon={<Pen size={15} className="mt-1" />}
                 color="primary"
@@ -96,7 +105,12 @@ export default function Specialty() {
                 Chỉnh sửa
               </ButtonAnt>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleDelete(record.id ?? 0)}>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(record.id ?? 0);
+              }}
+            >
               <ButtonAnt
                 icon={<Trash size={15} className="mt-1" />}
                 color="danger"
@@ -111,18 +125,6 @@ export default function Specialty() {
       ),
     },
   ];
-
-  const expandedKeys = useMemo(() => {
-    const getKeys = (nodes: ResponseDepartment[]): React.Key[] => {
-      return nodes
-        .flatMap((node) => [
-          node.id, // có thể undefined
-          ...(node.children ? getKeys(node.children) : []),
-        ])
-        .filter((key): key is React.Key => key !== undefined); // loại bỏ undefined
-    };
-    return getKeys(listSpecialty?.data ?? []);
-  }, [listSpecialty?.data]);
 
   const handleAddNew = () => {
     modelDepartmentRef.current?.showModal({
@@ -149,15 +151,25 @@ export default function Specialty() {
         rowKey="id"
         loading={isLoading}
         customHeight={190}
+        onRow={(record) => ({
+          onClick: () => {
+            modelDepartmentRef.current?.showModal({
+              dataForm: record,
+              dataTree: formatTreeData(listSpecialty?.data ?? []),
+            });
+          },
+        })}
         expandable={{
-          expandedRowKeys: expandedKeys,
           defaultExpandAllRows: true,
           showExpandColumn: true,
           expandIcon: ({ expanded, onExpand, record }) =>
             record.children && record.children.length > 0 ? (
               <span
                 style={{ cursor: "pointer", marginRight: 8 }}
-                onClick={(e) => onExpand(record, e)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onExpand(record, e);
+                }}
               >
                 {expanded ? <MinusSquareOutlined /> : <PlusSquareOutlined />}
               </span>
@@ -165,7 +177,7 @@ export default function Specialty() {
               <span style={{ display: "inline-block", width: 16 }} />
             ),
         }}
-        className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
+        className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-cell]:hover:underline [&_.ant-table-cell]:cursor-pointer [&_.ant-table-thead_.ant-table-cell]:py-3!"
         rowClassName={(record) => (!record.parentId ? "bg-[#f0f9ff]" : "")}
       />
       <ModalDepartment ref={modelDepartmentRef} />

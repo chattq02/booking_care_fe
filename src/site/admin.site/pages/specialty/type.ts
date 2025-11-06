@@ -6,7 +6,7 @@ export interface ResponseDepartment {
 
   parent?: ResponseDepartment | null; // Đối tượng cha
   children?: ResponseDepartment[]; // Danh sách phòng ban con
-
+  imageUrl?: string | null; // Đường dẫn hình ảnh
   createdAt?: Date; // Ngày tạo
   updatedAt?: Date; // Ngày cập nhật
 }

@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 import {
   Collapsible,
@@ -14,7 +15,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 
 export function NavMain({
@@ -34,12 +34,18 @@ export function NavMain({
   }[];
 }) {
   const nav = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
-    <>
-      <SidebarGroup>
-        <SidebarMenu>
-          {items.map((item) => (
-            <>
+    <SidebarGroup>
+      <SidebarMenu>
+        {items.map((item) => {
+          const hasChildren = (item.items?.length ?? 0) > 0;
+          const isActiveLink = currentPath === item.url;
+
+          return (
+            <div key={item.title}>
               <Collapsible
                 key={item.title}
                 asChild
@@ -51,44 +57,61 @@ export function NavMain({
                   <CollapsibleTrigger asChild>
                     <SidebarMenuButton
                       tooltip={item.title}
-                      onClick={() => nav(item.url)}
+                      onClick={() => {
+                        if (!hasChildren) nav(item.url);
+                      }}
+                      className={`flex items-center gap-2 hover:bg-muted mb-2 ${
+                        isActiveLink
+                          ? "bg-[#9afaeb] text-primary font-bold"
+                          : "hover:bg-muted"
+                      }`}
                     >
                       <div>{item.icon}</div>
                       <span className="text-[16px] font-bold">
                         {item.title}
                       </span>
-                      {(item.items?.length ?? 0) > 0 && (
+                      {hasChildren && (
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                       )}
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.name}>
-                          <SidebarMenuSubButton
-                            asChild
-                            className="h-10 px-4 gap-3 cursor-pointer"
-                            onClick={() => nav(subItem.link)}
-                          >
-                            <div>
-                              <div>{subItem.icon}</div>
-                              <span className="text-[14px] font-bold">
-                                {subItem.name}
-                              </span>
-                            </div>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
+
+                  {hasChildren && (
+                    <CollapsibleContent>
+                      <SidebarMenuSub className="mb-2">
+                        {item?.items?.map((subItem) => {
+                          const isActiveSub = currentPath === subItem.link;
+                          return (
+                            <SidebarMenuSubItem key={subItem.name}>
+                              <SidebarMenuSubButton
+                                asChild
+                                className={`h-10 px-4 gap-3 cursor-pointer ${
+                                  isActiveSub
+                                    ? "bg-[#9afaeb] text-primary font-bold"
+                                    : "hover:bg-muted"
+                                }`}
+                                onClick={() => nav(subItem.link)}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div>{subItem.icon}</div>
+                                  <span className="text-[14px] font-semibold">
+                                    {subItem.name}
+                                  </span>
+                                </div>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          );
+                        })}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  )}
                 </SidebarMenuItem>
               </Collapsible>
-              <Separator className=" data-[orientation=vertical]:h-1" />
-            </>
-          ))}
-        </SidebarMenu>
-      </SidebarGroup>
-    </>
+              <Separator className="data-[orientation=vertical]:h-1" />
+            </div>
+          );
+        })}
+      </SidebarMenu>
+    </SidebarGroup>
   );
 }
