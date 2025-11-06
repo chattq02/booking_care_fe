@@ -44,7 +44,6 @@ const ModalDepartment = forwardRef<ModalDepartmentRef>((_, ref) => {
   const [treeData, setTreeData] = useState<ResponseDepartment[]>([]);
   const [loading, setLoading] = useAtom(loadingAtom);
 
-  const uploadFile = async (file: File) => {};
   const create = useCreateDepartment({
     onSuccessCallback: () => {
       setLoading(false);

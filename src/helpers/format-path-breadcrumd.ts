@@ -13,6 +13,7 @@ export function formatSlug(slug: string) {
     "lich-kham": "Lịch khám",
     "ham-vi": "Hàm vị - học vị",
     "chuyen-khoa": "Chuyên khoa",
+    "co-so-y-te": "Cơ sở y tế",
   };
 
   return (

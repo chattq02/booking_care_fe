@@ -7,4 +7,5 @@ export const PATH_ROUTE_ADMIN = {
   MEDICAL_SCHEDULE: "/lich-kham",
   ACADEMIC_TITLE: "/ham-vi",
   SPECIALTY: "/chuyen-khoa",
+  MEDICAL_FACILITY: "/co-so-y-te",
 } as const;

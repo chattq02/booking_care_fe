@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Cơ sở y tế",
           icon: <MapPin size={20} />,
-          link: PATH_ROUTE.SPECIALISTEXAMINATION,
+          link: PATH_ROUTE_ADMIN.MEDICAL_FACILITY,
         },
         {
           name: "Hàm vị, học vị",
