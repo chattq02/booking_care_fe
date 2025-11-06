@@ -77,10 +77,10 @@ export default function MedicalFacility() {
         key: "name",
         render: (text, record) => (
           <Flex align="center" gap={8}>
-            <AvatarUI>
+            {/* <AvatarUI>
               <AvatarImage src={record.imageUrl || ""} alt={text} />
               <AvatarFallback>CN</AvatarFallback>
-            </AvatarUI>
+            </AvatarUI> */}
             <div style={{ whiteSpace: "pre-wrap" }}>{text}</div>
           </Flex>
         ),
@@ -124,7 +124,7 @@ export default function MedicalFacility() {
       },
       {
         width: 80,
-        fixed: "right",
+        // fixed: "right",
         align: "center",
         title: "",
         key: "action",
@@ -182,7 +182,6 @@ export default function MedicalFacility() {
         loading={isLoading}
         onChange={handleTableChange}
         className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
-        virtual
       />
       {/* <ModalAcademic ref={modelAcademicRef} /> */}
     </div>

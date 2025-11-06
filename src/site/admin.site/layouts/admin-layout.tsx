@@ -9,15 +9,9 @@ import { NavUser } from "../ui/nav-user";
 import { Bell, MessageSquare } from "lucide-react";
 import { BreadcrumbPath } from "../components/bread-crumb-path";
 import { AppSidebar } from "../ui/app-sidebar";
-import { useAtomValue } from "jotai";
-import { userAtom } from "@/stores/auth";
 import LoadingProvider from "@/layouts/loading";
-import { message } from "antd";
 
 export default function AdminLayout() {
-  const user = useAtomValue(userAtom);
-  const [_, contextHolder] = message.useMessage();
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -39,19 +33,12 @@ export default function AdminLayout() {
               <div>
                 <Bell size={20} className="block" />
               </div>
-              <NavUser
-                user={{
-                  name: user?.fullName ?? "",
-                  email: user?.email ?? "",
-                  avatar: "",
-                }}
-              />
+              <NavUser />
             </div>
           </div>
         </header>
         <div className="@container/main bg-[#f3f5f7] flex flex-1 flex-col">
           <LoadingProvider>
-            {contextHolder}
             <Outlet />
           </LoadingProvider>
         </div>

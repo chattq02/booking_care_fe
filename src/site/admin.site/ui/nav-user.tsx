@@ -23,18 +23,12 @@ import { useMutation } from "@tanstack/react-query";
 import { logOut } from "@/hooks/use-auth";
 import { clearTokens } from "@/lib/actions/auth";
 import { toast } from "sonner";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { loadingAtom } from "@/stores/loading";
+import { userAtom } from "@/stores/auth";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser() {
+  const user = useAtomValue(userAtom);
   const nav = useNavigate();
   const getFirstLetter = (str: string) => {
     if (!str) return "";
@@ -45,11 +39,11 @@ export function NavUser({
   const avatar = useMemo(() => {
     return (
       <Avatar>
-        <AvatarImage src={user.avatar} alt={user.name} />
-        <AvatarFallback>{getFirstLetter(user.name)}</AvatarFallback>
+        <AvatarImage src={user?.fullName ?? ""} alt={user?.fullName} />
+        <AvatarFallback>{getFirstLetter(user?.fullName ?? "")}</AvatarFallback>
       </Avatar>
     );
-  }, [user.avatar, user.name]);
+  }, [user?.fullName]);
 
   const mutation = useMutation({
     mutationFn: logOut,
@@ -79,8 +73,8 @@ export function NavUser({
             >
               {avatar}
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{user?.fullName ?? ""}</span>
+                <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -95,8 +89,8 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 {avatar}
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{user?.fullName}</span>
+                  <span className="truncate text-xs">{user?.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
