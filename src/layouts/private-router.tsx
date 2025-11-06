@@ -6,6 +6,7 @@ import { useSetAtom } from "jotai";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/pages/auth/hooks/useAuth";
 import { useEffect } from "react";
+import { Spin } from "antd";
 
 export default function GuardRouteLayout({
   auth = false,
@@ -18,7 +19,7 @@ export default function GuardRouteLayout({
   const isAuth = !!token;
 
   // 🧠 Dùng React Query để gọi getProfile
-  const { data: user, isError } = useQuery({
+  const { data: user, isError, isLoading } = useQuery({
     queryKey: ["me"],
     queryFn: getProfile,
     enabled: isAuth,
@@ -33,6 +34,15 @@ export default function GuardRouteLayout({
       setUser(null);
     }
   }, [user, isError, setUser]);
+
+
+  if (auth && isAuth && isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   // 🔄 Nếu route yêu cầu login mà chưa có token hoặc lỗi token → về login
   if (auth && (!isAuth || isError)) {

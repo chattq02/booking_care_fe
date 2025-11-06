@@ -6,7 +6,7 @@ import type {
   ResponseResult,
 } from "@/lib/axios/axios-type";
 import type { IParams } from "@/types/params";
-import type { ResponseMedicalFacility } from "../pages/medical-schedule/type";
+import type { ResponseMedicalFacility } from "../pages/medical-facility/type";
 
 const medicalFacilityAdmin = {
   /**
@@ -15,12 +15,11 @@ const medicalFacilityAdmin = {
   getList: async (
     params?: IParams
   ): Promise<ResponseParamsResult<ResponseMedicalFacility[]>> => {
-    const result = await axiosWithToken.get("/admin/medical-facility", {
+    return await axiosWithToken.get("/admin/medical-facility", {
       params: {
         ...params,
       },
-    });
-    return result.data;
+    });;
   },
 
   /**

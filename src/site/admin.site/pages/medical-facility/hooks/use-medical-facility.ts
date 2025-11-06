@@ -5,7 +5,8 @@ import { loadingAtom } from "@/stores/loading";
 
 import type { IParams } from "@/types/params";
 import medicalFacilityAdmin from "@/site/admin.site/apis/medical-facility";
-import type { ResponseMedicalFacility } from "../../medical-schedule/type";
+import type { ResponseMedicalFacility } from "../type";
+
 
 interface UseCreateMedicalFacilityOptions {
   onSuccessCallback?: () => void;
@@ -16,7 +17,10 @@ interface UseCreateMedicalFacilityOptions {
 export const useGetListMedicalFacility = (params: IParams, enabled = true) => {
   return useQuery({
     queryKey: ["medicalFacilities", params],
-    queryFn: () => medicalFacilityAdmin.getList(params),
+    queryFn: async () => {
+      const result = await medicalFacilityAdmin.getList(params)
+      return result.data
+    },
     enabled,
   });
 };

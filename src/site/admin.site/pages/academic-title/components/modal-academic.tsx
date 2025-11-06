@@ -117,6 +117,7 @@ const ModalAcademic = forwardRef<ModalAcademicRef>((_, ref) => {
             label="Tên học vị"
             validateStatus={errors.name ? "error" : ""}
             help={errors.name?.message}
+            required
           >
             <Controller
               name="name"

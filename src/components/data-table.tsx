@@ -9,18 +9,18 @@ interface GenericTableProps<T> extends TableProps<T> {
 
 export function DataGrid<T>({
   data,
-  customHeight = 245,
+  customHeight = 250,
   ...rest
 }: GenericTableProps<T>) {
   const { height: tableHeight } = useWindowSize();
 
   return (
     <Table<T>
-      dataSource={data}
-      scroll={{ y: tableHeight - customHeight, x: 500 }}
-      bordered
-      style={{ maxHeight: tableHeight - customHeight }}
       {...rest}
+      dataSource={data}
+      scroll={{ y: tableHeight - customHeight, x: 'max-content' }}
+      bordered
+
     />
   );
 }
