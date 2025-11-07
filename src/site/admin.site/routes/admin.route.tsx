@@ -1,15 +1,21 @@
 import NotFound from "@/site/NotFound";
 import AdminLayout from "../layouts/admin-layout";
-import Dashboard from "../pages/dashboard/dashboard";
-import InfoDoctor from "../pages/info-doctor/info-doctor";
+
 import type { RouteObject } from "react-router-dom";
 import Login from "../../../pages/auth/login/login";
 import GuardRouteLayout from "../../../layouts/private-router";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
-import MedicalSchedule from "../pages/medical-schedule/medical-schedule";
-import AcademicTitle from "../pages/academic-title/academic-title";
-import Specialty from "../pages/specialty/specialty";
-import MedicalFacility from "../pages/medical-facility/medical-facility";
+
+import { withSuspense } from "../layouts/with-suspense";
+import {
+  LazyAcademicTitle,
+  LazyDashboard,
+  LazyInfoDoctor,
+  LazyMedicalFacility,
+  LazyMedicalFacilityDetail,
+  LazyMedicalSchedule,
+  LazySpecialty,
+} from "./lazy-components";
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -22,25 +28,38 @@ export const adminRoutes: RouteObject[] = [
       {
         element: <AdminLayout />,
         children: [
-          { path: "/", element: <Dashboard /> },
-          { path: "/danh-sach-bac-si", element: <InfoDoctor /> },
+          {
+            path: "/",
+            element: withSuspense(LazyDashboard),
+          },
+          {
+            path: "/danh-sach-bac-si",
+            element: withSuspense(LazyInfoDoctor),
+          },
           {
             path: PATH_ROUTE_ADMIN.MEDICAL_SCHEDULE,
-            element: <MedicalSchedule />,
+            element: withSuspense(LazyMedicalSchedule),
           },
           {
             path: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
-            element: <AcademicTitle />,
+            element: withSuspense(LazyAcademicTitle),
           },
           {
             path: PATH_ROUTE_ADMIN.SPECIALTY,
-            element: <Specialty />,
+            element: withSuspense(LazySpecialty),
           },
           {
             path: PATH_ROUTE_ADMIN.MEDICAL_FACILITY,
-            element: <MedicalFacility />,
+            element: withSuspense(LazyMedicalFacility),
           },
-          { path: "*", element: <NotFound /> },
+          {
+            path: `${PATH_ROUTE_ADMIN.MEDICAL_FACILITY}/:id/:name`,
+            element: withSuspense(LazyMedicalFacilityDetail),
+          },
+          {
+            path: "*",
+            element: <NotFound />,
+          },
         ],
       },
     ],

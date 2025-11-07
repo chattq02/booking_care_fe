@@ -23,7 +23,7 @@ import { PATH_ROUTE } from "@/site/user.site/lib/enums/path";
 import { NavMain } from "./nav-main";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const nav = useNavigate();
 
   const navMain = [
@@ -95,3 +95,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   );
 }
+
+export default React.memo(AppSidebar);

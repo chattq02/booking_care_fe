@@ -6,7 +6,7 @@ import { loadingAtom } from "@/stores/loading";
 import type { IParams } from "@/types/params";
 import medicalFacilityAdmin from "@/site/admin.site/apis/medical-facility";
 import type { ResponseMedicalFacility } from "../type";
-
+import type { MedicalFacilityParams } from "../store/params";
 
 interface UseCreateMedicalFacilityOptions {
   onSuccessCallback?: () => void;
@@ -18,10 +18,27 @@ export const useGetListMedicalFacility = (params: IParams, enabled = true) => {
   return useQuery({
     queryKey: ["medicalFacilities", params],
     queryFn: async () => {
-      const result = await medicalFacilityAdmin.getList(params)
-      return result.data
+      const result = await medicalFacilityAdmin.getList(params);
+      return result.data;
     },
     enabled,
+    placeholderData: (prev) => prev,
+  });
+};
+
+// 🔹 Lấy danh sách cơ sở y tế (có phân trang, tìm kiếm)
+export const useGetListDoctorMedicalFacility = (
+  params: MedicalFacilityParams,
+  enabled = true
+) => {
+  return useQuery({
+    queryKey: ["ListDoctorMedicalFacility", params],
+    queryFn: async () => {
+      const result = await medicalFacilityAdmin.getListDoctors(params);
+      return result.data;
+    },
+    enabled,
+    placeholderData: (prev) => prev,
   });
 };
 

@@ -11,7 +11,7 @@ import type { ResponseDoctor } from "../../types/doctor";
 import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { DataGrid } from "@/components/data-table";
-import { MoreHorizontal, Trash } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import ModalUpload, { type ModalUploadRef } from "@/components/modal-upload";
 import SearchBox from "./components/search-box";
 import { doctorParamsAtom } from "./stores/params";
@@ -151,19 +151,6 @@ export default function InfoDoctor() {
     },
   ];
 
-  const rowSelection = {
-    onChange: (
-      selectedRowKeys: React.Key[],
-      selectedRows: ResponseDoctor[]
-    ) => {
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        "selectedRows: ",
-        selectedRows
-      );
-    },
-  };
-
   const handleTableChange = (pagination: any) => {
     setParam({
       ...param,
@@ -205,26 +192,18 @@ export default function InfoDoctor() {
           />
         </Flex>
         <Flex gap={14}>
+          <Button type="default" icon={<DownloadOutlined />} onClick={() => {}}>
+            Export excel
+          </Button>
+          <Button icon={<UploadOutlined />} onClick={handleImport}>
+            Import Excel
+          </Button>
           <Button
             icon={<PlusOutlined />}
             type="primary"
             onClick={() => setIsModalOpen(true)}
           >
             Thêm mới
-          </Button>
-          <Button
-            icon={<Trash size={15} className="mt-1" />}
-            color="danger"
-            variant="outlined"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Xóa
-          </Button>
-          <Button type="default" icon={<DownloadOutlined />} onClick={() => {}}>
-            Export excel
-          </Button>
-          <Button icon={<UploadOutlined />} onClick={handleImport}>
-            Import Excel
           </Button>
         </Flex>
       </Flex>
@@ -241,14 +220,9 @@ export default function InfoDoctor() {
           position: ["bottomCenter"],
         }}
         rowKey="id"
-        rowSelection={{
-          type: "checkbox",
-          fixed: true,
-          columnWidth: 40,
-          ...rowSelection,
-        }}
         loading={isLoading}
         onChange={handleTableChange}
+        className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
       />
 
       <ModalUpload ref={modalRef} />
@@ -261,23 +235,23 @@ export default function InfoDoctor() {
       >
         <Form form={form} layout="vertical" onFinish={handleAdd}>
           <Form.Item
-            name="name"
-            label="Tên"
-            rules={[{ required: true, message: "Nhập tên!" }]}
+            name="email"
+            label="Email"
+            rules={[{ required: true, message: "Nhập email!" }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
-            name="age"
-            label="Tuổi"
-            rules={[{ required: true, message: "Nhập tuổi!" }]}
+            name="name"
+            label="Tên"
+            rules={[{ required: true, message: "Nhập tên" }]}
           >
-            <Input type="number" />
+            <Input />
           </Form.Item>
 
           <Form.Item>
             <Button htmlType="submit" type="primary" block>
-              Thêm
+              Mời
             </Button>
           </Form.Item>
         </Form>

@@ -80,7 +80,9 @@ export function NavMain({
                     <CollapsibleContent>
                       <SidebarMenuSub className="mb-2">
                         {item?.items?.map((subItem) => {
-                          const isActiveSub = currentPath === subItem.link;
+                          const isActiveSub = currentPath.includes(
+                            subItem.link
+                          );
                           return (
                             <SidebarMenuSubItem key={subItem.name}>
                               <SidebarMenuSubButton

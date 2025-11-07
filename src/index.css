@@ -1,0 +1,16 @@
+/* Thêm vào file CSS global hoặc component */
+.custom-data-grid .ant-table-container {
+  max-height: calc(100vh - 200px) !important;
+  overflow: auto !important;
+}
+
+.custom-data-grid .ant-table-body {
+  overflow: auto !important;
+}
+
+.sidebar-trigger {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+  will-change: transform;
+}

@@ -7,6 +7,8 @@ import type {
 } from "@/lib/axios/axios-type";
 import type { IParams } from "@/types/params";
 import type { ResponseMedicalFacility } from "../pages/medical-facility/type";
+import type { MedicalFacilityParams } from "../pages/medical-facility/store/params";
+import type { ResponseDoctor } from "../types/doctor";
 
 const medicalFacilityAdmin = {
   /**
@@ -19,7 +21,7 @@ const medicalFacilityAdmin = {
       params: {
         ...params,
       },
-    });;
+    });
   },
 
   /**
@@ -48,6 +50,23 @@ const medicalFacilityAdmin = {
    */
   delete: (id: number) => {
     return axiosWithToken.delete(`/admin/medical-facility/${id}`);
+  },
+
+  /**
+   * lấy thông tin bác sĩ
+   */
+
+  getListDoctors: async (
+    params?: MedicalFacilityParams
+  ): Promise<ResponseParamsResult<ResponseDoctor[]>> => {
+    return await axiosWithToken.get(
+      `/admin/medical-facility/${params?.id}/users`,
+      {
+        params: {
+          ...params,
+        },
+      }
+    );
   },
 };
 

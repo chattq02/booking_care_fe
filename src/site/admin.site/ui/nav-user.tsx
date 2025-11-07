@@ -26,14 +26,12 @@ import { toast } from "sonner";
 import { useAtomValue, useSetAtom } from "jotai";
 import { loadingAtom } from "@/stores/loading";
 import { userAtom } from "@/stores/auth";
+import { getFirstLetter } from "@/helpers/helper";
 
 export function NavUser() {
   const user = useAtomValue(userAtom);
   const nav = useNavigate();
-  const getFirstLetter = (str: string) => {
-    if (!str) return "";
-    return str.trim().charAt(0).toUpperCase();
-  };
+
   const setLoad = useSetAtom(loadingAtom);
 
   const avatar = useMemo(() => {
@@ -73,7 +71,9 @@ export function NavUser() {
             >
               {avatar}
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user?.fullName ?? ""}</span>
+                <span className="truncate font-medium">
+                  {user?.fullName ?? ""}
+                </span>
                 <span className="truncate text-xs">{user?.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />

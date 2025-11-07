@@ -9,17 +9,26 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
 import { formatSlug } from "@/helpers/format-path-breadcrumd";
+import { without } from "lodash";
 
 export function BreadcrumbPath() {
   const location = useLocation(); // ✅ Theo dõi URL động
   const paths = location.pathname.split("/").filter(Boolean);
+  const params = useParams();
+  const { id } = params;
 
+  const result = without(paths, id);
   const generateHref = (index: number) =>
-    "/" + paths.slice(0, index + 1).join("/");
+    "/" + result.slice(0, index + 1).join("/");
   const nav = useNavigate();
+  const getDisplayLabel = (segment: string) => {
+    const baseLabel = formatSlug(segment);
+
+    return baseLabel;
+  };
 
   return (
     <Breadcrumb>
@@ -37,10 +46,10 @@ export function BreadcrumbPath() {
         </BreadcrumbItem>
 
         {/* Các path động */}
-        {paths.map((segment, index) => {
+        {result.map((segment, index) => {
           const href = generateHref(index);
-          const isLast = index === paths.length - 1;
-          const label = formatSlug(segment); // 👈 xử lý đẹp slug
+          const isLast = index === result.length - 1;
+          const label = getDisplayLabel(decodeURIComponent(segment ?? ""));
 
           return (
             <React.Fragment key={href}>
