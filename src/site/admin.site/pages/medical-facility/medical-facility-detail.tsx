@@ -2,7 +2,6 @@ import React, { useRef, useEffect, useState } from "react";
 import { Menu, Switch, Avatar } from "antd";
 
 import {
-  UserOutlined,
   LockOutlined,
   KeyOutlined,
   BellOutlined,
@@ -10,23 +9,21 @@ import {
 } from "@ant-design/icons";
 import InfoBasic from "./components/info-basic";
 import ListDoctor from "./components/list-doctor";
+import ScheduleFacility from "./components/schedule-facility";
+import SpecialtyFacility from "./components/specialty-facility";
 
 type SectionKey =
   | "profile"
-  | "basic"
-  | "password"
+  | "scheduleFacility"
   | "listDoctor"
-  | "notifications"
-  | "delete";
+  | "specialtyFacility";
 
 const LazyMedicalFacilityDetail: React.FC = () => {
   // refs cho mỗi section (consistently typed)
   const profileRef = useRef<HTMLDivElement | null>(null);
-  const basicRef = useRef<HTMLDivElement | null>(null);
-  const passwordRef = useRef<HTMLDivElement | null>(null);
+  const scheduleFacilityRef = useRef<HTMLDivElement | null>(null);
   const listDoctorRef = useRef<HTMLDivElement | null>(null);
-  const notificationsRef = useRef<HTMLDivElement | null>(null);
-  const deleteRef = useRef<HTMLDivElement | null>(null);
+  const specialtyFacilityRef = useRef<HTMLDivElement | null>(null);
 
   // mapping cho menu -> ref
   const sectionRefs: Record<
@@ -34,11 +31,9 @@ const LazyMedicalFacilityDetail: React.FC = () => {
     React.RefObject<HTMLDivElement | null>
   > = {
     profile: profileRef,
-    basic: basicRef,
-    password: passwordRef,
+    scheduleFacility: scheduleFacilityRef,
     listDoctor: listDoctorRef,
-    notifications: notificationsRef,
-    delete: deleteRef,
+    specialtyFacility: specialtyFacilityRef,
   };
 
   // state active menu (scrollspy)
@@ -56,37 +51,31 @@ const LazyMedicalFacilityDetail: React.FC = () => {
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  // Scroll-spy: IntersectionObserver để setActiveKey khi section hiển thị
+  // Thay thế useEffect với logic đơn giản hơn
   useEffect(() => {
-    const observerOptions: IntersectionObserverInit = {
-      root: null,
-      // rootMargin cho vùng active (tùy chỉnh để phù hợp UX)
-      // ví dụ: phần tử xuất hiện trong vùng 20% từ top -> active
-      rootMargin: "-20% 0px -60% 0px",
-      threshold: 0,
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + 50; // Offset cho header
+
+      // Tìm section nào đang ở gần top nhất
+      const sections = Object.entries(sectionRefs).map(([key, ref]) => ({
+        key: key as SectionKey,
+        offsetTop: ref.current?.offsetTop || 0,
+        height: ref.current?.offsetHeight || 0,
+      }));
+
+      const currentSection = sections.reduce((prev, curr) => {
+        return Math.abs(curr.offsetTop - scrollPosition) <
+          Math.abs(prev.offsetTop - scrollPosition)
+          ? curr
+          : prev;
+      });
+
+      setActiveKey(currentSection.key);
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((e) => e.isIntersecting)
-        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-
-      if (visible.length > 0) {
-        const id = visible[0].target.getAttribute(
-          "data-section"
-        ) as SectionKey | null;
-        if (id) setActiveKey(id);
-      }
-    }, observerOptions);
-
-    // observe only elements that exist
-    Object.values(sectionRefs).forEach((r) => {
-      if (r.current) observer.observe(r.current);
-    });
-
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // chỉ chạy 1 lần
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const onMenuClick = ({ key }: { key: string }) => {
     const k = key as SectionKey;
@@ -100,50 +89,8 @@ const LazyMedicalFacilityDetail: React.FC = () => {
       className="flex w-full gap-5"
       style={{ padding: "5px 20px", marginBottom: "15px" }}
     >
-      {/* Sidebar - sticky */}
-      <aside>
-        <div
-          className="bg-white rounded-md shadow-sm p-3 w-[250px]"
-          style={{ position: "sticky", top: 85 }}
-        >
-          <Menu
-            mode="vertical"
-            className="border-0!"
-            selectedKeys={[activeKey]}
-            onClick={onMenuClick}
-            items={[
-              {
-                key: "profile",
-                icon: <UserOutlined />,
-                label: "Thông tin cơ sở",
-              },
-              {
-                key: "basic",
-                icon: <SettingOutlined />,
-                label: "Chỉnh sửa thông tin",
-              },
-              {
-                key: "password",
-                icon: <LockOutlined />,
-                label: "Lịch khám",
-              },
-              {
-                key: "listDoctor",
-                icon: <KeyOutlined />,
-                label: "Danh sách bác sĩ",
-              },
-              {
-                key: "notifications",
-                icon: <BellOutlined />,
-                label: "Chuyên khoa",
-              },
-            ]}
-          />
-        </div>
-      </aside>
-
       {/* Main content */}
-      <main className="flex-1">
+      <div className="flex-1 overflow-x-auto">
         {/* Header / Avatar */}
         <div className="flex flex-col w-full gap-4 mt-[16.5px]">
           <div
@@ -164,10 +111,49 @@ const LazyMedicalFacilityDetail: React.FC = () => {
             </div>
           </div>
 
-          <InfoBasic ref={basicRef} />
+          <InfoBasic ref={profileRef} />
           <ListDoctor ref={listDoctorRef} />
+          <SpecialtyFacility ref={specialtyFacilityRef} />
+          <ScheduleFacility ref={scheduleFacilityRef} />
         </div>
-      </main>
+      </div>
+
+      {/* Sidebar - sticky */}
+      <aside>
+        <div
+          className="bg-white rounded-md shadow-sm p-3 w-[220px]"
+          style={{ position: "sticky", top: 85 }}
+        >
+          <Menu
+            mode="vertical"
+            className="border-0!"
+            selectedKeys={[activeKey]}
+            onClick={onMenuClick}
+            items={[
+              {
+                key: "profile",
+                icon: <SettingOutlined />,
+                label: "Thông tin",
+              },
+              {
+                key: "listDoctor",
+                icon: <KeyOutlined />,
+                label: "Danh sách bác sĩ",
+              },
+              {
+                key: "specialtyFacility",
+                icon: <BellOutlined />,
+                label: "Chuyên khoa",
+              },
+              {
+                key: "scheduleFacility",
+                icon: <LockOutlined />,
+                label: "Lịch làm việc",
+              },
+            ]}
+          />
+        </div>
+      </aside>
     </div>
   );
 };

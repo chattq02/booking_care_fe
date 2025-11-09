@@ -1,7 +1,7 @@
 import { DataGrid } from "@/components/data-table";
 import { useAtom, useSetAtom } from "jotai";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import { Flex, message, Select, Tag } from "antd";
+import { Flex, message, Select, Tag, Avatar } from "antd";
 import SearchBox from "../info-doctor/components/search-box";
 import {
   DropdownMenu,
@@ -89,7 +89,6 @@ const AvatarWithName = memo(
 
 export default function MedicalFacility() {
   const [param, setParam] = useAtom(medicalFacilitiesParamsAtom);
-  const [messageApi, contextHolder] = message.useMessage();
   const { data: listMedical, isLoading } = useGetListMedicalFacility(param);
   const setLoading = useSetAtom(loadingAtom);
   const nav = useNavigate();
@@ -193,7 +192,6 @@ export default function MedicalFacility() {
 
   return (
     <div style={{ padding: "15px 20px" }}>
-      {contextHolder}
       <Flex style={{ marginBottom: 12 }} gap={14} justify="space-between" wrap>
         <Flex gap={14}>
           <SearchBox
@@ -228,7 +226,7 @@ export default function MedicalFacility() {
         <ButtonAnt
           icon={<PlusOutlined />}
           type="primary"
-          // onClick={() => modelAcademicRef.current?.showModal()}
+        // onClick={() => modelAcademicRef.current?.showModal()}
         >
           Thêm mới
         </ButtonAnt>

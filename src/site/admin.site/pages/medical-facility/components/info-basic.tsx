@@ -37,10 +37,10 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
   };
 
   return (
-    <div ref={ref} data-section="basic" className="bg-white rounded-md p-5.5">
-      <Flex gap={10}>
+    <div ref={ref} className="bg-white rounded-md p-5.5" data-section="profile">
+      <Flex gap={10} align="center" className="mb-5!">
         <div className="h-6 w-[5px] bg-amber-200 rounded" />
-        <h3 className="text-xl font-semibold mb-2">Chỉnh sửa thông tin</h3>
+        <h3 className="text-xl font-semibold">Chỉnh sửa thông tin</h3>
       </Flex>
 
       <Form
@@ -94,17 +94,25 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
               </Form.Item>
             )}
           />
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Form.Item label="Link web">
+                <Input {...field} />
+              </Form.Item>
+            )}
+          />
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Form.Item label="Địa chỉ">
+                <TextArea {...field} rows={2} />
+              </Form.Item>
+            )}
+          />
         </div>
-
-        <Controller
-          name="phone"
-          control={control}
-          render={({ field }) => (
-            <Form.Item label="Địa chỉ">
-              <TextArea {...field} rows={2} />
-            </Form.Item>
-          )}
-        />
 
         {/* ✅ SunEditor thay cho TinyMCE */}
         <Controller
@@ -115,11 +123,11 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
               <SunEditor
                 setContents={field.value}
                 onChange={(content) => field.onChange(content)}
-                height="250px"
+                height="300px"
                 setOptions={{
                   buttonList: [
                     ["undo", "redo"],
-                    ["bold", "italic", "underline"],
+                    ["bold", "italic", "underline", "fontSize"],
                     ["fontColor", "hiliteColor"],
                     [
                       "align",
@@ -132,7 +140,11 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
                     ],
                     ["removeFormat"],
                   ],
+                  fontSize: [
+                    8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72, 96,
+                  ],
                   defaultTag: "div",
+                  defaultStyle: "font-size: 18px;",
                 }}
               />
             </Form.Item>

@@ -46,13 +46,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           link: PATH_ROUTE.DOCTORS,
         },
         {
-          name: "Tiêm chủng",
+          name: "Gói khám",
           icon: <Syringe size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
-        },
-        {
-          name: "Xét nghiệm",
-          icon: <TestTubeDiagonal size={20} />,
           link: PATH_ROUTE.GENERALEXAMINATION,
         },
         {
@@ -75,22 +70,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <div className="flex justify-center">
-          <Calendar
-            mode="single"
-            captionLayout="dropdown"
-            className="w-full"
-            locale={vi}
-            classNames={{
-              today: "bg-[#01aaa8] text-white rounded-sm",
-            }}
-          />
-        </div>
-        <SidebarSeparator className="mx-0" />
-        <div className="px-4 flex-col space-y-3">
-          <DialogCreateAppointment />
-        </div>
-        <SidebarSeparator className="mx-0" />
         <SidebarMenuButton className="h-10 px-4 gap-2 cursor-pointer">
           <div>
             <BookPlus size={20} />

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 export default function Dashboard() {
   const [range, setRange] = useState<DateRange | undefined>();
   return (
-    <div className="flex flex-col flex-1 gap-4 h-10 py-5 lg:px-20 md:px-10 px-5">
+    <div className="flex flex-col flex-1 gap-4 h-10 py-5 px-5">
       <div className="bg-white rounded-lg p-2.5 w-fit flex gap-4 mx-auto flex-wrap justify-center">
         <SelectV1
           items={[

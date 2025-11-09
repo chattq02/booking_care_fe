@@ -15,32 +15,20 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { Button as ButtonUI } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { useParams } from "react-router-dom";
 
-interface IProps {}
 
-const ListDoctor = forwardRef<HTMLDivElement, IProps>(({}, ref) => {
+interface IProps { }
+
+const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ }, ref) => {
+  const { id } = useParams()
   const { data: listDoctors, isLoading } = useGetListDoctorMedicalFacility({
-    id: 54,
+    id: Number(id),
     keyword: "",
     page: 1,
-    per_page: 10,
+    per_page: 50,
   });
 
-  const ConditionalTooltip: React.FC<{
-    text: string;
-    maxLength: number;
-    children: React.ReactElement;
-  }> = ({ text, maxLength, children }) => {
-    if (!text || text.length <= maxLength) {
-      return children;
-    }
-
-    return (
-      <Tooltip placement="right" title={text}>
-        {children}
-      </Tooltip>
-    );
-  };
   const columns: ColumnsType<ResponseDoctor> = [
     {
       title: "Id",
@@ -54,17 +42,20 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({}, ref) => {
       key: "fullName",
     },
     {
+      width: 180,
       title: "Email",
       dataIndex: "email",
       key: "email",
     },
     {
+      width: 180,
       title: "CCCD",
       dataIndex: "cccd",
       key: "cccd",
       ellipsis: true,
     },
     {
+      width: 180,
       title: "Điện thoại",
       dataIndex: "phone",
       key: "phone",
@@ -130,10 +121,10 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({}, ref) => {
     },
   ];
   return (
-    <div ref={ref} data-section="basic" className="bg-white rounded-md p-5.5">
-      <Flex gap={10}>
+    <div ref={ref} data-section="listDoctor" className="bg-white rounded-md p-5.5">
+      <Flex gap={10} align='center' className='mb-5!'>
         <div className="h-6 w-[5px] bg-amber-200 rounded" />
-        <h3 className="text-xl font-semibold mb-2">Danh sách bác sĩ</h3>
+        <h3 className="text-xl font-semibold">Danh sách bác sĩ</h3>
       </Flex>
 
       <DataGrid<ResponseDoctor>
@@ -147,12 +138,14 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({}, ref) => {
           showTotal: (total) => `Tổng ${total} bản ghi`,
           position: ["bottomCenter"],
         }}
-        customScrollY={500}
-        customScrollX={100}
+        maxHeight={{
+          isMax: false,
+          customScrollY: 800
+        }}
         rowKey="id"
         loading={isLoading}
-        className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
       />
+
     </div>
   );
 });
