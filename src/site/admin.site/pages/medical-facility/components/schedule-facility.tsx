@@ -12,15 +12,17 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(({}, ref) => {
 
   return (
     <>
-      <div
-        ref={ref}
-        data-section="scheduleFacility"
-        className="bg-white rounded-md p-5.5"
-      >
+      <div className="bg-white rounded-md p-5.5">
         <Flex gap={10} align="center" justify="space-between" className="mb-5!">
           <Flex gap={10} align="center">
-            <div className="h-6 w-[5px] bg-amber-200 rounded" />
-            <h3 className="text-xl font-semibold">Thông tin lịch làm việc</h3>
+            <div className="h-6 w-[5px] bg-[#9afaeb] rounded" />
+            <h3
+              className="text-xl font-semibold"
+              ref={ref}
+              data-section="scheduleFacility"
+            >
+              Lịch làm việc
+            </h3>
           </Flex>
           <Button
             type="primary"

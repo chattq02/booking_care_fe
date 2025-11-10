@@ -1,17 +1,11 @@
-import React, { forwardRef, useImperativeHandle, useState } from "react";
-import {
-  Modal,
-  Button,
-  Form,
-  InputNumber,
-  TimePicker,
-  DatePicker,
-  Space,
-} from "antd";
+import { forwardRef, useImperativeHandle, useState } from "react";
+import { Modal, Button, Form, TimePicker, Space, Select, Flex } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-
-const { RangePicker } = DatePicker;
-const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+import {
+  ArrowRightOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 
 interface WorkTimeRange {
   start: string; // "HH:mm"
@@ -30,6 +24,8 @@ export interface HospitalScheduleRef {
 }
 
 interface IProps {}
+
+const { Option } = Select;
 
 export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
   ({}, ref) => {
@@ -67,8 +63,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         title="Cấu hình lịch làm việc bệnh viện"
         open={visible}
         onCancel={hideModal}
-        width={"80vw"}
-        style={{ top: 50 }}
+        width={500}
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
@@ -88,71 +83,134 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         <Form
           form={form}
           layout="vertical"
-          onFinish={onFinish}
-          initialValues={{ slotDuration: 30, workTime: {}, dayOff: [] }}
+          initialValues={{
+            dayOfWeek: "Thứ 2",
+            type: "Lịch khám",
+            start: dayjs("09:00", "HH:mm"),
+            end: dayjs("10:00", "HH:mm"),
+            slotCount: 1,
+            slotDuration: 30,
+            maxDay: 30,
+            active: true,
+          }}
         >
           <Form.Item
-            name="slotDuration"
-            label="Thời lượng mỗi slot (phút)"
-            rules={[{ required: true, message: "Nhập thời lượng slot" }]}
+            name="dayOfWeek"
+            label="Thứ trong tuần"
+            rules={[{ required: true, message: "Vui lòng chọn thứ" }]}
           >
-            <InputNumber min={5} max={240} />
+            <Select placeholder="Chọn thứ">
+              {[
+                "Thứ 2",
+                "Thứ 3",
+                "Thứ 4",
+                "Thứ 5",
+                "Thứ 6",
+                "Thứ 7",
+                "Chủ nhật",
+              ].map((day) => (
+                <Option key={day} value={day}>
+                  {day}
+                </Option>
+              ))}
+            </Select>
           </Form.Item>
 
-          <Form.Item label="Giờ làm việc hàng tuần">
-            {daysOfWeek.map((day) => (
-              <Form.Item
-                key={day}
-                label={day}
-                style={{ marginBottom: 8 }}
-                name={["workTime", day]}
-              >
-                <Space direction="vertical">
-                  <Form.List name={["workTime", day]}>
-                    {(fields, { add, remove }) => (
-                      <>
-                        {fields.map((field) => (
-                          <Space key={field.key}>
-                            <Form.Item
-                              {...field}
-                              name={[field.name, "start"]}
-                              rules={[{ required: true }]}
-                            >
-                              <TimePicker format="HH:mm" />
-                            </Form.Item>
-                            <Form.Item
-                              {...field}
-                              name={[field.name, "end"]}
-                              rules={[{ required: true }]}
-                            >
-                              <TimePicker format="HH:mm" />
-                            </Form.Item>
-                            <Button
-                              type="link"
-                              onClick={() => remove(field.name)}
-                            >
-                              Xóa
-                            </Button>
-                          </Space>
-                        ))}
-                        <Button
-                          type="dashed"
-                          onClick={() => add()}
-                          style={{ marginTop: 4 }}
-                        >
-                          Thêm khung giờ
-                        </Button>
-                      </>
-                    )}
-                  </Form.List>
-                </Space>
-              </Form.Item>
-            ))}
-          </Form.Item>
+          <Form.List name="workShifts">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map((field, _) => (
+                  <Flex
+                    key={field.key}
+                    align="center"
+                    gap={20}
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Form.Item
+                      {...field}
+                      name={[field.name, "session"]}
+                      label="Ca làm việc"
+                    >
+                      <Select
+                        placeholder="Chọn ca"
+                        style={{
+                          width: 120,
+                        }}
+                        disabled={true}
+                        options={[
+                          { value: "morning", label: "Ca sáng" },
+                          { value: "afternoon", label: "Ca chiều" },
+                          { value: "evening", label: "Ca tối" },
+                        ]}
+                      />
+                    </Form.Item>
 
-          <Form.Item name="dayOff" label="Ngày nghỉ bệnh viện">
-            <RangePicker />
-          </Form.Item>
+                    <Space align="center" style={{ flex: 1, width: "100%" }}>
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "start"]}
+                        label="Giờ bắt đầu"
+                        rules={[
+                          {
+                            required: true,
+                            message: "",
+                          },
+                        ]}
+                      >
+                        <TimePicker format="HH:mm" placeholder="HH:mm" />
+                      </Form.Item>
+
+                      <ArrowRightOutlined />
+
+                      <Form.Item
+                        {...field}
+                        name={[field.name, "end"]}
+                        label="Giờ kết thúc"
+                        rules={[
+                          {
+                            required: true,
+                            message: "",
+                          },
+                        ]}
+                      >
+                        <TimePicker format="HH:mm" placeholder="HH:mm" />
+                      </Form.Item>
+
+                      <Button
+                        danger
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        onClick={() => remove(field.name)}
+                      />
+                    </Space>
+                  </Flex>
+                ))}
+
+                {fields.length < 3 && (
+                  <Button
+                    type="dashed"
+                    icon={<PlusOutlined />}
+                    onClick={() =>
+                      add({
+                        session:
+                          fields.length === 0
+                            ? "morning"
+                            : fields.length === 1
+                            ? "afternoon"
+                            : "evening",
+                        start: null,
+                        end: null,
+                      })
+                    }
+                  >
+                    Thêm ca làm việc
+                  </Button>
+                )}
+              </>
+            )}
+          </Form.List>
         </Form>
       </Modal>
     );

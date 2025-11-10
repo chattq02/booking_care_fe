@@ -1,6 +1,6 @@
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
-import { Flex, Tag, Tooltip } from "antd";
+import { Flex, Tag } from "antd";
 import { forwardRef } from "react";
 import { useGetListDoctorMedicalFacility } from "../hooks/use-medical-facility";
 import {
@@ -15,15 +15,14 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { Button as ButtonUI } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { useParams } from "react-router-dom";
 
+interface IProps {
+  facilityId: number;
+}
 
-interface IProps { }
-
-const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ }, ref) => {
-  const { id } = useParams()
+const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
   const { data: listDoctors, isLoading } = useGetListDoctorMedicalFacility({
-    id: Number(id),
+    id: Number(facilityId),
     keyword: "",
     page: 1,
     per_page: 50,
@@ -121,10 +120,16 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ }, ref) => {
     },
   ];
   return (
-    <div ref={ref} data-section="listDoctor" className="bg-white rounded-md p-5.5">
-      <Flex gap={10} align='center' className='mb-5!'>
-        <div className="h-6 w-[5px] bg-amber-200 rounded" />
-        <h3 className="text-xl font-semibold">Danh sách bác sĩ</h3>
+    <div className="bg-white rounded-md p-5.5">
+      <Flex gap={10} align="center" className="mb-5!">
+        <div className="h-6 w-[5px] bg-[#9afaeb] rounded" />
+        <h3
+          className="text-xl font-semibold"
+          ref={ref}
+          data-section="listDoctor"
+        >
+          Danh sách bác sĩ
+        </h3>
       </Flex>
 
       <DataGrid<ResponseDoctor>
@@ -140,12 +145,11 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ }, ref) => {
         }}
         maxHeight={{
           isMax: false,
-          customScrollY: 800
+          customScrollY: 800,
         }}
         rowKey="id"
         loading={isLoading}
       />
-
     </div>
   );
 });

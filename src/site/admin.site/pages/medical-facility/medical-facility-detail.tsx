@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, Switch, Avatar } from "antd";
+import { useInView } from "react-intersection-observer";
 
 import {
   LockOutlined,
@@ -11,6 +12,7 @@ import InfoBasic from "./components/info-basic";
 import ListDoctor from "./components/list-doctor";
 import ScheduleFacility from "./components/schedule-facility";
 import SpecialtyFacility from "./components/specialty-facility";
+import { useParams } from "react-router-dom";
 
 type SectionKey =
   | "profile"
@@ -19,69 +21,124 @@ type SectionKey =
   | "specialtyFacility";
 
 const LazyMedicalFacilityDetail: React.FC = () => {
-  // refs cho mỗi section (consistently typed)
-  const profileRef = useRef<HTMLDivElement | null>(null);
-  const scheduleFacilityRef = useRef<HTMLDivElement | null>(null);
-  const listDoctorRef = useRef<HTMLDivElement | null>(null);
-  const specialtyFacilityRef = useRef<HTMLDivElement | null>(null);
+  const { id } = useParams();
+  // Sử dụng useInView cho mỗi tiêu đề section
+  const [profileTitleRef, profileInView] = useInView({
+    threshold: 0.1,
+    rootMargin: "-50px 0px 0px 0px",
+  });
 
-  // mapping cho menu -> ref
-  const sectionRefs: Record<
-    SectionKey,
-    React.RefObject<HTMLDivElement | null>
-  > = {
-    profile: profileRef,
-    scheduleFacility: scheduleFacilityRef,
-    listDoctor: listDoctorRef,
-    specialtyFacility: specialtyFacilityRef,
+  const [scheduleFacilityTitleRef, scheduleFacilityInView] = useInView({
+    threshold: 0.1,
+    rootMargin: "-90px 0px 0px 0px",
+  });
+
+  const [listDoctorTitleRef, listDoctorInView] = useInView({
+    threshold: 0.1,
+    rootMargin: "-90px 0px 0px 0px",
+  });
+
+  const [specialtyFacilityTitleRef, specialtyFacilityInView] = useInView({
+    threshold: 0.1,
+    rootMargin: "-90px 0px 0px 0px",
+  });
+
+  // Thêm các ref object để lưu trữ element thực tế
+  const profileElementRef = React.useRef<HTMLElement | null>(null);
+  const scheduleFacilityElementRef = React.useRef<HTMLElement>(null);
+  const listDoctorElementRef = React.useRef<HTMLElement>(null);
+  const specialtyFacilityElementRef = React.useRef<HTMLElement>(null);
+
+  // Callback ref kết hợp - vừa cho useInView vừa lưu element
+  const createCombinedRef = (
+    inViewRef: (node?: Element | null) => void,
+    elementRef: React.RefObject<HTMLElement>
+  ) => {
+    return (node: HTMLElement | null) => {
+      inViewRef(node);
+      if (node) {
+        elementRef.current = node;
+      }
+    };
   };
 
-  // state active menu (scrollspy)
+  const combinedProfileRef = createCombinedRef(
+    profileTitleRef,
+    profileElementRef as React.RefObject<HTMLElement>
+  );
+  const combinedScheduleFacilityRef = createCombinedRef(
+    scheduleFacilityTitleRef,
+    scheduleFacilityElementRef as React.RefObject<HTMLElement>
+  );
+  const combinedListDoctorRef = createCombinedRef(
+    listDoctorTitleRef,
+    listDoctorElementRef as React.RefObject<HTMLElement>
+  );
+  const combinedSpecialtyFacilityRef = createCombinedRef(
+    specialtyFacilityTitleRef,
+    specialtyFacilityElementRef as React.RefObject<HTMLElement>
+  );
+
+  // state active menu
   const [activeKey, setActiveKey] = useState<SectionKey>("profile");
 
-  // Hàm cuộn có offset (để tránh header sticky che)
-  const scrollToSection = (
-    ref: React.RefObject<HTMLDivElement>,
-    offset = 90
-  ) => {
-    const el = ref.current;
-    if (!el) return;
-    // offset dương: trừ đi offset (header height). Mặc định 90px, thay nếu header khác.
-    const y = el.getBoundingClientRect().top + window.pageYOffset - offset;
+  // Theo dõi section nào đang trong view
+  useEffect(() => {
+    const sections = [
+      { key: "profile" as SectionKey, inView: profileInView },
+      { key: "listDoctor" as SectionKey, inView: listDoctorInView },
+      {
+        key: "specialtyFacility" as SectionKey,
+        inView: specialtyFacilityInView,
+      },
+      { key: "scheduleFacility" as SectionKey, inView: scheduleFacilityInView },
+    ];
+
+    // Tìm section đầu tiên đang trong view
+    const firstInView = sections.find((section) => section.inView);
+    if (firstInView) {
+      setActiveKey(firstInView.key);
+    }
+  }, [
+    profileInView,
+    listDoctorInView,
+    specialtyFacilityInView,
+    scheduleFacilityInView,
+  ]);
+
+  // Hàm cuộn có offset
+  const scrollToSection = (element: HTMLElement, offset = 90) => {
+    const y = element.getBoundingClientRect().top + window.pageYOffset - offset;
     window.scrollTo({ top: y, behavior: "smooth" });
   };
 
-  // Thay thế useEffect với logic đơn giản hơn
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 50; // Offset cho header
-
-      // Tìm section nào đang ở gần top nhất
-      const sections = Object.entries(sectionRefs).map(([key, ref]) => ({
-        key: key as SectionKey,
-        offsetTop: ref.current?.offsetTop || 0,
-        height: ref.current?.offsetHeight || 0,
-      }));
-
-      const currentSection = sections.reduce((prev, curr) => {
-        return Math.abs(curr.offsetTop - scrollPosition) <
-          Math.abs(prev.offsetTop - scrollPosition)
-          ? curr
-          : prev;
-      });
-
-      setActiveKey(currentSection.key);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const onMenuClick = ({ key }: { key: string }) => {
-    const k = key as SectionKey;
-    setActiveKey(k);
-    // scroll với offset 90 (tùy chỉnh nếu header cao hơn/thấp hơn)
-    scrollToSection(sectionRefs[k] as React.RefObject<HTMLDivElement>, 90);
+    const sectionKey = key as SectionKey;
+
+    // Tìm element tương ứng và scroll đến
+    let targetElement: HTMLElement | null = null;
+
+    switch (sectionKey) {
+      case "profile":
+        targetElement = profileElementRef.current;
+        break;
+      case "listDoctor":
+        targetElement = listDoctorElementRef.current;
+        break;
+      case "specialtyFacility":
+        targetElement = specialtyFacilityElementRef.current;
+        break;
+      case "scheduleFacility":
+        targetElement = scheduleFacilityElementRef.current;
+        break;
+    }
+
+    if (targetElement) {
+      scrollToSection(targetElement, 100);
+    }
+
+    // Cập nhật active key ngay lập tức
+    setActiveKey(sectionKey);
   };
 
   return (
@@ -94,8 +151,8 @@ const LazyMedicalFacilityDetail: React.FC = () => {
         {/* Header / Avatar */}
         <div className="flex flex-col w-full gap-4 mt-[16.5px]">
           <div
-            ref={profileRef}
             data-section="profile"
+            ref={combinedProfileRef}
             className="bg-white rounded-md p-4 flex items-center justify-between"
           >
             <div className="flex items-center space-x-4">
@@ -111,10 +168,16 @@ const LazyMedicalFacilityDetail: React.FC = () => {
             </div>
           </div>
 
-          <InfoBasic ref={profileRef} />
-          <ListDoctor ref={listDoctorRef} />
-          <SpecialtyFacility ref={specialtyFacilityRef} />
-          <ScheduleFacility ref={scheduleFacilityRef} />
+          <InfoBasic />
+
+          <ListDoctor ref={combinedListDoctorRef} facilityId={Number(id)} />
+
+          <SpecialtyFacility
+            ref={combinedSpecialtyFacilityRef}
+            facilityId={Number(id)}
+          />
+
+          <ScheduleFacility ref={combinedScheduleFacilityRef} />
         </div>
       </div>
 

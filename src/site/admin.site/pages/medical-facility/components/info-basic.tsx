@@ -37,9 +37,15 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
   };
 
   return (
-    <div ref={ref} className="bg-white rounded-md p-5.5" data-section="profile">
-      <Flex gap={10} align="center" className="mb-5!">
-        <div className="h-6 w-[5px] bg-amber-200 rounded" />
+    <div className="bg-white rounded-md p-5.5">
+      <Flex
+        gap={10}
+        align="center"
+        className="mb-5!"
+        data-section="profile"
+        ref={ref}
+      >
+        <div className="h-6 w-[5px] bg-[#9afaeb] rounded" />
         <h3 className="text-xl font-semibold">Chỉnh sửa thông tin</h3>
       </Flex>
 
@@ -68,16 +74,26 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
               </Form.Item>
             )}
           />
-
-          <Controller
-            name="email"
-            control={control}
-            render={({ field }) => (
-              <Form.Item label="Điện thoại">
-                <Input {...field} />
-              </Form.Item>
-            )}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Form.Item label="Điện thoại">
+                  <Input {...field} />
+                </Form.Item>
+              )}
+            />
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <Form.Item label="Hot line">
+                  <Input {...field} />
+                </Form.Item>
+              )}
+            />
+          </div>
 
           {/* ✅ DatePicker kết nối form */}
           <Controller

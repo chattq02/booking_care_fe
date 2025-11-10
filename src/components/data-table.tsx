@@ -1,4 +1,11 @@
-import { memo, useMemo, useState, useCallback, type ReactNode, useEffect, useRef } from "react";
+import {
+  memo,
+  useMemo,
+  useState,
+  useCallback,
+  type ReactNode,
+  useEffect,
+} from "react";
 import { Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { useWindowSize } from "@/hooks/use-window-size";
@@ -7,7 +14,10 @@ import { Resizable } from "react-resizable";
 
 interface TitlePropsType {
   width: number;
-  onResize: (e: React.SyntheticEvent<Element>, data: ResizeCallbackData) => void;
+  onResize: (
+    e: React.SyntheticEvent<Element>,
+    data: ResizeCallbackData
+  ) => void;
 }
 
 const ResizableTitle: React.FC<React.HTMLAttributes<any> & TitlePropsType> = ({
@@ -42,9 +52,9 @@ interface GenericTableProps<T> extends TableProps<T> {
   customScrollX?: number | string;
 
   maxHeight?: {
-    isMax: boolean,
-    customScrollY?: number
-  }
+    isMax: boolean;
+    customScrollY?: number;
+  };
 }
 
 function DataGridInner<T>({
@@ -53,7 +63,7 @@ function DataGridInner<T>({
   customScrollX = "max-content",
   maxHeight = {
     isMax: true,
-    customScrollY: undefined
+    customScrollY: undefined,
   },
   ...rest
 }: GenericTableProps<T>) {
@@ -62,7 +72,6 @@ function DataGridInner<T>({
   const [columns, setColumns] = useState<TableColumnsType<T>>(
     rest.columns ?? []
   );
-
 
   useEffect(() => {
     if (rest.columns) {
@@ -74,12 +83,22 @@ function DataGridInner<T>({
   // 🔧 Tối ưu scroll config
   const scrollConfig = useMemo(
     () => ({
-      y: maxHeight.isMax ? Math.max(windowHeight - customHeight, 200) : dataSource.length < 20 ? undefined : maxHeight.customScrollY ?? 600,
+      y: maxHeight.isMax
+        ? Math.max(windowHeight - customHeight, 200)
+        : dataSource.length < 20
+        ? undefined
+        : maxHeight.customScrollY ?? 600,
       x: "max-content",
     }),
-    [windowHeight, customHeight, customScrollX, maxHeight.customScrollY, maxHeight.isMax, dataSource]
+    [
+      windowHeight,
+      customHeight,
+      customScrollX,
+      maxHeight.customScrollY,
+      maxHeight.isMax,
+      dataSource,
+    ]
   );
-
 
   // 🔧 Tối ưu: Dùng ref và requestAnimationFrame để giảm re-render
   const handleResize = useCallback((index: number) => {
@@ -95,7 +114,7 @@ function DataGridInner<T>({
           const next = [...prev];
           next[index] = {
             ...next[index],
-            width: Math.max(size.width, 50) // Giới hạn width tối thiểu
+            width: Math.max(size.width, 50), // Giới hạn width tối thiểu
           };
           return next;
         });

@@ -26,22 +26,28 @@ import ModalDepartment, {
   type ModalDepartmentRef,
 } from "./components/modal-department";
 import { loadingAtom } from "@/stores/loading";
-import { useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
+import ListFacility from "../../components/list-facility";
+import { specialtyParamsAtom } from "./store/params";
+import { isUndefined } from "lodash";
+
+export const formatTreeData = (nodes: ResponseDepartment[]): any[] =>
+  nodes.map((node) => ({
+    title: node.name,
+    value: node.id,
+    key: node.id,
+    children: node.children?.length ? formatTreeData(node.children) : undefined,
+  }));
 
 export default function Specialty() {
   const modelDepartmentRef = useRef<ModalDepartmentRef>(null);
-  const { data: listSpecialty, isLoading } = useGetTreeDepartment();
+  const [param, setParam] = useAtom(specialtyParamsAtom);
+  const { data: listSpecialty, isLoading } = useGetTreeDepartment(
+    Number(param.id),
+    !isUndefined(param.id)
+  );
   const setLoading = useSetAtom(loadingAtom);
-  const remove = useDeleteDepartment();
-  const formatTreeData = (nodes: ResponseDepartment[]): any[] =>
-    nodes.map((node) => ({
-      title: node.name,
-      value: node.id,
-      key: node.id,
-      children: node.children?.length
-        ? formatTreeData(node.children)
-        : undefined,
-    }));
+  const remove = useDeleteDepartment(Number(param.id));
 
   const handleDelete = (id: number) => {
     setLoading(true);
@@ -136,7 +142,17 @@ export default function Specialty() {
   return (
     <div style={{ padding: "15px 20px" }}>
       <Flex style={{ marginBottom: 12 }} gap={14} justify="space-between" wrap>
+        <ListFacility
+          defaultValue={param.id ? String(param.id) : undefined}
+          onChange={(value) => {
+            setParam({
+              ...param,
+              id: value,
+            });
+          }}
+        />
         <ButtonAnt
+          disabled={!param.id}
           icon={<PlusOutlined />}
           type="primary"
           onClick={handleAddNew}
@@ -180,7 +196,7 @@ export default function Specialty() {
         className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-cell]:hover:underline [&_.ant-table-cell]:cursor-pointer [&_.ant-table-thead_.ant-table-cell]:py-3!"
         rowClassName={(record) => (!record.parentId ? "bg-[#f0f9ff]" : "")}
       />
-      <ModalDepartment ref={modelDepartmentRef} />
+      <ModalDepartment ref={modelDepartmentRef} facilityId={Number(param.id)} />
     </div>
   );
 }

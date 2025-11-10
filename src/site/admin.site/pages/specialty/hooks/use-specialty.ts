@@ -22,10 +22,11 @@ export const useGetListDepartment = (params: IParams, enabled = true) => {
 };
 
 // 🔹 Lấy cây khoa (tree)
-export const useGetTreeDepartment = () => {
+export const useGetTreeDepartment = (facilityId: number, enabled = true) => {
   return useQuery({
-    queryKey: ["department-tree"],
-    queryFn: () => departmentAdmin.getTree(),
+    queryKey: ["department-tree", facilityId],
+    queryFn: () => departmentAdmin.getTree(facilityId),
+    enabled: enabled,
   });
 };
 
@@ -85,12 +86,12 @@ export const useUpdateDepartment = ({
 };
 
 // 🔹 Xóa khoa
-export const useDeleteDepartment = () => {
+export const useDeleteDepartment = (facilityId: number) => {
   const queryClient = useQueryClient();
   const setLoading = useSetAtom(loadingAtom);
 
   return useMutation({
-    mutationFn: (id: number) => departmentAdmin.delete(id),
+    mutationFn: (id: number) => departmentAdmin.delete(id, facilityId),
     onSuccess: () => {
       toast.success("Xóa khoa thành công");
       setLoading(false);

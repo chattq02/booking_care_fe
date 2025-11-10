@@ -24,8 +24,14 @@ const departmentAdmin = {
   /**
    * 🌳 Lấy cây phòng ban (theo cấp cha – con)
    */
-  getTree: async (): Promise<ResponseResult<ResponseDepartment[]>> => {
-    return axiosWithToken.get("/admin/department/tree");
+  getTree: async (
+    facilityId: number
+  ): Promise<ResponseResult<ResponseDepartment[]>> => {
+    return axiosWithToken.get("/admin/department/tree", {
+      params: {
+        facilityId,
+      },
+    });
   },
 
   /**
@@ -45,8 +51,8 @@ const departmentAdmin = {
   /**
    * 🗑️ Xóa phòng ban
    */
-  delete: (id: number) => {
-    return axiosWithToken.delete(`/admin/department/${id}`);
+  delete: (id: number, facilityId: number) => {
+    return axiosWithToken.delete(`/admin/department/${id}/${facilityId}`);
   },
 };
 
