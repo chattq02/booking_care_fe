@@ -35,7 +35,7 @@ export interface ResponseSchedule {
   facilityId: number | null;
   departmentId: number | null;
   date: string | null;
-  slots: string; // đã parse JSON string từ DB
+  slots: ISlots; // đã parse JSON string từ DB
   type: ScheduleType;
   status: ScheduleStatus;
   createdAt: string; // ISO string
@@ -45,9 +45,15 @@ export interface ResponseSchedule {
 export interface ISession {
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
-  session: "morning" | "afternoon" | "evening";
+  session: "morning" | "afternoon" | "evening"
+}
+
+export interface ISlots {
+  [key: string]: ISession[]
 }
 
 export interface IWorkSchedule {
-  [key: string]: ISession[]; // key bất kỳ (string), value là mảng Session
+  type: ScheduleType,
+  slots: ISlots,
+  status: ScheduleStatus,
 }

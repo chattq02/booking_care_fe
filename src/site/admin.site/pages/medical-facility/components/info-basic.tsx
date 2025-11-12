@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Form, Input, DatePicker, Button, Flex } from "antd";
+import { Form, Input, DatePicker, Button, Flex, Avatar, Switch } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import SunEditor from "suneditor-react";
 import dayjs from "dayjs";
@@ -37,7 +37,21 @@ const InfoBasic = forwardRef<HTMLDivElement, InfoBasicProps>(({}, ref) => {
   };
 
   return (
-    <div className="bg-white rounded-md p-5.5">
+    <div className="bg-white rounded-md px-5.5 pb-4.5">
+      {/* Header */}
+      <div className="flex items-center py-4 mb-4 justify-between border-b border-gray-200">
+        <div className="flex items-center gap-4">
+          <Avatar size={64} src="https://i.pravatar.cc/100" />
+          <div>
+            <h2 className="text-lg font-semibold">Alex Thompson</h2>
+            <p className="text-sm text-gray-500">CEO / Co-Founder</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <span className="text-gray-600">Switch to invisible</span>
+          <Switch />
+        </div>
+      </div>
       <Flex
         gap={10}
         align="center"

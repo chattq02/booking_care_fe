@@ -44,7 +44,7 @@ const scheduleAdmin = {
    * 🛠️ Cập nhật thông tin lịch
    */
   update: (data: IWorkSchedule) => {
-    return axiosWithToken.put(`/schedule/${15}`, data);
+    return axiosWithToken.put(`/schedule/${39}`, data);
   },
 
   /**

@@ -2,22 +2,22 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { Modal, Button, Form, TimePicker, Select, Flex } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { toast } from "sonner";
 import { useUpdateScheduleFacility } from "../../hooks/use-schedule";
-import type { IWorkSchedule } from "../../type";
+import type { ISlots, IWorkSchedule } from "../../type";
+import { v4 } from "uuid";
 
 interface WorkShift {
-  session: string;
+  session: "morning" | "afternoon" | "evening";
   range: [Dayjs | null, Dayjs | null];
 }
 
 interface HospitalScheduleFormValues {
-  dayOfWeek: number;
+  dayOfWeek: string[];
   workShifts: WorkShift[];
 }
 
 export interface HospitalScheduleRef {
-  showModal: () => void;
+  showModal: (data: ISlots | undefined) => void;
   hideModal: () => void;
 }
 
@@ -32,9 +32,63 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
 
     const update = useUpdateScheduleFacility();
 
-    const showModal = () => {
-      form.resetFields();
+    const showModal = (data: ISlots | undefined) => {
       setVisible(true);
+      const formValues = convertDataToFormValues(data);
+      form.setFieldsValue(formValues);
+    };
+
+    // Convert ISlots to form values
+    const convertDataToFormValues = (
+      data: ISlots | undefined
+    ): HospitalScheduleFormValues => {
+      console.log("data", data);
+      if (!data) {
+        return {
+          dayOfWeek: [],
+          workShifts: [
+            {
+              session: "morning",
+              range: [dayjs("08:00", "HH:mm"), dayjs("12:00", "HH:mm")],
+            },
+            {
+              session: "afternoon",
+              range: [dayjs("13:30", "HH:mm"), dayjs("17:30", "HH:mm")],
+            },
+          ],
+        };
+      }
+
+      // Lấy các ngày có dữ liệu
+      const daysWithData = Object.entries(data)
+        .filter(([_, sessions]) => sessions.length > 0)
+        .map(([day]) => day);
+
+      // Tạo workShifts từ dữ liệu mẫu (lấy từ thứ 2)
+      const workShifts: WorkShift[] = data.monday.map((session) => ({
+        session: session.session as "morning" | "afternoon" | "evening",
+        range: [
+          dayjs(session.startTime, "HH:mm"),
+          dayjs(session.endTime, "HH:mm"),
+        ] as [Dayjs, Dayjs],
+      }));
+
+      return {
+        dayOfWeek: daysWithData,
+        workShifts:
+          workShifts.length > 0
+            ? workShifts
+            : [
+                {
+                  session: "morning",
+                  range: [dayjs("08:00", "HH:mm"), dayjs("12:00", "HH:mm")],
+                },
+                {
+                  session: "afternoon",
+                  range: [dayjs("13:30", "HH:mm"), dayjs("17:30", "HH:mm")],
+                },
+              ],
+      };
     };
 
     const hideModal = () => setVisible(false);
@@ -45,26 +99,27 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
     }));
 
     const onFinish = (values: HospitalScheduleFormValues) => {
-      const formattedShifts = values.workShifts.map((shift) => ({
-        session: shift.session,
-        start: shift.range[0]?.format("HH:mm") || "",
-        end: shift.range[1]?.format("HH:mm") || "",
-      }));
-
-      // const dataSave = {
-      //   dayOfWeek: values.dayOfWeek,
-      //   workShifts: formattedShifts,
-      // };
-
-      const schedule: IWorkSchedule = {
-        all: [
-          { startTime: "09:00", endTime: "12:00", session: "morning" },
-          { startTime: "13:00", endTime: "17:00", session: "afternoon" },
-          { startTime: "18:00", endTime: "22:00", session: "evening" },
-        ],
+      // Tạo object schedule với tất cả các ngày đều là mảng rỗng
+      const schedule: ISlots = {
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
+        sunday: [],
       };
 
-      const dataSave = {
+      // Chỉ thêm dữ liệu cho những ngày được chọn
+      values.dayOfWeek.forEach((day) => {
+        schedule[day] = values.workShifts.map((shift) => ({
+          startTime: shift.range[0]?.format("HH:mm") || "",
+          endTime: shift.range[1]?.format("HH:mm") || "",
+          session: shift.session,
+        }));
+      });
+
+      const dataSave: IWorkSchedule = {
         type: "FACILITY",
         slots: schedule,
         status: "NORMAL",
@@ -75,8 +130,6 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
           hideModal();
         },
       });
-      console.log("dataSave", dataSave);
-      // setVisible(false);
     };
 
     return (
@@ -84,7 +137,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         title="Cấu hình lịch làm việc bệnh viện"
         open={visible}
         onCancel={hideModal}
-        // width={500}
+        width={500}
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
@@ -106,7 +159,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
           layout="vertical"
           onFinish={onFinish}
           initialValues={{
-            dayOfWeek: "all",
+            dayOfWeek: [],
             workShifts: [
               {
                 session: "morning",
@@ -120,9 +173,8 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
             label="Thứ trong tuần"
             rules={[{ required: true, message: "Vui lòng chọn thứ" }]}
           >
-            <Select placeholder="Chọn thứ">
+            <Select mode="multiple" placeholder="Chọn thứ">
               {[
-                { value: "all", label: "Tất cả" },
                 { value: "monday", label: "Thứ 2" },
                 { value: "tuesday", label: "Thứ 3" },
                 { value: "wednesday", label: "Thứ 4" },
@@ -152,6 +204,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
                   >
                     <Form.Item
                       {...field}
+                      key={v4()}
                       name={[field.name, "session"]}
                       label="Ca làm việc"
                       style={{
@@ -171,6 +224,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
 
                     <Form.Item
                       {...field}
+                      key={v4()}
                       name={[field.name, "range"]}
                       label="Giờ bắt đầu"
                       rules={[
