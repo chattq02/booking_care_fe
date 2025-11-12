@@ -41,6 +41,28 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
       key: "fullName",
     },
     {
+      title: "Chức vụ",
+      dataIndex: "academicTitle",
+      key: "academicTitle",
+      render: (value) => {
+        return <div>{value?.name ?? ""}</div>;
+      },
+    },
+    {
+      title: "Phòng ban",
+      dataIndex: "departments",
+      key: "departments",
+      render: (value) => {
+        return (
+          <div style={{ whiteSpace: "pre-line" }}>
+            {value
+              ?.map((val: { id: number; name: string }) => val.name)
+              .join(",\n")}
+          </div>
+        );
+      },
+    },
+    {
       width: 180,
       title: "Email",
       dataIndex: "email",
@@ -145,7 +167,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         }}
         maxHeight={{
           isMax: false,
-          customScrollY: 800,
+          customScrollY: 400,
         }}
         rowKey="id"
         loading={isLoading}

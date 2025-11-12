@@ -1,21 +1,19 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
-import { Modal, Button, Form, TimePicker, Space, Select, Flex } from "antd";
+import { Modal, Button, Form, TimePicker, Select, Flex } from "antd";
 import dayjs, { Dayjs } from "dayjs";
-import {
-  ArrowRightOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { toast } from "sonner";
+import { useUpdateScheduleFacility } from "../../hooks/use-schedule";
+import type { IWorkSchedule } from "../../type";
 
-interface WorkTimeRange {
-  start: string; // "HH:mm"
-  end: string; // "HH:mm"
+interface WorkShift {
+  session: string;
+  range: [Dayjs | null, Dayjs | null];
 }
 
 interface HospitalScheduleFormValues {
-  slotDuration: number;
-  workTime: Record<string, WorkTimeRange[]>;
-  dayOff: Dayjs[]; // dùng Dayjs từ DatePicker
+  dayOfWeek: number;
+  workShifts: WorkShift[];
 }
 
 export interface HospitalScheduleRef {
@@ -32,6 +30,8 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
     const [visible, setVisible] = useState(false);
     const [form] = Form.useForm<HospitalScheduleFormValues>();
 
+    const update = useUpdateScheduleFacility();
+
     const showModal = () => {
       form.resetFields();
       setVisible(true);
@@ -45,17 +45,38 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
     }));
 
     const onFinish = (values: HospitalScheduleFormValues) => {
-      // Chuyển dayjs thành string "YYYY-MM-DD"
-      const formattedDayOff = values.dayOff.map((d) => d.format("YYYY-MM-DD"));
+      const formattedShifts = values.workShifts.map((shift) => ({
+        session: shift.session,
+        start: shift.range[0]?.format("HH:mm") || "",
+        end: shift.range[1]?.format("HH:mm") || "",
+      }));
 
-      const payload = {
-        slotDuration: values.slotDuration,
-        workTime: values.workTime,
-        dayOff: formattedDayOff,
+      // const dataSave = {
+      //   dayOfWeek: values.dayOfWeek,
+      //   workShifts: formattedShifts,
+      // };
+
+      const schedule: IWorkSchedule = {
+        all: [
+          { startTime: "09:00", endTime: "12:00", session: "morning" },
+          { startTime: "13:00", endTime: "17:00", session: "afternoon" },
+          { startTime: "18:00", endTime: "22:00", session: "evening" },
+        ],
       };
 
-      console.log("JSON ready to send:", JSON.stringify(payload, null, 2));
-      setVisible(false);
+      const dataSave = {
+        type: "FACILITY",
+        slots: schedule,
+        status: "NORMAL",
+      };
+
+      update.mutate(dataSave, {
+        onSuccess: () => {
+          hideModal();
+        },
+      });
+      console.log("dataSave", dataSave);
+      // setVisible(false);
     };
 
     return (
@@ -63,7 +84,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         title="Cấu hình lịch làm việc bệnh viện"
         open={visible}
         onCancel={hideModal}
-        width={500}
+        // width={500}
         styles={{
           body: { maxHeight: "70vh", overflowY: "auto" },
         }}
@@ -83,15 +104,15 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         <Form
           form={form}
           layout="vertical"
+          onFinish={onFinish}
           initialValues={{
-            dayOfWeek: "Thứ 2",
-            type: "Lịch khám",
-            start: dayjs("09:00", "HH:mm"),
-            end: dayjs("10:00", "HH:mm"),
-            slotCount: 1,
-            slotDuration: 30,
-            maxDay: 30,
-            active: true,
+            dayOfWeek: "all",
+            workShifts: [
+              {
+                session: "morning",
+                range: [dayjs("09:00", "HH:mm"), dayjs("10:00", "HH:mm")],
+              },
+            ],
           }}
         >
           <Form.Item
@@ -101,16 +122,17 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
           >
             <Select placeholder="Chọn thứ">
               {[
-                "Thứ 2",
-                "Thứ 3",
-                "Thứ 4",
-                "Thứ 5",
-                "Thứ 6",
-                "Thứ 7",
-                "Chủ nhật",
+                { value: "all", label: "Tất cả" },
+                { value: "monday", label: "Thứ 2" },
+                { value: "tuesday", label: "Thứ 3" },
+                { value: "wednesday", label: "Thứ 4" },
+                { value: "thursday", label: "Thứ 5" },
+                { value: "friday", label: "Thứ 6" },
+                { value: "saturday", label: "Thứ 7" },
+                { value: "sunday", label: "Chủ nhật" },
               ].map((day) => (
-                <Option key={day} value={day}>
-                  {day}
+                <Option key={day.value} value={day.value}>
+                  {day.label}
                 </Option>
               ))}
             </Select>
@@ -132,12 +154,12 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
                       {...field}
                       name={[field.name, "session"]}
                       label="Ca làm việc"
+                      style={{
+                        width: 100,
+                      }}
                     >
                       <Select
                         placeholder="Chọn ca"
-                        style={{
-                          width: 120,
-                        }}
                         disabled={true}
                         options={[
                           { value: "morning", label: "Ca sáng" },
@@ -147,44 +169,36 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
                       />
                     </Form.Item>
 
-                    <Space align="center" style={{ flex: 1, width: "100%" }}>
-                      <Form.Item
-                        {...field}
-                        name={[field.name, "start"]}
-                        label="Giờ bắt đầu"
-                        rules={[
-                          {
-                            required: true,
-                            message: "",
-                          },
-                        ]}
-                      >
-                        <TimePicker format="HH:mm" placeholder="HH:mm" />
-                      </Form.Item>
-
-                      <ArrowRightOutlined />
-
-                      <Form.Item
-                        {...field}
-                        name={[field.name, "end"]}
-                        label="Giờ kết thúc"
-                        rules={[
-                          {
-                            required: true,
-                            message: "",
-                          },
-                        ]}
-                      >
-                        <TimePicker format="HH:mm" placeholder="HH:mm" />
-                      </Form.Item>
-
-                      <Button
-                        danger
-                        type="text"
-                        icon={<DeleteOutlined />}
-                        onClick={() => remove(field.name)}
+                    <Form.Item
+                      {...field}
+                      name={[field.name, "range"]}
+                      label="Giờ bắt đầu"
+                      rules={[
+                        {
+                          required: true,
+                          message: "",
+                        },
+                      ]}
+                      style={{
+                        flex: 1,
+                      }}
+                    >
+                      <TimePicker.RangePicker
+                        format="HH:mm"
+                        needConfirm={false}
+                        placeholder={["Bắt đầu", "Kết thúc"]}
                       />
-                    </Space>
+                    </Form.Item>
+
+                    <Button
+                      style={{
+                        marginTop: 8,
+                      }}
+                      danger
+                      type="text"
+                      icon={<DeleteOutlined />}
+                      onClick={() => remove(field.name)}
+                    />
                   </Flex>
                 ))}
 

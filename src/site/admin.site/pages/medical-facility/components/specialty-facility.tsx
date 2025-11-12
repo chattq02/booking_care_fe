@@ -161,7 +161,10 @@ const SpecialtyFacility = forwardRef<HTMLDivElement, IProps>(
             pagination={false}
             rowKey="id"
             loading={isLoading}
-            customHeight={190}
+            maxHeight={{
+              isMax: false,
+              customScrollY: 400,
+            }}
             onRow={(record) => ({
               onClick: () => {
                 modelDepartmentRef.current?.showModal({
