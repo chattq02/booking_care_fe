@@ -23,19 +23,25 @@ export interface ResponseParamsResult<T = unknown> {
   data: PaginationResponse<T>;
 }
 
-export interface IListFacility {
-  uuid: string;
-  avatar?: string;
-  fullName: string;
-  email: string;
-  facilities: {
-    id: number;
+export interface IFacility {
+   id: number;
     uuid: string;
     code: string;
     name: string;
     address: string;
-  }[];
+}
+
+export interface IListFacility {
+  is_select: boolean,
+  info: {
+  uuid: string;
+  avatar?: string;
+  fullName: string;
+  email: string;
+  facilities: IFacility[];
   roles: {
     role: "ADMIN" | "USER" | "DOCTOR";
   }[];
 }
+}
+

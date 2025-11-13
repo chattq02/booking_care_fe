@@ -24,6 +24,7 @@ export interface GetMeResponseData {
   createdAt: string;
   updatedAt: string;
   roles: UserRole[];
+  is_selected?: boolean
 }
 
 export interface RefreshTokenResponse {

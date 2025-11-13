@@ -1,4 +1,3 @@
-import { getProfile } from "@/pages/auth/hooks/useAuth";
 import type { GetMeResponseData } from "@/types/auth";
 import { atom } from "jotai";
 
@@ -18,4 +17,3 @@ export const accessTokenStore = {
   },
 };
 
-export const selectedFacilityAtom = atom<boolean>(false);

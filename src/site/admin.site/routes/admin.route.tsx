@@ -22,16 +22,8 @@ export const adminRoutes: RouteObject[] = [
     element: <GuardRouteLayout auth={false} redirect="/" />,
     children: [{ path: "/login", element: <Login /> }],
   },
-
-  // Routes cần chọn facilities trước
   {
-    element: (
-      <GuardRouteLayout
-        auth={true}
-        requireFacility={false} // Cho phép vào mà chưa chọn facility
-        redirect={PATH_ROUTE_ADMIN.SELECT_FACILITIES}
-      />
-    ),
+    element: <GuardRouteLayout auth={true} redirect={PATH_ROUTE_ADMIN.LOGIN} />,
     children: [
       {
         path: PATH_ROUTE_ADMIN.SELECT_FACILITIES,
@@ -39,16 +31,8 @@ export const adminRoutes: RouteObject[] = [
       },
     ],
   },
-
-  // Routes cần cả auth và facility
   {
-    element: (
-      <GuardRouteLayout
-        auth={true}
-        requireFacility={true} // Bắt buộc phải chọn facility
-        redirect={PATH_ROUTE_ADMIN.SELECT_FACILITIES}
-      />
-    ),
+    element: <GuardRouteLayout auth={true} redirect={PATH_ROUTE_ADMIN.LOGIN} />,
     children: [
       {
         element: <AdminLayout />,
