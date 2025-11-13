@@ -45,15 +45,23 @@ export interface ResponseSchedule {
 export interface ISession {
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
-  session: "morning" | "afternoon" | "evening"
+  session: "morning" | "afternoon" | "evening";
 }
 
 export interface ISlots {
-  [key: string]: ISession[]
+  [key: string]: ISession[];
 }
 
 export interface IWorkSchedule {
-  type: ScheduleType,
-  slots: ISlots,
-  status: ScheduleStatus,
+  type: ScheduleType;
+  slots: ISlots;
+  status: ScheduleStatus;
 }
+
+export type Shift = {
+  session: string;
+  startTime: string;
+  endTime: string;
+};
+
+export type Slots = Record<string, Shift[]>;

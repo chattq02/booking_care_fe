@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { accessTokenStore } from "@/stores/auth";
 import { saveCookies } from "@/lib/actions/auth";
+import { PATH_ROUTE_ADMIN } from "@/site/admin.site/libs/enums/path";
 
 // ✅ Schema validate với Zod
 const loginSchema = z.object({
@@ -58,7 +59,7 @@ export default function Login() {
           });
 
           setTimeout(() => {
-            nav("/");
+            nav(PATH_ROUTE_ADMIN.SELECT_FACILITIES);
           }, 1000);
         },
         onError: (error: any) => {

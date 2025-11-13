@@ -1,7 +1,7 @@
 import authApi from "@/apis/auth.api";
 import type { LoginForm } from "@/types/auth";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 function useLogin() {
@@ -20,5 +20,17 @@ async function getProfile() {
     );
   }
 }
+
+export const useGetListFacility = (enabled = true) => {
+  return useQuery({
+    queryKey: ["getFacility"],
+    queryFn: async () => {
+      const result = await authApi.getFacility();
+      return result.data;
+    },
+    enabled,
+    placeholderData: (prev) => prev,
+  });
+};
 
 export { useLogin, getProfile };

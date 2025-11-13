@@ -22,3 +22,20 @@ export interface ResponseParamsResult<T = unknown> {
   message: string;
   data: PaginationResponse<T>;
 }
+
+export interface IListFacility {
+  uuid: string;
+  avatar?: string;
+  fullName: string;
+  email: string;
+  facilities: {
+    id: number;
+    uuid: string;
+    code: string;
+    name: string;
+    address: string;
+  }[];
+  roles: {
+    role: "ADMIN" | "USER" | "DOCTOR";
+  }[];
+}

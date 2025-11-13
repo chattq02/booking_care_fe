@@ -1,11 +1,9 @@
 import NotFound from "@/site/NotFound";
 import AdminLayout from "../layouts/admin-layout";
-
 import type { RouteObject } from "react-router-dom";
 import Login from "../../../pages/auth/login/login";
 import GuardRouteLayout from "../../../layouts/private-router";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
-
 import { withSuspense } from "../layouts/with-suspense";
 import {
   LazyAcademicTitle,
@@ -16,14 +14,41 @@ import {
   LazyMedicalSchedule,
   LazySpecialty,
 } from "./lazy-components";
+import SelectFacilities from "@/pages/auth/select-facilities/select-facilities";
 
 export const adminRoutes: RouteObject[] = [
+  // Public routes - không cần auth
   {
-    element: <GuardRouteLayout auth={false} redirect="/" />, // public route
+    element: <GuardRouteLayout auth={false} redirect="/" />,
     children: [{ path: "/login", element: <Login /> }],
   },
+
+  // Routes cần chọn facilities trước
   {
-    element: <GuardRouteLayout auth={true} redirect="/login" />, // private route
+    element: (
+      <GuardRouteLayout
+        auth={true}
+        requireFacility={false} // Cho phép vào mà chưa chọn facility
+        redirect={PATH_ROUTE_ADMIN.SELECT_FACILITIES}
+      />
+    ),
+    children: [
+      {
+        path: PATH_ROUTE_ADMIN.SELECT_FACILITIES,
+        element: <SelectFacilities />,
+      },
+    ],
+  },
+
+  // Routes cần cả auth và facility
+  {
+    element: (
+      <GuardRouteLayout
+        auth={true}
+        requireFacility={true} // Bắt buộc phải chọn facility
+        redirect={PATH_ROUTE_ADMIN.SELECT_FACILITIES}
+      />
+    ),
     children: [
       {
         element: <AdminLayout />,

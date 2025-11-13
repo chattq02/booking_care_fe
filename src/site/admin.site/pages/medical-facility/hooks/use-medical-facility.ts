@@ -7,6 +7,8 @@ import type { IParams } from "@/types/params";
 import medicalFacilityAdmin from "@/site/admin.site/apis/medical-facility";
 import type { ResponseMedicalFacility } from "../type";
 import type { MedicalFacilityParams } from "../store/params";
+import { useMemo } from "react";
+import { stringify } from "qs";
 
 interface UseCreateMedicalFacilityOptions {
   onSuccessCallback?: () => void;
@@ -15,8 +17,9 @@ interface UseCreateMedicalFacilityOptions {
 
 // 🔹 Lấy danh sách cơ sở y tế (có phân trang, tìm kiếm)
 export const useGetListMedicalFacility = (params: IParams, enabled = true) => {
+  const key = useMemo(() => stringify(params), [params]);
   return useQuery({
-    queryKey: ["medicalFacilities", params],
+    queryKey: ["medicalFacilities", key],
     queryFn: async () => {
       const result = await medicalFacilityAdmin.getList(params);
       return result.data;

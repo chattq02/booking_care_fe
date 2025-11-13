@@ -44,6 +44,12 @@ const LazyMedicalFacilityDetail: React.FC = () => {
             label: "Chuyên khoa",
             children: <SpecialtyFacility facilityId={Number(id)} />,
           },
+          {
+            key: "package",
+            icon: <BellOutlined />,
+            label: "Gói khám",
+            children: <SpecialtyFacility facilityId={Number(id)} />,
+          },
         ]}
       />
     </div>

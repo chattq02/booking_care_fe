@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Button, Input, Select, Modal, Form, Tag, Flex } from "antd";
 import {
   UploadOutlined,
@@ -25,19 +25,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button as ButtonUI } from "@/components/ui/button";
+import { stringify } from "qs";
 
 export default function InfoDoctor() {
   const modalRef = useRef<ModalUploadRef>(null);
   const [param, setParam] = useAtom(doctorParamsAtom);
 
+  const key = useMemo(() => stringify(param), [param]);
+
   const { data: listDoctor, isLoading } = useQuery({
-    queryKey: [
-      "listDoctor",
-      param.page,
-      param.per_page,
-      param.status,
-      param.keyword,
-    ],
+    queryKey: ["listDoctor", key],
     queryFn: async () =>
       await getListDoctor({
         keyword: param.keyword.trim(),

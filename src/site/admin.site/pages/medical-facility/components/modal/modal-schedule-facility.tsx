@@ -1,94 +1,63 @@
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { Modal, Button, Form, TimePicker, Select, Flex } from "antd";
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useUpdateScheduleFacility } from "../../hooks/use-schedule";
 import type { ISlots, IWorkSchedule } from "../../type";
 import { v4 } from "uuid";
+import { useSetAtom } from "jotai";
+import { loadingAtom } from "@/stores/loading";
+import {
+  convertDataToFormValues,
+  convertFormValuesToSlots,
+  mergeEditIntoDetail,
+} from "../../helper";
 
-interface WorkShift {
+export interface WorkShift {
   session: "morning" | "afternoon" | "evening";
   range: [Dayjs | null, Dayjs | null];
 }
 
-interface HospitalScheduleFormValues {
+export interface HospitalScheduleFormValues {
   dayOfWeek: string[];
   workShifts: WorkShift[];
 }
 
 export interface HospitalScheduleRef {
-  showModal: (data: ISlots | undefined) => void;
+  showModal: (
+    data?: ISlots | undefined,
+    type_modal?: "create" | "edit"
+  ) => void;
   hideModal: () => void;
 }
 
-interface IProps {}
+interface IProps {
+  id_schedule: number | undefined;
+  slots_detail: ISlots | undefined;
+}
 
 const { Option } = Select;
 
 export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
-  ({}, ref) => {
+  ({ id_schedule, slots_detail }, ref) => {
     const [visible, setVisible] = useState(false);
     const [form] = Form.useForm<HospitalScheduleFormValues>();
+    const update = useUpdateScheduleFacility({ id_schedule });
+    const setLoading = useSetAtom(loadingAtom);
+    const [modalType, setModalType] = useState<"create" | "edit">("create");
 
-    const update = useUpdateScheduleFacility();
-
-    const showModal = (data: ISlots | undefined) => {
+    const showModal = (
+      data: ISlots | undefined,
+      type_modal?: "create" | "edit"
+    ) => {
       setVisible(true);
-      const formValues = convertDataToFormValues(data);
-      form.setFieldsValue(formValues);
-    };
-
-    // Convert ISlots to form values
-    const convertDataToFormValues = (
-      data: ISlots | undefined
-    ): HospitalScheduleFormValues => {
-      console.log("data", data);
-      if (!data) {
-        return {
-          dayOfWeek: [],
-          workShifts: [
-            {
-              session: "morning",
-              range: [dayjs("08:00", "HH:mm"), dayjs("12:00", "HH:mm")],
-            },
-            {
-              session: "afternoon",
-              range: [dayjs("13:30", "HH:mm"), dayjs("17:30", "HH:mm")],
-            },
-          ],
-        };
+      setModalType(type_modal || "create");
+      if (type_modal === "edit") {
+        const formValues = convertDataToFormValues(data);
+        form.setFieldsValue(formValues);
+      } else {
+        form.resetFields();
       }
-
-      // Lấy các ngày có dữ liệu
-      const daysWithData = Object.entries(data)
-        .filter(([_, sessions]) => sessions.length > 0)
-        .map(([day]) => day);
-
-      // Tạo workShifts từ dữ liệu mẫu (lấy từ thứ 2)
-      const workShifts: WorkShift[] = data.monday.map((session) => ({
-        session: session.session as "morning" | "afternoon" | "evening",
-        range: [
-          dayjs(session.startTime, "HH:mm"),
-          dayjs(session.endTime, "HH:mm"),
-        ] as [Dayjs, Dayjs],
-      }));
-
-      return {
-        dayOfWeek: daysWithData,
-        workShifts:
-          workShifts.length > 0
-            ? workShifts
-            : [
-                {
-                  session: "morning",
-                  range: [dayjs("08:00", "HH:mm"), dayjs("12:00", "HH:mm")],
-                },
-                {
-                  session: "afternoon",
-                  range: [dayjs("13:30", "HH:mm"), dayjs("17:30", "HH:mm")],
-                },
-              ],
-      };
     };
 
     const hideModal = () => setVisible(false);
@@ -99,35 +68,23 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
     }));
 
     const onFinish = (values: HospitalScheduleFormValues) => {
-      // Tạo object schedule với tất cả các ngày đều là mảng rỗng
-      const schedule: ISlots = {
-        monday: [],
-        tuesday: [],
-        wednesday: [],
-        thursday: [],
-        friday: [],
-        saturday: [],
-        sunday: [],
-      };
+      const slotsByDay = convertFormValuesToSlots(values);
 
-      // Chỉ thêm dữ liệu cho những ngày được chọn
-      values.dayOfWeek.forEach((day) => {
-        schedule[day] = values.workShifts.map((shift) => ({
-          startTime: shift.range[0]?.format("HH:mm") || "",
-          endTime: shift.range[1]?.format("HH:mm") || "",
-          session: shift.session,
-        }));
-      });
+      const schedule = mergeEditIntoDetail(slots_detail, slotsByDay);
 
       const dataSave: IWorkSchedule = {
         type: "FACILITY",
         slots: schedule,
         status: "NORMAL",
       };
-
+      setLoading(true);
       update.mutate(dataSave, {
         onSuccess: () => {
           hideModal();
+          setLoading(false);
+        },
+        onError: () => {
+          setLoading(false);
         },
       });
     };
@@ -160,12 +117,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
           onFinish={onFinish}
           initialValues={{
             dayOfWeek: [],
-            workShifts: [
-              {
-                session: "morning",
-                range: [dayjs("09:00", "HH:mm"), dayjs("10:00", "HH:mm")],
-              },
-            ],
+            workShifts: [],
           }}
         >
           <Form.Item
@@ -173,7 +125,11 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
             label="Thứ trong tuần"
             rules={[{ required: true, message: "Vui lòng chọn thứ" }]}
           >
-            <Select mode="multiple" placeholder="Chọn thứ">
+            <Select
+              mode="multiple"
+              placeholder="Chọn thứ"
+              disabled={modalType === "edit"}
+            >
               {[
                 { value: "monday", label: "Thứ 2" },
                 { value: "tuesday", label: "Thứ 3" },
@@ -258,6 +214,9 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
 
                 {fields.length < 3 && (
                   <Button
+                    style={{
+                      width: "100%",
+                    }}
                     type="dashed"
                     icon={<PlusOutlined />}
                     onClick={() =>

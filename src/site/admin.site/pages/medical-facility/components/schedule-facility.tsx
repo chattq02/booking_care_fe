@@ -25,7 +25,7 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
 
     const slots: ISlots | undefined = listSchedule?.data[0]?.slots;
 
-    console.log("listSchedule", slots);
+    const id_schedule = listSchedule?.data[0]?.id;
 
     const days = [
       { key: "monday", name: "Thứ 2", color: "green" },
@@ -49,6 +49,13 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
         default:
           return session;
       }
+    };
+
+    const handleOpenSchedule = (
+      slots: ISlots | undefined,
+      type: "create" | "edit"
+    ) => {
+      hospitalScheduleModalRef.current?.showModal(slots, type);
     };
 
     if (isLoading) {
@@ -77,25 +84,26 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
             <Button
               type="primary"
               htmlType="submit"
-              onClick={() => hospitalScheduleModalRef.current?.showModal(slots)}
+              onClick={() => handleOpenSchedule(slots, "create")}
             >
               Điều chỉnh
             </Button>
           </Flex>
 
-          <div className="grid grid-cols-7 border rounded ">
-            {days.map((day) => {
+          <div className="grid grid-cols-7 rounded-md h-[300px]">
+            {days.map((day, index) => {
               const daySlots = slots?.[day.key] || [];
               const isEmpty = daySlots.length === 0;
+              const isLast = index === days.length - 1;
 
               return (
                 <div
                   key={day.key}
-                  className={`border h-[300px] ${
-                    isEmpty ? "bg-red-200" : "bg-gray-50"
-                  }`}
+                  className={`border-l border-b border-t border-[#c5c5c5cb] flex flex-col ${
+                    isLast ? "border-r" : ""
+                  } ${isEmpty ? "bg-red-200" : "bg-gray-50"} overflow-hidden`}
                 >
-                  <div className="border-b">
+                  <div className="border-b border-[#c5c5c5cb]">
                     <div
                       className={`font-semibold p-2 text-center  ${
                         day.key === "sunday"
@@ -110,13 +118,35 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
                   </div>
 
                   {daySlots.length === 0 ? (
-                    <div className="text-center mt-5 font-bold">Nghỉ</div>
+                    <div
+                      className="text-center py-5 font-bold hover:bg-[#f5faeb] cursor-pointer flex-1 overflow-auto"
+                      onClick={() =>
+                        handleOpenSchedule(
+                          {
+                            [day.key]: daySlots,
+                          },
+                          "edit"
+                        )
+                      }
+                    >
+                      Nghỉ
+                    </div>
                   ) : (
-                    <div className={`px-2 py-5 flex flex-col gap-2`}>
+                    <div
+                      className="px-2.5 space-y-4 py-5 hover:bg-[#f5faeb] cursor-pointer flex-1 overflow-auto"
+                      onClick={() =>
+                        handleOpenSchedule(
+                          {
+                            [day.key]: daySlots,
+                          },
+                          "edit"
+                        )
+                      }
+                    >
                       {daySlots.map((slot, index) => (
                         <div
                           key={index}
-                          className={`border rounded p-2 mb-2 text-sm border-l-4 ${
+                          className={`border rounded p-2 text-sm border-l-4 ${
                             slot.session === "morning"
                               ? "bg-blue-100 border-blue-500"
                               : slot.session === "afternoon"
@@ -139,7 +169,11 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
             })}
           </div>
         </div>
-        <HospitalScheduleModal ref={hospitalScheduleModalRef} />
+        <HospitalScheduleModal
+          ref={hospitalScheduleModalRef}
+          id_schedule={id_schedule}
+          slots_detail={slots}
+        />
       </>
     );
   }

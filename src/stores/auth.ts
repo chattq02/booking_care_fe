@@ -18,11 +18,4 @@ export const accessTokenStore = {
   },
 };
 
-
-export const fetchUserAtom = atom(
-  null,
-  async (_get, set) => {
-    const result = await getProfile();
-    set(userAtom, result ?? null);
-  }
-);
+export const selectedFacilityAtom = atom<boolean>(false);

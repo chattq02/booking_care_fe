@@ -25,9 +25,10 @@ import { PlusOutlined } from "@ant-design/icons";
 import ModalAcademic, {
   type ModalAcademicRef,
 } from "./components/modal-academic";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { loadingAtom } from "@/stores/loading";
 import { academicParamsAtom } from "./store/params";
+import { stringify } from "qs";
 
 export default function AcademicTitle() {
   const [param, setParam] = useAtom(academicParamsAtom);
@@ -35,12 +36,14 @@ export default function AcademicTitle() {
   const [messageApi, contextHolder] = message.useMessage();
   const setLoading = useSetAtom(loadingAtom);
 
+  const key = useMemo(() => stringify(param), [param]);
+
   const {
     data: listAcademicTitle,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["listAcademicTitle", param.page, param.per_page, param.keyword],
+    queryKey: ["listAcademicTitle", key],
     queryFn: async () =>
       await getListAcademicTilte({
         keyword: param.keyword,
