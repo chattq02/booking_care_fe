@@ -21,16 +21,4 @@ async function getProfile() {
   }
 }
 
-export const useGetListFacility = (enabled = true) => {
-  return useQuery({
-    queryKey: ["getFacility"],
-    queryFn: async () => {
-      const result = await authApi.getFacility();
-      return result.data;
-    },
-    enabled,
-    placeholderData: (prev) => prev,
-  });
-};
-
 export { useLogin, getProfile };

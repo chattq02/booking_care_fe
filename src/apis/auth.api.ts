@@ -1,6 +1,6 @@
 import axiosWithToken from "@/lib/axios/axios-private";
 import axiosPublic from "@/lib/axios/axios-public";
-import type { IFacility, IListFacility, ResponseResult } from "@/lib/axios/axios-type";
+import type { IFacility, ResponseResult } from "@/lib/axios/axios-type";
 
 import type { VerifyEmailType } from "@/site/doctor.site/types/auth";
 import type {
@@ -41,12 +41,11 @@ const authApi = {
     return await axiosWithToken.post("/auth/refresh-token");
   },
 
-  getFacility: async (): Promise<ResponseResult<IListFacility>> => {
-    return axiosWithToken.get("/auth/get-list-facilities");
-  },
-
-   selectFacility: async (data: IFacility) => {
-    return axiosWithToken.post("/auth/select-facility",omit(data, ["address","name"]) );
+  selectFacility: async (data: IFacility) => {
+    return axiosWithToken.post(
+      "/auth/select-facility",
+      omit(data, ["address", "name", "imageUrl"])
+    );
   },
 };
 

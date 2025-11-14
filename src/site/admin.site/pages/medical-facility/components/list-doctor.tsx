@@ -1,13 +1,12 @@
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
 import { Flex, Tag } from "antd";
-import { forwardRef } from "react";
+import { forwardRef, useRef } from "react";
 import { useGetListDoctorMedicalFacility } from "../hooks/use-medical-facility";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -15,6 +14,10 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { Button as ButtonUI } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import {
+  DoctorScheduleModal,
+  type DoctorScheduleRef,
+} from "./modal/modal-schedule-doctor";
 
 interface IProps {
   facilityId: number;
@@ -27,6 +30,8 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
     page: 1,
     per_page: 50,
   });
+
+  const doctorScheduleRef = useRef<DoctorScheduleRef>(null);
 
   const columns: ColumnsType<ResponseDoctor> = [
     {
@@ -129,9 +134,11 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
             </ButtonUI>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => console.log("record", record)}>
-              Copy payment ID
+            <DropdownMenuItem
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => doctorScheduleRef.current?.showModal(record)}
+            >
+              Xem lịch hẹn
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>View customer</DropdownMenuItem>
@@ -172,6 +179,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         rowKey="id"
         loading={isLoading}
       />
+      <DoctorScheduleModal ref={doctorScheduleRef} />
     </div>
   );
 });

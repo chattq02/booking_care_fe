@@ -24,24 +24,25 @@ export interface ResponseParamsResult<T = unknown> {
 }
 
 export interface IFacility {
-   id: number;
-    uuid: string;
-    code: string;
-    name: string;
-    address: string;
+  id: number;
+  uuid: string;
+  code: string;
+  name: string;
+  address: string;
+  imageUrl: string;
+  role?: "ADMIN" | "USER" | "DOCTOR";
 }
 
 export interface IListFacility {
-  is_select: boolean,
+  is_select: boolean;
   info: {
-  uuid: string;
-  avatar?: string;
-  fullName: string;
-  email: string;
-  facilities: IFacility[];
-  roles: {
-    role: "ADMIN" | "USER" | "DOCTOR";
-  }[];
+    uuid: string;
+    avatar?: string;
+    fullName: string;
+    email: string;
+    facilities: IFacility[];
+    roles: {
+      role: "ADMIN" | "USER" | "DOCTOR";
+    }[];
+  };
 }
-}
-

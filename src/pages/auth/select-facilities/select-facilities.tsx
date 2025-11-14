@@ -1,4 +1,3 @@
-import { useGetListFacility } from "../hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,23 +13,27 @@ import {
   Stethoscope,
   Users,
 } from "lucide-react";
-import { Avatar as AvatarATD, List, Spin } from "antd";
+import { List } from "antd";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logOut, selectFacility } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { clearTokens } from "@/lib/actions/auth";
 import { PATH_ROUTE_ADMIN } from "@/site/admin.site/libs/enums/path";
-import { useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { loadingAtom } from "@/stores/loading";
 import type { IFacility } from "@/lib/axios/axios-type";
+import { userAtom } from "@/stores/auth";
 
 export default function SelectFacilities() {
-  const [selectedRole, setSelectedRole] = useState<number | null>(0);
+  const [selectedRole, setSelectedRole] = useState<"ADMIN" | "DOCTOR" | "USER">(
+    "ADMIN"
+  );
 
   const setLoad = useSetAtom(loadingAtom);
 
-  const { data, isLoading } = useGetListFacility();
+  const infoUser = useAtomValue(userAtom);
+  console.log("user", infoUser);
 
   const getUserInitials = (name: string) => {
     return name
@@ -42,18 +45,17 @@ export default function SelectFacilities() {
   };
 
   const user = {
-    name: "Mạnh Quỳnh Đỗ",
-    email: "trieunguyet66+117@yahoo.com",
+    name: infoUser?.fullName,
+    email: infoUser?.email,
     avatar:
       "https://d1hjkbq40fs2x4.cloudfront.net/2017-08-21/files/landscape-photography_1645.jpg",
-    roles: ["admin", "doctor"], // User có cả 2 quyền
   };
 
   // Danh sách quyền có thể chọn
-  const availableRoles = data?.info?.roles.map((val, index) => {
+  const availableRoles = infoUser?.roles.map((val) => {
     const isAdmin = val.role === "ADMIN";
     return {
-      id: index,
+      id: val.role,
       name: isAdmin ? "Quản trị viên" : "Bác sĩ",
       icon: isAdmin ? Shield : Stethoscope,
       description: isAdmin
@@ -65,15 +67,15 @@ export default function SelectFacilities() {
     };
   });
 
-  const handleRoleSelect = (roleId: string) => {
-    // setSelectedRole(roleId);
+  const handleRoleSelect = (roleId: "ADMIN" | "DOCTOR" | "USER") => {
+    setSelectedRole(roleId);
   };
 
   const getRoleIcon = (roleId: string) => {
     switch (roleId) {
-      case "admin":
+      case "ADMIN":
         return <Shield className="h-4 w-4" />;
-      case "doctor":
+      case "DOCTOR":
         return <Stethoscope className="h-4 w-4" />;
       default:
         return <UserCheck className="h-4 w-4" />;
@@ -114,7 +116,7 @@ export default function SelectFacilities() {
   const mutationSelectFacility = useMutation({
     mutationFn: selectFacility,
     onSuccess: () => {
-      toast.success("Chọn thành công thành công");
+      toast.success("Chọn cơ sở thành công");
       queryClient.refetchQueries({ queryKey: ["me"], exact: true });
     },
     onError: (error) => {
@@ -128,8 +130,14 @@ export default function SelectFacilities() {
     mutation.mutate();
   };
 
-  const handleClickFacility = (item: IFacility) => {
-    mutationSelectFacility.mutate(item);
+  const handleClickFacility = (
+    item: IFacility,
+    role: "ADMIN" | "DOCTOR" | "USER"
+  ) => {
+    mutationSelectFacility.mutate({
+      ...item,
+      role,
+    });
   };
 
   return (
@@ -166,7 +174,7 @@ export default function SelectFacilities() {
                 sideOffset={8}
               >
                 <DropdownMenuItem
-                  className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  className="cursor-pointer focus:text-red-600 hover:bg-gray-100 focus:bg-red-50"
                   onClick={handleLogout}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
@@ -179,109 +187,112 @@ export default function SelectFacilities() {
       </header>
 
       <div className="flex-1 flex items-center justify-center p-6">
-        {isLoading ? (
-          <Spin spinning />
-        ) : (
-          <div className="w-full max-w-6xl">
-            {/* Header Section */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                Chào mừng trở lại, {user.name}!
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Vui lòng chọn vai trò và cơ sở y tế mà bạn muốn làm việc.
-              </p>
+        <div className="w-full max-w-4xl">
+          {/* Header Section */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
+              Chào mừng trở lại: {user.name}!
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Vui lòng chọn vai trò và cơ sở y tế mà bạn muốn làm việc.
+            </p>
+          </div>
+
+          {/* Role Selection */}
+          <div className="bg-white rounded-md border border-gray-200 p-5">
+            <div className="text-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center gap-2">
+                <Users className="h-5 w-5 text-blue-600" />
+                Chọn vai trò làm việc
+              </h2>
             </div>
 
-            {/* Role Selection */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
-              <div className="text-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center gap-2">
-                  <Users className="h-5 w-5 text-blue-600" />
-                  Chọn vai trò làm việc
-                </h2>
-              </div>
+            <div className={`grid ${getGridClass()} gap-4 mx-auto`}>
+              {availableRoles?.map((role) => {
+                const IconComponent = role.icon;
+                const isSelected = selectedRole === role.id;
 
-              <div className={`grid ${getGridClass()} gap-4 mx-auto`}>
-                {availableRoles?.map((role) => {
-                  const IconComponent = role.icon;
-                  const isSelected = selectedRole === role.id;
-
-                  return (
-                    <button
-                      key={role.id}
-                      // onClick={() => handleRoleSelect(role.id)}
-                      className={`p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md ${
-                        isSelected
-                          ? "border-blue-500 bg-blue-50 shadow-md"
-                          : "border-gray-200 hover:border-blue-300"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className={`p-2 rounded-lg ${role.color}`}>
-                          <IconComponent className="h-5 w-5" />
-                        </div>
-                        <span className="font-semibold text-gray-900">
-                          {role.name}
-                        </span>
-                        {isSelected && (
-                          <div className="ml-auto bg-blue-500 text-white p-1 rounded-full">
-                            <UserCheck className="h-3 w-3" />
-                          </div>
-                        )}
+                return (
+                  <div
+                    key={role.id}
+                    onClick={() => handleRoleSelect(role.id)}
+                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-left hover:shadow-md ${
+                      isSelected
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-blue-300"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`p-2 rounded-lg ${role.color}`}>
+                        <IconComponent className="h-5 w-5" />
                       </div>
-                      <p className="text-sm text-gray-600">
-                        {role.description}
-                      </p>
-                    </button>
-                  );
-                })}
-              </div>
+                      <span className="font-semibold text-gray-900">
+                        {role.name}
+                      </span>
+                      {isSelected && (
+                        <div className="ml-auto bg-blue-500 text-white p-1 rounded-full">
+                          <UserCheck className="h-3 w-3" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600">{role.description}</p>
+                  </div>
+                );
+              })}
             </div>
-
             {/* Facilities List */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mx-auto">
+            <div className="bg-white border-t mt-5 border-gray-200 mx-auto">
               <List
                 itemLayout="horizontal"
-                dataSource={data?.info?.facilities}
+                dataSource={infoUser?.roles}
                 renderItem={(item) => (
                   <List.Item
-                    className="px-4! hover:bg-gray-100 transition-all duration-200 border-b border-gray-100 last:border-b-0 cursor-pointer"
-                    onClick={() => handleClickFacility(item)}
+                    className={`px-4! transition-all duration-200 border-b border-gray-100 last:border-b-0 ${
+                      selectedRole !== item.role
+                        ? "bg-gray-100! cursor-not-allowed"
+                        : "cursor-pointer hover:bg-[#a2f7cc]"
+                    } ${!item.facility?.name && "pointer-events-none"}`}
+                    onClick={() =>
+                      handleClickFacility(item.facility, item.role)
+                    }
                   >
                     <List.Item.Meta
                       avatar={
-                        <AvatarATD
-                          src={
-                            "https://d1hjkbq40fs2x4.cloudfront.net/2017-08-21/files/landscape-photography_1645.jpg"
-                          }
-                          className="h-[70px]! w-[70px]! border-2! border-blue-300! shadow-sm"
-                        />
+                        <Avatar className="h-[70px]! w-[70px]! border-2! border-blue-300! shadow-sm">
+                          <AvatarImage
+                            src={item.facility?.imageUrl}
+                            alt={item.facility?.name}
+                          />
+                          <AvatarFallback className="bg-linear-to-br from-blue-500 to-purple-600 text-white text-sm font-medium">
+                            {item.facility?.name
+                              ? getUserInitials(item.facility?.name)
+                              : "U"}
+                          </AvatarFallback>
+                        </Avatar>
                       }
                       title={
                         <div className="text-lg font-semibold text-gray-900">
-                          {item.name}
+                          {item.facility?.name || "Chưa có cơ sở"}
                         </div>
                       }
                       description={
                         <div className="space-y-2">
-                          <div className="text-gray-600">{item.address}</div>
+                          <div className="text-gray-600">
+                            {item.facility?.address}
+                          </div>
                           <div className="flex flex-wrap gap-2 mt-2">
-                            {data?.info?.roles?.map((val) => (
-                              <div
-                                key={val.role}
-                                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                                  val.role === "ADMIN"
-                                    ? "bg-purple-100 text-purple-800"
-                                    : "bg-blue-100 text-blue-800"
-                                }`}
-                              >
-                                {getRoleIcon(val.role)}
-                                <span>
-                                  {val.role === "ADMIN" ? "Quản trị" : "Bác sĩ"}
-                                </span>
-                              </div>
-                            ))}
+                            <div
+                              className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
+                                item.role === "ADMIN"
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-blue-100 text-blue-800"
+                              }`}
+                            >
+                              {getRoleIcon(item.role)}
+                              <span>
+                                {item.role === "ADMIN" ? "Quản trị" : "Bác sĩ"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       }
@@ -291,22 +302,22 @@ export default function SelectFacilities() {
                 className="w-full"
                 locale={{
                   emptyText:
-                    data?.info?.facilities?.length === 0 && "Không có dữ liệu",
+                    infoUser?.roles?.length === 0 && "Không có dữ liệu",
                 }}
               />
             </div>
-
-            {/* Footer Note */}
-            <div className="text-center mt-6">
-              <p className="text-sm text-gray-500">
-                Không thấy cơ sở hoặc vai trò phù hợp?{" "}
-                <button className="text-blue-600 hover:text-blue-700 font-medium underline">
-                  Liên hệ quản trị viên
-                </button>
-              </p>
-            </div>
           </div>
-        )}
+
+          {/* Footer Note */}
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-500">
+              Không thấy cơ sở hoặc vai trò phù hợp?{" "}
+              <button className="text-blue-600 hover:text-blue-700 font-medium underline">
+                Liên hệ quản trị viên
+              </button>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

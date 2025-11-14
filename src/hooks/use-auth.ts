@@ -12,12 +12,7 @@ const logOut = async () => {
 };
 
 const selectFacility = async (data: IFacility) => {
-  try {
-    const result = await authApi.selectFacility(data);
-    return result.data;
-  } catch (error: any) {
-    toast.error(error.response?.data.message || "Không lấy được thông tin");
-  }
+  return authApi.selectFacility(data);
 };
 
-export { logOut,selectFacility };
+export { logOut, selectFacility };

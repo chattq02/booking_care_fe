@@ -1,3 +1,5 @@
+import type { IFacility } from "@/lib/axios/axios-type";
+
 export interface LoginForm {
   email: string;
   password: string;
@@ -8,7 +10,10 @@ export interface LoginResponseData {
   refresh_token: string;
 }
 
-export type UserRole = "ADMIN" | "USER" | "DOCTOR";
+export type UserRole = {
+  role: "ADMIN" | "USER" | "DOCTOR";
+  facility: IFacility;
+};
 export type UserStatus = "Active" | "InActive" | "Pending" | "Banned" | "All";
 
 export interface GetMeResponseData {
@@ -24,7 +29,7 @@ export interface GetMeResponseData {
   createdAt: string;
   updatedAt: string;
   roles: UserRole[];
-  is_selected?: boolean
+  is_selected?: boolean;
 }
 
 export interface RefreshTokenResponse {
