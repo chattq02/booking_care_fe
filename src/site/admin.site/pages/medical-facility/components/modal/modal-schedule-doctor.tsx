@@ -589,7 +589,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       setShowValidation(true);
 
       // Kiểm tra config cuối cùng có hợp lệ không
-      if (!isLastConfigValid()) {
+      if (!areAllConfigsValid()) {
         messageApi.error(
           "Vui lòng hoàn thành cấu hình hiện tại trước khi thêm mới!"
         );
@@ -1147,6 +1147,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             key="add-more"
             icon={<PlusOutlined />}
             onClick={handleAddNewConfig}
+            disabled={isSubmitDisabled}
           >
             Thêm tiếp
           </Button>,
