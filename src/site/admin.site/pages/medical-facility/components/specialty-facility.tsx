@@ -1,9 +1,5 @@
 import { Button as ButtonAnt, Flex } from "antd";
 import { forwardRef, useRef } from "react";
-import {
-  HospitalScheduleModal,
-  type HospitalScheduleRef,
-} from "./modal/modal-schedule-facility";
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDepartment } from "../../specialty/type";
 import { MinusSquareOutlined, PlusSquareOutlined } from "@ant-design/icons";
@@ -34,7 +30,6 @@ interface IProps {
 
 const SpecialtyFacility = forwardRef<HTMLDivElement, IProps>(
   ({ facilityId }, ref) => {
-    const hospitalScheduleModalRef = useRef<HospitalScheduleRef>(null);
     const modelDepartmentRef = useRef<ModalDepartmentRef>(null);
     const { data: listSpecialty, isLoading } = useGetTreeDepartment(facilityId);
 
@@ -200,7 +195,6 @@ const SpecialtyFacility = forwardRef<HTMLDivElement, IProps>(
           />
           <ModalDepartment ref={modelDepartmentRef} facilityId={facilityId} />
         </div>
-        <HospitalScheduleModal ref={hospitalScheduleModalRef} />
       </>
     );
   }

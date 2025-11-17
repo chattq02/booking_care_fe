@@ -16,7 +16,7 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
     const hospitalScheduleModalRef = useRef<HospitalScheduleRef>(null);
 
     const { data: listSchedule, isLoading } = useGetListSchedule({
-      Id: Number(facilityId),
+      id: Number(facilityId),
       type: "FACILITY",
       keyword: "",
       page: 1,

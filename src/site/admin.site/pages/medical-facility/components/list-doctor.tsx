@@ -136,7 +136,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => doctorScheduleRef.current?.showModal(record)}
+              // onClick={() => doctorScheduleRef.current?.showModal(record)}
             >
               Xem lịch hẹn
             </DropdownMenuItem>

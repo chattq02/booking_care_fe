@@ -26,7 +26,7 @@ type ScheduleStatus = "NORMAL" | "OFF" | "FIXED";
 
 export interface ScheduleParams extends IParams {
   type?: ScheduleType;
-  Id: number | undefined;
+  id: number | undefined;
 }
 
 export interface ResponseSchedule {

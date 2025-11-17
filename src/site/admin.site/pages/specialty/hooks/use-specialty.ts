@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-import type { IParams } from "@/types/params";
-import type { ResponseDepartment } from "../type";
+import type { IPramsGetUsersDepartment, ResponseDepartment } from "../type";
 import { toast } from "sonner";
 import departmentAdmin from "@/site/admin.site/apis/specialty";
 import { loadingAtom } from "@/stores/loading";
 import { useSetAtom } from "jotai";
+import { useMemo } from "react";
+import { stringify } from "qs";
 
 interface UseCreateDepartmentOptions {
   onSuccessCallback?: () => void; // callback khi thành công
@@ -13,10 +13,34 @@ interface UseCreateDepartmentOptions {
 }
 
 // 🔹 Lấy danh sách khoa
-export const useGetListDepartment = (params: IParams, enabled = true) => {
+export const useGetListDepartment = (
+  params: IPramsGetUsersDepartment,
+  enabled = true
+) => {
+  const key = useMemo(() => stringify(params), [params]);
   return useQuery({
-    queryKey: ["departments", params],
-    queryFn: () => departmentAdmin.getList(params),
+    queryKey: ["departments", key],
+    queryFn: async () => {
+      const res = await departmentAdmin.getList(params);
+      return res.data;
+    },
+    enabled: enabled,
+  });
+};
+
+// 🔹 Lấy danh sách user trong khoa
+export const useGetUsersDepartment = (
+  id: number | undefined,
+  params: IPramsGetUsersDepartment,
+  enabled = true
+) => {
+  const key = useMemo(() => stringify(params), [params]);
+  return useQuery({
+    queryKey: ["getUserDepartment", key, id],
+    queryFn: async () => {
+      const res = await departmentAdmin.getUsersDepartment(id, params);
+      return res.data;
+    },
     enabled: enabled,
   });
 };

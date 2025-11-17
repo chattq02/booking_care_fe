@@ -4,7 +4,11 @@ import type {
   ResponseResult,
 } from "@/lib/axios/axios-type";
 import type { IParams } from "@/types/params";
-import type { ResponseDepartment } from "../pages/specialty/type";
+import type {
+  IPramsGetUsersDepartment,
+  IResponseGetUsersDepartment,
+  ResponseDepartment,
+} from "../pages/specialty/type";
 
 const departmentAdmin = {
   /**
@@ -13,12 +17,11 @@ const departmentAdmin = {
   getList: async (
     params?: IParams
   ): Promise<ResponseParamsResult<ResponseDepartment[]>> => {
-    const result = await axiosWithToken.get("/admin/department", {
+    return axiosWithToken.get("/admin/department", {
       params: {
         ...params,
       },
     });
-    return result.data;
   },
 
   /**
@@ -46,6 +49,18 @@ const departmentAdmin = {
    */
   update: (data: ResponseDepartment) => {
     return axiosWithToken.put(`/admin/department/${data.id}`, data);
+  },
+
+  /**
+   * Lấy thông tin người dùng trong phòng ban
+   */
+  getUsersDepartment: (
+    id: number | undefined,
+    params: IPramsGetUsersDepartment
+  ): Promise<ResponseParamsResult<IResponseGetUsersDepartment[]>> => {
+    return axiosWithToken.get(`/admin/department/${id}/users`, {
+      params: params,
+    });
   },
 
   /**
