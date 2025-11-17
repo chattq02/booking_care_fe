@@ -18,6 +18,7 @@ export const useGetListSchedule = (params: ScheduleParams, enabled = true) => {
     },
     enabled,
     placeholderData: (prev) => prev,
+    staleTime:  1000 * 60 * 5
   });
 };
 
@@ -33,6 +34,27 @@ export const useUpdateScheduleFacility = ({
       scheduleAdmin.update(restProps.id_schedule, data),
     onSuccess: () => {
       toast.success("Cập nhật lịch hẹn thành công");
+      queryClient.invalidateQueries({ queryKey: ["ListSchedule"] });
+      onSuccessCallback?.();
+    },
+    onError: (error: any) => {
+      onErrorCallback?.();
+      toast.error(error.response?.data?.message || "Lỗi cập nhật");
+    },
+  });
+};
+
+// 🔹 Tạo lịch hẹn
+export const useCreateScheduleFacility = ({
+  onSuccessCallback,
+  onErrorCallback,
+}: UseOptions & Record<string, any> = {}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: IWorkSchedule) =>
+      scheduleAdmin.create(data),
+    onSuccess: () => {
+      toast.success("Tạo lịch hẹn thành công");
       queryClient.invalidateQueries({ queryKey: ["ListSchedule"] });
       onSuccessCallback?.();
     },

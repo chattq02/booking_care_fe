@@ -54,8 +54,11 @@ export interface ISlots {
 
 export interface IWorkSchedule {
   type: ScheduleType;
-  slots: ISlots;
+  slots: unknown;
   status: ScheduleStatus;
+  doctorId?: number;
+  facilityId?: number;
+  departmentId?: number;
 }
 
 export type Shift = {

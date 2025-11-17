@@ -36,8 +36,8 @@ const scheduleAdmin = {
   /**
    * ➕ Tạo mới cơ sở y tế
    */
-  create: (data: ResponseMedicalFacility) => {
-    return axiosWithToken.post("/admin/medical-facility", data);
+  create: (data: IWorkSchedule) => {
+    return axiosWithToken.post("/schedule/create", data);
   },
 
   /**

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Empty, Spin } from "antd";
+import { Empty, Spin, Tooltip } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useGetUsersDepartment } from "../../specialty/hooks/use-specialty";
 import { useParams } from "react-router-dom";
@@ -10,6 +10,7 @@ import {
   type DoctorScheduleRef,
 } from "./modal/modal-schedule-doctor";
 import type { IResponseGetUsersDepartment } from "../../specialty/type";
+import { CirclePlus } from "lucide-react";
 
 dayjs.locale("vi");
 
@@ -217,7 +218,11 @@ export default function CalendarTask({
           </>
         )}
       </div>
-      <DoctorScheduleModal ref={doctorScheduleRef} />
+      <DoctorScheduleModal
+        ref={doctorScheduleRef}
+        departmentId={Number(departmentId)}
+        facilityId={Number(id)}
+      />
     </div>
   );
 }

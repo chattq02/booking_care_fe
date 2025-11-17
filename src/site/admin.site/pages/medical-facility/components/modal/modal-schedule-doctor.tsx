@@ -23,6 +23,8 @@ import { useSetAtom } from "jotai";
 import { loadingAtom } from "@/stores/loading";
 import dayjs from "dayjs";
 import type { IResponseGetUsersDepartment } from "../../../specialty/type";
+import { useCreateScheduleFacility } from "../../hooks/use-schedule";
+import type { IWorkSchedule } from "../../type";
 
 const { Option } = Select;
 
@@ -58,7 +60,10 @@ export interface DoctorScheduleRef {
   hideModal: () => void;
 }
 
-interface IProps {}
+interface IProps {
+  departmentId: number;
+  facilityId: number;
+}
 
 const generateFakeData = () => {
   const today = dayjs();
@@ -205,11 +210,13 @@ const generateFakeData = () => {
   return fakeConfigs;
 };
 export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
-  ({}, ref) => {
+  ({ departmentId, facilityId }, ref) => {
     const [visible, setVisible] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [modal, modalElement] = Modal.useModal();
+    const create = useCreateScheduleFacility();
     const [form] = Form.useForm();
+    const [infoDoctor, setDoctor] = useState<IResponseGetUsersDepartment>();
     const [scheduleConfigs, setScheduleConfigs] = useState<ScheduleConfig[]>([
       {
         id: v4(),
@@ -253,13 +260,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     // Kiểm tra tất cả config có hợp lệ không
     const areAllConfigsValid = useCallback((): boolean => {
       return scheduleConfigs.every((config) => isConfigValid(config));
-    }, [scheduleConfigs, isConfigValid]);
-
-    // Kiểm tra config cuối cùng có hợp lệ không (dùng cho thêm tiếp)
-    const isLastConfigValid = useCallback((): boolean => {
-      if (scheduleConfigs.length === 0) return false;
-      const lastConfig = scheduleConfigs[scheduleConfigs.length - 1];
-      return isConfigValid(lastConfig);
     }, [scheduleConfigs, isConfigValid]);
 
     // Hàm tạo timeline slots với useCallback để tối ưu performance
@@ -715,6 +715,25 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         };
       });
 
+      const dataSave: IWorkSchedule = {
+        type: "DOCTOR",
+        slots: slots,
+        status: "NORMAL",
+        departmentId: departmentId,
+        doctorId: infoDoctor?.id,
+        facilityId: facilityId,
+      };
+
+      create.mutate(dataSave, {
+        onSuccess: () => {
+          hideModal();
+          setLoading(false);
+        },
+        onError: () => {
+          setLoading(false);
+        },
+      });
+
       console.log("slots", slots);
 
       messageApi.success("Cấu hình lịch làm việc thành công!");
@@ -734,6 +753,8 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       type: "create" | "update"
     ) => {
       setVisible(true);
+      setModalType(type);
+      setDoctor(doctor);
       // Reset form khi mở modal
       form.resetFields();
 
@@ -1130,7 +1151,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         onCancel={hideModal}
         styles={{
           body: {
-            maxHeight: "80vh",
+            height: "75vh",
             overflowY: "auto",
             overflowX: "hidden",
           },
