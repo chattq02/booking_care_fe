@@ -7,6 +7,7 @@ import type {
   IWorkSchedule,
   ResponseMedicalFacility,
   ResponseSchedule,
+  ScheduleDateByDoctor,
   ScheduleParams,
 } from "../pages/medical-facility/type";
 import type { MedicalFacilityParams } from "../pages/medical-facility/store/params";
@@ -53,7 +54,16 @@ const scheduleAdmin = {
   delete: (id: number) => {
     return axiosWithToken.delete(`/admin/medical-facility/${id}`);
   },
-
+  /**
+   * 🗑️ Xóa cơ sở y tế
+   */
+  getScheduleByDay: (params: ScheduleDateByDoctor) => {
+    return axiosWithToken.get(`schedule/get-schedule-doctor-day`, {
+      params: {
+        ...params,
+      },
+    });
+  },
   /**
    * lấy thông tin bác sĩ
    */

@@ -11,22 +11,10 @@ import {
 } from "./modal/modal-schedule-doctor";
 import type { IResponseGetUsersDepartment } from "../../specialty/type";
 import { CirclePlus } from "lucide-react";
+import scheduleAdmin from "@/site/admin.site/apis/schedule";
+import { toast } from "sonner";
 
 dayjs.locale("vi");
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  day: number; // 0-6 (Thứ 2-Chủ Nhật)
-  user: User;
-}
-
-interface User {
-  id: string;
-  name: string;
-  avatar: string;
-}
 
 interface DayColor {
   color: string;
@@ -122,21 +110,30 @@ export default function CalendarTask({
   };
 
   // Hàm xử lý khi click vào task
-  const handleTaskClick = (task: any) => {
-    console.log("Task clicked:", task);
-    // doctorScheduleRef.current?.showModal(task.user, "edit", task);
+  const handleTaskClick = async (day: Dayjs, doctorId: number) => {
+    try {
+      const result = await scheduleAdmin.getScheduleByDay({
+        doctorId: doctorId,
+        facilityId: Number(id),
+        departmentId: departmentId || 0,
+        date: day.format("YYYY-MM-DD"),
+      });
+
+      if (result && result.data) {
+        doctorScheduleRef.current?.showModal(result.data, "update");
+      }
+    } catch (error) {
+      toast.error("Lỗi khi lấy lịch hẹn bác sĩ");
+    }
   };
 
-  const TaskCard = ({ task }: { task: any }) => (
-    <div
-      className="bg-white rounded-md p-2 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer mb-2"
-      onClick={() => handleTaskClick(task)}
-    >
-      <div className="text-xs font-semibold text-gray-800 line-clamp-1">
-        {task.title}
+  const TaskCard = ({ taskCount }: { taskCount: number }) => (
+    <div className=" bg-linear-to-br from-white to-blue-50 rounded-lg p-4 border border-blue-100 hover:shadow-md transition-all duration-200 cursor-pointer">
+      <div className="text-sm font-semibold text-gray-700 mb-1 text-center">
+        Tổng số ca khám
       </div>
-      <div className="text-xs text-gray-600 mt-1 whitespace-pre-line leading-tight">
-        {task.description}
+      <div className="text-2xl font-bold text-blue-700 text-center">
+        {taskCount}
       </div>
     </div>
   );
@@ -215,7 +212,7 @@ export default function CalendarTask({
                 >
                   {/* User Info - Fixed on left */}
                   <div
-                    className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-start pt-6 sticky left-0 z-5 cursor-pointer"
+                    className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-center pt-6 sticky left-0 z-5 cursor-pointer"
                     onClick={() => handleClickUser(user)}
                   >
                     <Avatar
@@ -246,19 +243,17 @@ export default function CalendarTask({
                     return (
                       <div
                         key={dayIdx}
-                        className={`p-2 border-r border-gray-200 min-h-[120px] ${
+                        className={`p-2 border-r border-gray-200 flex items-center justify-center ${
                           today ? "bg-amber-50" : "bg-white"
                         }`}
                       >
                         {dayTasks.length > 0 ? (
-                          <div className="space-y-1">
-                            {dayTasks.map((task) => (
-                              <TaskCard key={task.id} task={task} />
-                            ))}
+                          <div onClick={() => handleTaskClick(day, user.id)}>
+                            <TaskCard taskCount={dayTasks.length} />
                           </div>
                         ) : (
                           <div
-                            className="flex justify-end items-end h-full cursor-pointer pt-16"
+                            className="flex justify-center items-center h-full cursor-pointer"
                             onClick={() => handleAddSchedule(user, day)}
                           >
                             <Tooltip placement="top" title={"Thêm lịch"}>

@@ -31,8 +31,8 @@ const authApi = {
     return axiosWithToken.post("/auth/logout");
   },
 
-  getMe: async (): Promise<ResponseResult<GetMeResponseData | null>> => {
-    return await axiosWithToken.post("/auth/me");
+  getMe: (): Promise<ResponseResult<GetMeResponseData | null>> => {
+    return axiosWithToken.post("/auth/me");
   },
 
   refreshToken: async (): Promise<

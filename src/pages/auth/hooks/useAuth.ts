@@ -1,7 +1,7 @@
 import authApi from "@/apis/auth.api";
 import type { LoginForm } from "@/types/auth";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 function useLogin() {

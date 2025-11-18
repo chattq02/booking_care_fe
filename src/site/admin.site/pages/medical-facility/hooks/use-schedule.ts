@@ -1,6 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import scheduleAdmin from "@/site/admin.site/apis/schedule";
-import type { IWorkSchedule, ScheduleParams } from "../type";
+import type {
+  IWorkSchedule,
+  ScheduleDateByDoctor,
+  ScheduleParams,
+} from "../type";
 import { toast } from "sonner";
 
 interface UseOptions {
@@ -59,5 +63,21 @@ export const useCreateScheduleFacility = ({
       onErrorCallback?.();
       toast.error(error.response?.data?.message || "Lỗi cập nhật");
     },
+  });
+};
+
+// 🔹 lấy chi tiết lịch hẹn từng ngày của bác sĩ
+export const useGetScheduleDateDetailByDoctor = (
+  params: ScheduleDateByDoctor
+) => {
+  return useQuery({
+    queryKey: ["getScheduleByDay", params],
+    queryFn: async () => {
+      const result = await scheduleAdmin.getScheduleByDay(params);
+      return result.data;
+    },
+
+    placeholderData: (prev) => prev,
+    staleTime: 1000 * 60 * 5,
   });
 };

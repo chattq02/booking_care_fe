@@ -87,6 +87,8 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         configName: "Cấu hình 1",
       },
     ]);
+
+    console.log("scheduleConfigs", scheduleConfigs);
     const [showValidation, setShowValidation] = useState(false);
 
     const setLoading = useSetAtom(loadingAtom);
@@ -120,7 +122,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       return scheduleConfigs.every((config) => isConfigValid(config));
     }, [scheduleConfigs, isConfigValid]);
 
-    // Hàm tạo timeline slots với useCallback để tối ưu performance
+    // Hàm tạo timeline slots với ID ỔN ĐỊNH
     const generateTimeSlots = useCallback(
       (startTime: Dayjs, endTime: Dayjs, duration: number): TimeSlot[] => {
         const slots: TimeSlot[] = [];
@@ -130,8 +132,13 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
           const slotEndTime = currentTime.add(duration, "minute");
           if (slotEndTime.isAfter(endTime)) break;
 
+          // Tạo ID ổn định dựa trên thời gian
+          const timeKey = `${currentTime.format("HH:mm")}-${slotEndTime.format(
+            "HH:mm"
+          )}`;
+
           slots.push({
-            id: v4(),
+            id: timeKey, // Sử dụng timeKey thay vì v4() để đảm bảo ổn định
             startTime: currentTime.format("HH:mm"),
             endTime: slotEndTime.format("HH:mm"),
             selected: false,
@@ -145,7 +152,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       []
     );
 
-    // Cập nhật schedules cho một config - GIỮ LẠI THÔNG TIN ĐÃ CHỌN
+    // Cập nhật schedules cho một config - FIXED: giữ trạng thái selected chính xác
     const updateConfigSchedules = useCallback(
       (
         config: ScheduleConfig,
@@ -163,8 +170,25 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
           const existingDay = existingSchedulesMap.get(dateStr);
 
           if (existingDay) {
-            // Giữ lại thông tin slots đã chọn nếu ngày đã tồn tại
-            return existingDay;
+            // Nếu đã có ngày này, tạo slots mới nhưng giữ trạng thái selected từ slots cũ
+            const newSlots = generateTimeSlots(start, end, duration);
+
+            // Map trạng thái selected từ slots cũ sang slots mới dựa trên ID ổn định
+            const oldSlotsMap = new Map(
+              existingDay.slots.map((slot) => [slot.id, slot])
+            );
+
+            const updatedSlots = newSlots.map((newSlot) => {
+              const oldSlot = oldSlotsMap.get(newSlot.id);
+              return oldSlot
+                ? { ...newSlot, selected: oldSlot.selected }
+                : newSlot;
+            });
+
+            return {
+              ...existingDay,
+              slots: updatedSlots,
+            };
           } else {
             // Tạo mới nếu ngày chưa tồn tại
             return {
@@ -202,7 +226,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       );
     };
 
-    // Xử lý khi chọn nhiều ngày cho một config - GIỮ LẠI SLOTS ĐÃ CHỌN
+    // Xử lý khi chọn nhiều ngày cho một config - FIXED
     const handleDateChange = (configId: string, dates: Dayjs[] | null) => {
       const newDates = dates || [];
 
@@ -246,7 +270,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       );
     };
 
-    // Xử lý khi thay đổi slot duration - CẬP NHẬT SLOTS MÀ VẪN GIỮ TRẠNG THÁI CHỌN
+    // Xử lý khi thay đổi slot duration - FIXED
     const handleSlotDurationChange = (configId: string, value: number) => {
       setScheduleConfigs((prev) =>
         prev.map((config) => {
@@ -256,47 +280,19 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             return { ...config, slotDuration: value };
           }
 
-          // Tạo slots mới với duration mới, nhưng giữ lại trạng thái selected nếu có
-          const updatedSchedules = config.daySchedules.map((daySchedule) => {
-            const newSlots = generateTimeSlots(
-              config.workStartTime,
-              config.workEndTime,
-              value
-            );
-
-            // Giữ lại trạng thái selected từ slots cũ nếu có
-            const oldSelectedSlots = daySchedule.slots.filter(
-              (slot) => slot.selected
-            );
-            if (oldSelectedSlots.length > 0) {
-              newSlots.forEach((newSlot) => {
-                const wasSelected = oldSelectedSlots.some(
-                  (oldSlot) =>
-                    oldSlot.startTime === newSlot.startTime &&
-                    oldSlot.endTime === newSlot.endTime
-                );
-                if (wasSelected) {
-                  newSlot.selected = true;
-                }
-              });
-            }
-
-            return {
-              ...daySchedule,
-              slots: newSlots,
-            };
-          });
-
-          return {
-            ...config,
-            slotDuration: value,
-            daySchedules: updatedSchedules,
-          };
+          // Sử dụng updateConfigSchedules đã được fix
+          return updateConfigSchedules(
+            config,
+            config.selectedDates,
+            value,
+            config.workStartTime,
+            config.workEndTime
+          );
         })
       );
     };
 
-    // Xử lý khi thay đổi giờ làm việc - SỬ DỤNG RANGE PICKER
+    // Xử lý khi thay đổi giờ làm việc - FIXED
     const handleWorkTimeChange = (
       configId: string,
       times: [Dayjs, Dayjs] | null
@@ -317,43 +313,14 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             };
           }
 
-          // Tạo slots mới với giờ làm việc mới, nhưng giữ lại trạng thái selected nếu có
-          const updatedSchedules = config.daySchedules.map((daySchedule) => {
-            const newSlots = generateTimeSlots(
-              startTime,
-              endTime,
-              config.slotDuration
-            );
-
-            // Giữ lại trạng thái selected từ slots cũ nếu có
-            const oldSelectedSlots = daySchedule.slots.filter(
-              (slot) => slot.selected
-            );
-            if (oldSelectedSlots.length > 0) {
-              newSlots.forEach((newSlot) => {
-                const wasSelected = oldSelectedSlots.some(
-                  (oldSlot) =>
-                    oldSlot.startTime === newSlot.startTime &&
-                    oldSlot.endTime === newSlot.endTime
-                );
-                if (wasSelected) {
-                  newSlot.selected = true;
-                }
-              });
-            }
-
-            return {
-              ...daySchedule,
-              slots: newSlots,
-            };
-          });
-
-          return {
-            ...config,
-            workStartTime: startTime,
-            workEndTime: endTime,
-            daySchedules: updatedSchedules,
-          };
+          // Sử dụng updateConfigSchedules đã được fix
+          return updateConfigSchedules(
+            config,
+            config.selectedDates,
+            config.slotDuration,
+            startTime,
+            endTime
+          );
         })
       );
     };
@@ -367,17 +334,19 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       );
     };
 
-    // Xử lý chọn/bỏ chọn slot
+    // Xử lý chọn/bỏ chọn slot - FIXED: thêm debug
     const handleSlotToggle = (
       configId: string,
       date: string,
       slotId: string
     ) => {
+      console.log("Toggle slot:", { configId, date, slotId });
+
       setScheduleConfigs((prev) =>
         prev.map((config) => {
           if (config.id !== configId) return config;
 
-          return {
+          const updatedConfig = {
             ...config,
             daySchedules: config.daySchedules.map((day) =>
               day.date === date
@@ -392,6 +361,16 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                 : day
             ),
           };
+
+          // Debug: log ra slots sau khi update
+          const updatedDay = updatedConfig.daySchedules.find(
+            (d) => d.date === date
+          );
+          if (updatedDay) {
+            console.log("Updated slots for date", date, updatedDay.slots);
+          }
+
+          return updatedConfig;
         })
       );
     };
@@ -601,8 +580,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       setShowValidation(false);
     };
 
-    const onFinishFailed = (errorInfo: any) => {
-      console.log("Failed:", errorInfo);
+    const onFinishFailed = () => {
       setShowValidation(true);
       messageApi.error("Vui lòng kiểm tra lại thông tin!");
     };
@@ -614,18 +592,71 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       setVisible(true);
       setModalType(type);
       setDoctor(doctor);
-      // Reset form khi mở modal
-      form.resetFields();
 
-      // const fakeConfigs = generateFakeData();
-      // setScheduleConfigs(fakeConfigs);
+      // Xử lý dữ liệu doctor để chuyển đổi thành ScheduleConfig[]
+      if (doctor) {
+        const processedConfigs = (doctor as any).map((config: any) => {
+          // Chuyển đổi workStartTime và workEndTime từ string sang Dayjs
+          const workStartTime = config.workStartTime
+            ? dayjs(config.workStartTime, "HH:mm")
+            : dayjs().set("hour", 8).set("minute", 0);
 
-      setShowValidation(false); // Tắt validate khi mở modal
+          const workEndTime = config.workEndTime
+            ? dayjs(config.workEndTime, "HH:mm")
+            : dayjs().set("hour", 17).set("minute", 0);
+
+          // Chuyển đổi selectedDates từ string[] sang Dayjs[]
+          const selectedDates = config.selectedDates
+            ? config.selectedDates.map((date: string) => dayjs(date))
+            : [];
+
+          // Xử lý daySchedules - đảm bảo slots có ID ổn định
+          const processedDaySchedules =
+            config.daySchedules?.map((day: any) => ({
+              ...day,
+              slots:
+                day.slots?.map((slot: any) => ({
+                  ...slot,
+                  id: `${slot.startTime}-${slot.endTime}`, // Đảm bảo ID ổn định
+                })) || [],
+            })) || [];
+
+          return {
+            id: config.id || v4(),
+            slotDuration: config.slotDuration || 30,
+            workStartTime,
+            workEndTime,
+            selectedDates,
+            daySchedules: processedDaySchedules,
+            price: Number(config.price) || 0,
+            configName:
+              config.configName || `Cấu hình ${scheduleConfigs.length + 1}`,
+          };
+        });
+
+        setScheduleConfigs(processedConfigs);
+      } else {
+        // Nếu không có dữ liệu, set default config
+        setScheduleConfigs([
+          {
+            id: v4(),
+            slotDuration: 30,
+            workStartTime: dayjs().set("hour", 8).set("minute", 0),
+            workEndTime: dayjs().set("hour", 17).set("minute", 0),
+            selectedDates: [],
+            daySchedules: [],
+            price: 0,
+            configName: "Cấu hình 1",
+          },
+        ]);
+      }
+
+      setShowValidation(false);
     };
 
     const hideModal = () => {
       setVisible(false);
-      setShowValidation(false); // Tắt validate khi đóng modal
+      setShowValidation(false);
     };
 
     useImperativeHandle(ref, () => ({
@@ -641,7 +672,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       );
     };
 
-    // Component cho một config
+    // Component cho một config - FIXED: sử dụng key ổn định
     const renderScheduleConfig = (config: ScheduleConfig) => {
       const isValid = isConfigValid(config);
       const shouldShowValidation = showValidation && !isValid;
@@ -740,8 +771,8 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                   }}
                   placeholder="Chọn các ngày làm việc"
                   value={config.selectedDates}
-                  maxTagCount="responsive"
                   defaultValue={config.selectedDates}
+                  maxTagCount="responsive"
                   onChange={(dates) => handleDateChange(config.id, dates)}
                   disabledDate={disabledDate(config.id)}
                 />
@@ -821,7 +852,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             </Col>
           </Row>
 
-          {/* Timeline slots */}
+          {/* Timeline slots - FIXED: sử dụng key ổn định */}
           {config.daySchedules.length > 0 && (
             <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
               <Col span={24}>
@@ -867,7 +898,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                         shouldShowValidation && !hasSelectedSlots;
 
                       return (
-                        <Col span={24} key={daySchedule.date}>
+                        <Col span={24} key={`${config.id}-${daySchedule.date}`}>
                           <Card
                             size="small"
                             title={
@@ -935,7 +966,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                             >
                               {daySchedule.slots.map((slot) => (
                                 <Tag
-                                  key={slot.id}
+                                  key={`${config.id}-${daySchedule.date}-${slot.id}`}
                                   color={slot.selected ? "blue" : "default"}
                                   style={{
                                     cursor: "pointer",

@@ -98,3 +98,10 @@ export interface ScheduleDataDoctor {
   type: string;
   status: string;
 }
+
+export interface ScheduleDateByDoctor {
+  doctorId: number;
+  facilityId: number;
+  departmentId: number;
+  date: string;
+}
