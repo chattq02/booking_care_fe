@@ -18,7 +18,7 @@ export const useGetListSchedule = (params: ScheduleParams, enabled = true) => {
     },
     enabled,
     placeholderData: (prev) => prev,
-    staleTime:  1000 * 60 * 5
+    staleTime: 1000 * 60 * 5,
   });
 };
 
@@ -49,13 +49,10 @@ export const useCreateScheduleFacility = ({
   onSuccessCallback,
   onErrorCallback,
 }: UseOptions & Record<string, any> = {}) => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: IWorkSchedule) =>
-      scheduleAdmin.create(data),
+    mutationFn: (data: IWorkSchedule) => scheduleAdmin.create(data),
     onSuccess: () => {
       toast.success("Tạo lịch hẹn thành công");
-      queryClient.invalidateQueries({ queryKey: ["ListSchedule"] });
       onSuccessCallback?.();
     },
     onError: (error: any) => {

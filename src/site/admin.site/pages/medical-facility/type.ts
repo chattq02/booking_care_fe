@@ -68,3 +68,33 @@ export type Shift = {
 };
 
 export type Slots = Record<string, Shift[]>;
+
+interface SlotData {
+  startTime: string;
+  endTime: string;
+  selected: boolean;
+}
+
+interface DaySchedule {
+  date: string;
+  dayOfWeek: string;
+  slots: SlotData[];
+}
+
+interface ScheduleConfig {
+  id: string;
+  configName: string;
+  workStartTime: string;
+  workEndTime: string;
+  slotDuration: number;
+  price: number;
+  daySchedules: DaySchedule[];
+  selectedDates: string[];
+}
+
+export interface ScheduleDataDoctor {
+  slots: ScheduleConfig[];
+  id: number;
+  type: string;
+  status: string;
+}

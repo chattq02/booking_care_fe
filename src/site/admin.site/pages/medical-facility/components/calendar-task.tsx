@@ -59,6 +59,7 @@ interface IProps {
   departmentId?: number;
 }
 
+// Component chính
 export default function CalendarTask({
   currentDate,
   keyWord,
@@ -66,7 +67,11 @@ export default function CalendarTask({
 }: IProps) {
   const doctorScheduleRef = useRef<DoctorScheduleRef>(null);
   const { id } = useParams();
-  const { data: listUser, isLoading } = useGetUsersDepartment(
+  const {
+    data: listUser,
+    isLoading,
+    refetch,
+  } = useGetUsersDepartment(
     departmentId,
     {
       keyword: keyWord,
@@ -77,32 +82,59 @@ export default function CalendarTask({
     departmentId !== undefined
   );
 
-  console.log("listUser", listUser);
-  // Get the start of the week (Thứ 2)
-  const getWeekStart = (date: Dayjs) => {
-    const day = date.day();
-    const diff = day === 0 ? 6 : day - 1;
-    return date.subtract(diff, "day");
+  // Hàm lấy tasks cho một ngày cụ thể của user
+  const getTasksForDay = (user: IResponseGetUsersDepartment, date: Dayjs) => {
+    const dateString = date.format("YYYY-MM-DD");
+    const userSchedules: any[] = [];
+    // Duyệt qua tất cả schedule configs
+    user.schedules.forEach((schedule) => {
+      schedule.slots.forEach((config) => {
+        // Tìm daySchedule phù hợp với ngày
+        const daySchedule = config.daySchedules.find(
+          (day) => day.date === dateString
+        );
+
+        if (daySchedule) {
+          // Lọc các slot đã được chọn (selected: true)
+          const selectedSlots = daySchedule.slots.filter(
+            (slot) => slot.selected
+          );
+
+          // Chuyển đổi sang định dạng task
+          selectedSlots.forEach((slot) => {
+            userSchedules.push({
+              id: `${config.id}-${slot.startTime}`,
+              title: config.configName,
+              description: `${slot.startTime} - ${
+                slot.endTime
+              }\n${config.price.toLocaleString()} VND`,
+              config: config,
+              slot: slot,
+              date: dateString,
+              user: user,
+            });
+          });
+        }
+      });
+    });
+
+    return userSchedules;
   };
 
-  const weekStart = getWeekStart(currentDate);
-  const weekDays = Array.from({ length: 7 }, (_, i) => weekStart.add(i, "day"));
-  // Kiểm tra xem ngày có phải là hôm nay không
-  const isToday = (date: Dayjs) => {
-    return date.format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD");
-  };
-  const getTasksForDay = (task: Task) => {
-    // doctorScheduleRef.current?.showModal();
-    console.log("task", task);
-    // return mockTasks.filter((task) => task.day === dayIndex);
+  // Hàm xử lý khi click vào task
+  const handleTaskClick = (task: any) => {
+    console.log("Task clicked:", task);
+    // doctorScheduleRef.current?.showModal(task.user, "edit", task);
   };
 
-  const TaskCard = ({ task }: { task: Task }) => (
+  const TaskCard = ({ task }: { task: any }) => (
     <div
-      className="bg-white rounded-md p-3 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer"
-      onClick={() => getTasksForDay(task)}
+      className="bg-white rounded-md p-2 border border-gray-200 hover:shadow-sm transition-shadow cursor-pointer mb-2"
+      onClick={() => handleTaskClick(task)}
     >
-      <div className="text-sm font-semibold text-gray-800">{task.title}</div>
+      <div className="text-xs font-semibold text-gray-800 line-clamp-1">
+        {task.title}
+      </div>
       <div className="text-xs text-gray-600 mt-1 whitespace-pre-line leading-tight">
         {task.description}
       </div>
@@ -113,11 +145,32 @@ export default function CalendarTask({
     doctorScheduleRef.current?.showModal(user, "create");
   };
 
+  const handleAddSchedule = (
+    user: IResponseGetUsersDepartment,
+    date: Dayjs
+  ) => {
+    doctorScheduleRef.current?.showModal(user, "create");
+  };
+
+  // Get the start of the week (Thứ 2)
+  const getWeekStart = (date: Dayjs) => {
+    const day = date.day();
+    const diff = day === 0 ? 6 : day - 1;
+    return date.subtract(diff, "day");
+  };
+
+  const weekStart = getWeekStart(currentDate);
+  const weekDays = Array.from({ length: 7 }, (_, i) => weekStart.add(i, "day"));
+
+  const isToday = (date: Dayjs) => {
+    return date.format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD");
+  };
+
   return (
     <div className="bg-white rounded-md mt-4 border border-gray-200 max-h-[calc(100vh-290px)] overflow-y-auto">
       {/* Fixed Days Header */}
       <div className="grid grid-cols-8 border-b border-gray-200 bg-white sticky top-0 z-6">
-        <div className="p-4 bg-gray-50 border-r border-gray-200 "></div>
+        <div className="p-4 bg-gray-50 border-r border-gray-200"></div>
         {weekDays.map((day, idx) => (
           <div
             key={idx}
@@ -127,7 +180,7 @@ export default function CalendarTask({
             className="p-4 text-center border-r border-gray-300 last:border-0 bg-blue-100 relative"
           >
             <div
-              className="text-xs font-semibold uppercase tracking-wide "
+              className="text-xs font-semibold uppercase tracking-wide"
               style={{
                 color: dayColors[idx].color,
               }}
@@ -136,10 +189,13 @@ export default function CalendarTask({
             </div>
             <div
               className={`text-xl font-bold mt-1 ${
-                isToday(day) ? "text-red-500 " : "text-gray-900"
+                isToday(day) ? "text-red-500" : "text-gray-900"
               }`}
             >
               {day.format("DD")}
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              {day.format("MM/YYYY")}
             </div>
           </div>
         ))}
@@ -152,14 +208,14 @@ export default function CalendarTask({
         ) : (
           <>
             {listUser?.data && listUser?.data?.length > 0 ? (
-              listUser?.data.map((user) => (
+              listUser.data.map((user) => (
                 <div
                   key={user.id}
-                  className="grid grid-cols-8 border-b border-gray-200 last:border-b-0"
+                  className="grid grid-cols-8 border-b border-gray-200 last:border-b-0 min-h-[120px]"
                 >
                   {/* User Info - Fixed on left */}
                   <div
-                    className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-start pt-6 sticky left-0 z-5"
+                    className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-start pt-6 sticky left-0 z-5 cursor-pointer"
                     onClick={() => handleClickUser(user)}
                   >
                     <Avatar
@@ -183,33 +239,36 @@ export default function CalendarTask({
                   </div>
 
                   {/* Tasks for each day */}
-                  {/* {Array.from({ length: 7 }).map((_, dayIdx) => {
-                    const dayTasks = mockTasks.filter(
-                      (task) => task.day === dayIdx && task.user.id === user.id
-                    );
-    
-                    const isToday = weekDays[dayIdx].isSame(dayjs(), "day");
+                  {weekDays.map((day, dayIdx) => {
+                    const dayTasks = getTasksForDay(user, day);
+                    const today = isToday(day);
+
                     return (
                       <div
                         key={dayIdx}
-                        className={`p-3 border-r border-gray-200 ${
-                          isToday ? "bg-amber-50" : "bg-white"
-                        } `}
+                        className={`p-2 border-r border-gray-200 min-h-[120px] ${
+                          today ? "bg-amber-50" : "bg-white"
+                        }`}
                       >
                         {dayTasks.length > 0 ? (
-                          dayTasks.map((task) => (
-                            <TaskCard key={task.id} task={task} />
-                          ))
+                          <div className="space-y-1">
+                            {dayTasks.map((task) => (
+                              <TaskCard key={task.id} task={task} />
+                            ))}
+                          </div>
                         ) : (
-                          <div className="flex justify-end items-end h-full cursor-pointer">
+                          <div
+                            className="flex justify-end items-end h-full cursor-pointer pt-16"
+                            onClick={() => handleAddSchedule(user, day)}
+                          >
                             <Tooltip placement="top" title={"Thêm lịch"}>
-                              <CirclePlus color="#1890FF" />
+                              <CirclePlus color="#1890FF" size={20} />
                             </Tooltip>
                           </div>
                         )}
                       </div>
                     );
-                  })} */}
+                  })}
                 </div>
               ))
             ) : (
@@ -220,6 +279,7 @@ export default function CalendarTask({
       </div>
       <DoctorScheduleModal
         ref={doctorScheduleRef}
+        refetch={refetch}
         departmentId={Number(departmentId)}
         facilityId={Number(id)}
       />

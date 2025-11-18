@@ -15,6 +15,7 @@ import {
   message,
   Tag,
   InputNumber,
+  Input,
 } from "antd";
 import { Dayjs } from "dayjs";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
@@ -63,154 +64,11 @@ export interface DoctorScheduleRef {
 interface IProps {
   departmentId: number;
   facilityId: number;
+  refetch: () => void;
 }
 
-const generateFakeData = () => {
-  const today = dayjs();
-  const fakeConfigs: ScheduleConfig[] = [
-    {
-      id: v4(),
-      slotDuration: 30,
-      workStartTime: today.set("hour", 8).set("minute", 0),
-      workEndTime: today.set("hour", 12).set("minute", 0),
-      selectedDates: [
-        today.add(1, "day"),
-        today.add(2, "day"),
-        today.add(3, "day"),
-      ],
-      daySchedules: [
-        {
-          date: today.add(1, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(1, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "08:00", endTime: "08:30", selected: true },
-            { id: v4(), startTime: "08:30", endTime: "09:00", selected: false },
-            { id: v4(), startTime: "09:00", endTime: "09:30", selected: true },
-            { id: v4(), startTime: "09:30", endTime: "10:00", selected: false },
-            { id: v4(), startTime: "10:00", endTime: "10:30", selected: true },
-            { id: v4(), startTime: "10:30", endTime: "11:00", selected: false },
-            { id: v4(), startTime: "11:00", endTime: "11:30", selected: true },
-            { id: v4(), startTime: "11:30", endTime: "12:00", selected: false },
-          ],
-        },
-        {
-          date: today.add(2, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(2, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "08:00", endTime: "08:30", selected: false },
-            { id: v4(), startTime: "08:30", endTime: "09:00", selected: true },
-            { id: v4(), startTime: "09:00", endTime: "09:30", selected: true },
-            { id: v4(), startTime: "09:30", endTime: "10:00", selected: false },
-            { id: v4(), startTime: "10:00", endTime: "10:30", selected: true },
-            { id: v4(), startTime: "10:30", endTime: "11:00", selected: true },
-            { id: v4(), startTime: "11:00", endTime: "11:30", selected: false },
-            { id: v4(), startTime: "11:30", endTime: "12:00", selected: true },
-          ],
-        },
-        {
-          date: today.add(3, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(3, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "08:00", endTime: "08:30", selected: true },
-            { id: v4(), startTime: "08:30", endTime: "09:00", selected: true },
-            { id: v4(), startTime: "09:00", endTime: "09:30", selected: true },
-            { id: v4(), startTime: "09:30", endTime: "10:00", selected: false },
-            { id: v4(), startTime: "10:00", endTime: "10:30", selected: true },
-            { id: v4(), startTime: "10:30", endTime: "11:00", selected: false },
-            { id: v4(), startTime: "11:00", endTime: "11:30", selected: true },
-            { id: v4(), startTime: "11:30", endTime: "12:00", selected: true },
-          ],
-        },
-      ],
-      price: 150000,
-      configName: "Khám thường - Buổi sáng",
-    },
-    {
-      id: v4(),
-      slotDuration: 45,
-      workStartTime: today.set("hour", 13).set("minute", 0),
-      workEndTime: today.set("hour", 17).set("minute", 0),
-      selectedDates: [
-        today.add(1, "day"),
-        today.add(4, "day"),
-        today.add(5, "day"),
-      ],
-      daySchedules: [
-        {
-          date: today.add(1, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(1, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "13:00", endTime: "13:45", selected: true },
-            { id: v4(), startTime: "13:45", endTime: "14:30", selected: false },
-            { id: v4(), startTime: "14:30", endTime: "15:15", selected: true },
-            { id: v4(), startTime: "15:15", endTime: "16:00", selected: true },
-            { id: v4(), startTime: "16:00", endTime: "16:45", selected: false },
-            { id: v4(), startTime: "16:45", endTime: "17:00", selected: true },
-          ],
-        },
-        {
-          date: today.add(4, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(4, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "13:00", endTime: "13:45", selected: false },
-            { id: v4(), startTime: "13:45", endTime: "14:30", selected: true },
-            { id: v4(), startTime: "14:30", endTime: "15:15", selected: true },
-            { id: v4(), startTime: "15:15", endTime: "16:00", selected: false },
-            { id: v4(), startTime: "16:00", endTime: "16:45", selected: true },
-            { id: v4(), startTime: "16:45", endTime: "17:00", selected: true },
-          ],
-        },
-        {
-          date: today.add(5, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(5, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "13:00", endTime: "13:45", selected: true },
-            { id: v4(), startTime: "13:45", endTime: "14:30", selected: true },
-            { id: v4(), startTime: "14:30", endTime: "15:15", selected: false },
-            { id: v4(), startTime: "15:15", endTime: "16:00", selected: true },
-            { id: v4(), startTime: "16:00", endTime: "16:45", selected: true },
-            { id: v4(), startTime: "16:45", endTime: "17:00", selected: false },
-          ],
-        },
-      ],
-      price: 200000,
-      configName: "Khám chuyên sâu - Buổi chiều",
-    },
-    {
-      id: v4(),
-      slotDuration: 60,
-      workStartTime: today.set("hour", 18).set("minute", 0),
-      workEndTime: today.set("hour", 21).set("minute", 0),
-      selectedDates: [today.add(6, "day"), today.add(7, "day")],
-      daySchedules: [
-        {
-          date: today.add(6, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(6, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "18:00", endTime: "19:00", selected: true },
-            { id: v4(), startTime: "19:00", endTime: "20:00", selected: false },
-            { id: v4(), startTime: "20:00", endTime: "21:00", selected: true },
-          ],
-        },
-        {
-          date: today.add(7, "day").format("YYYY-MM-DD"),
-          dayOfWeek: today.add(7, "day").format("ddd"),
-          slots: [
-            { id: v4(), startTime: "18:00", endTime: "19:00", selected: false },
-            { id: v4(), startTime: "19:00", endTime: "20:00", selected: true },
-            { id: v4(), startTime: "20:00", endTime: "21:00", selected: true },
-          ],
-        },
-      ],
-      price: 300000,
-      configName: "Khám ngoài giờ - Buổi tối",
-    },
-  ];
-
-  return fakeConfigs;
-};
 export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
-  ({ departmentId, facilityId }, ref) => {
+  ({ departmentId, facilityId, refetch }, ref) => {
     const [visible, setVisible] = useState(false);
     const [messageApi, contextHolder] = message.useMessage();
     const [modal, modalElement] = Modal.useModal();
@@ -665,7 +523,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     };
 
     // Xử lý submit form với validate
-    const onFinish = (values: any) => {
+    const onFinish = () => {
       // Bật chế độ hiển thị validate
       setShowValidation(true);
 
@@ -726,6 +584,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
 
       create.mutate(dataSave, {
         onSuccess: () => {
+          refetch();
           hideModal();
           setLoading(false);
         },
@@ -758,8 +617,8 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       // Reset form khi mở modal
       form.resetFields();
 
-      const fakeConfigs = generateFakeData();
-      setScheduleConfigs(fakeConfigs);
+      // const fakeConfigs = generateFakeData();
+      // setScheduleConfigs(fakeConfigs);
 
       setShowValidation(false); // Tắt validate khi mở modal
     };
@@ -774,6 +633,14 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       hideModal,
     }));
 
+    const handleConfigNameChange = (configId: string, name: string) => {
+      setScheduleConfigs((prev) =>
+        prev.map((config) =>
+          config.id === configId ? { ...config, configName: name } : config
+        )
+      );
+    };
+
     // Component cho một config
     const renderScheduleConfig = (config: ScheduleConfig) => {
       const isValid = isConfigValid(config);
@@ -787,7 +654,22 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
           key={config.id}
           title={
             <Space>
-              {config.configName}
+              <Input
+                value={config.configName}
+                onChange={(e) =>
+                  handleConfigNameChange(config.id, e.target.value)
+                }
+                style={{
+                  width: 250,
+                  fontWeight: "bold",
+                  borderColor:
+                    shouldShowValidation && config.configName.trim() === ""
+                      ? "#ff4d4f"
+                      : "#d9d9d9",
+                }}
+                placeholder="Tên cấu hình"
+                onClick={(e) => e.stopPropagation()}
+              />
               {shouldShowValidation && (
                 <Badge
                   status="error"

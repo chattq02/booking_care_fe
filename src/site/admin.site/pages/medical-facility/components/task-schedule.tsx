@@ -4,12 +4,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import dayjs, { Dayjs } from "dayjs";
 import SearchBox from "../../info-doctor/components/search-box";
 import { useGetListDepartment } from "../../specialty/hooks/use-specialty";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import CalendarTask from "./calendar-task";
 
 export default function TaskSchedule() {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [keyWord, setKeyWord] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { id } = useParams();
   const { data: listDepartment } = useGetListDepartment({
@@ -18,6 +19,13 @@ export default function TaskSchedule() {
     per_page: 150,
     facilityId: Number(id),
   });
+
+  // Lấy departmentId từ URL params
+  const departmentIdFromParams = searchParams.get("departmentId");
+  const [selectedDepartment, setSelectedDepartment] = useState<
+    number | undefined
+  >(departmentIdFromParams ? Number(departmentIdFromParams) : undefined);
+
   const getWeekStart = (date: Dayjs) => {
     const day = date.day();
     const diff = day === 0 ? 6 : day - 1;
@@ -25,9 +33,23 @@ export default function TaskSchedule() {
   };
 
   const weekStart = getWeekStart(currentDate);
-  const [selectedDepartment, setSelectedDepartment] = useState<
-    number | undefined
-  >(undefined);
+
+  const handleDepartmentChange = (value: number | undefined) => {
+    setSelectedDepartment(value);
+
+    // Cập nhật URL params trực tiếp khi onChange
+    const newParams = new URLSearchParams(searchParams);
+
+    if (value) {
+      newParams.set("departmentId", value.toString());
+      newParams.set("tab", "medicalSchedule");
+    } else {
+      newParams.delete("departmentId");
+      newParams.set("tab", "medicalSchedule");
+    }
+
+    setSearchParams(newParams);
+  };
 
   const handlePrevWeek = () => {
     setCurrentDate(currentDate.subtract(1, "week"));
@@ -62,7 +84,7 @@ export default function TaskSchedule() {
               />
               <Select
                 value={selectedDepartment || undefined}
-                onChange={setSelectedDepartment}
+                onChange={handleDepartmentChange}
                 style={{ width: 250 }}
                 placeholder="Chọn chuyên khoa"
                 popupMatchSelectWidth={false}
