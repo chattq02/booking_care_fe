@@ -1,10 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Plus, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PATH_ROUTE } from "@/site/user.site/lib/enums/path";
+import { Send } from "lucide-react";
 
 interface DoctorCardProps {
   id: string;
@@ -24,16 +23,16 @@ export function DoctorCard({
   const nav = useNavigate();
 
   return (
-    <Card className="shadow-none rounded-xl hover:shadow-md transition-all border-none py-0 gap-0">
+    <Card className="shadow-none rounded-md hover:shadow-md hover:border gap-0 transition-all duration-300 border border-gray-100 hover:border-blue-100 p-2.5 sm:p-3 w-full bg-white hover:bg-linear-to-br hover:from-white hover:to-blue-50/30 ">
       <div
-        className="flex p-3 gap-4 items-center cursor-pointer"
+        className="flex gap-4 items-center cursor-pointer pb-2.5 group-hover:from-blue-500/5 group-hover:via-purple-500/3 group-hover:to-pink-500/5 transition-all duration-500 "
         onClick={() => nav(`${PATH_ROUTE.DOCTORS}/${id}`)}
       >
-        <div className="w-22 h-22">
+        <div className="w-25 h-28 group-hover:from-blue-500/10 group-hover:to-purple-500/10 rounded-md transition-all duration-300">
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full rounded-full object-cover"
+            className="h-full w-full rounded-md object-cover"
           />
         </div>
 
@@ -51,14 +50,13 @@ export function DoctorCard({
           <div className="mt-1 text-[13px] text-[#455768]">{specialty}</div>
         </div>
       </div>
-      <Separator className="mr-2 data-[orientation=vertical]:h-4" />
-      <div className="flex justify-end items-center gap-2 p-2 mr-2">
-        <Button className="bg-main">
-          <Plus /> Tạo lịch khám
+      <div className="flex justify-between items-center gap-3 flex-wrap">
+        <Button className="bg-main flex-1">Tạo lịch khám</Button>
+        <Button variant="outline" className="bg-white flex-1">
+          Chi tiết
         </Button>
-        <Button variant="outline" className="bg-white">
+        <Button variant="outline" className="bg-white flex-1">
           <Send />
-          Liên hệ
         </Button>
       </div>
     </Card>

@@ -27,12 +27,12 @@ export function BreadcrumbPath() {
         {/* Trang chủ */}
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <span
-              className="cursor-pointer"
+            <div
+              className="font-bold text-[30px] text-[#5ca2b9] flex-1 cursor-pointer"
               onClick={() => nav(`${PATH_ROUTE.HOME}`)}
             >
-              Trang chủ
-            </span>
+              Booking Care
+            </div>
           </BreadcrumbLink>
         </BreadcrumbItem>
 

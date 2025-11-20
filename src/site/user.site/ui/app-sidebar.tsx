@@ -8,21 +8,10 @@ import {
   SidebarMenuButton,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Calendar } from "@/components/ui/calendar";
-import { vi } from "date-fns/locale";
-import {
-  BedSingle,
-  BellRing,
-  BookPlus,
-  HeartPulse,
-  IdCard,
-  Syringe,
-  TestTubeDiagonal,
-} from "lucide-react";
+import { BedSingle, BellRing, BookPlus, IdCard, Syringe } from "lucide-react";
 
 import { NavMain } from "./nav-main";
 import { useNavigate } from "react-router-dom";
-import { DialogCreateAppointment } from "../components/create-appointment-dialog";
 import { PATH_ROUTE } from "../lib/enums/path";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -36,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isActive: true,
       items: [
         {
-          name: "Bệnh viện",
+          name: "Cơ sở khám",
           icon: <BedSingle size={20} />,
           link: PATH_ROUTE.SPECIALISTEXAMINATION,
         },
@@ -48,11 +37,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Gói khám",
           icon: <Syringe size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
-        },
-        {
-          name: "Phòng khám",
-          icon: <HeartPulse size={20} />,
           link: PATH_ROUTE.GENERALEXAMINATION,
         },
       ],
@@ -70,7 +54,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenuButton className="h-10 px-4 gap-2 cursor-pointer">
+        <SidebarMenuButton className="h-10 px-4 gap-2 mt-2 cursor-pointer">
           <div>
             <BookPlus size={20} />
           </div>

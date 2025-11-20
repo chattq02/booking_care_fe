@@ -28,7 +28,11 @@ const loginSchema = z.object({
 // ✅ Type từ schema
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function Login() {
+interface IProps {
+  role: "User" | "Admin" | "Doctor";
+}
+
+export default function Login({ role }: IProps) {
   const {
     register,
     handleSubmit,
@@ -73,17 +77,20 @@ export default function Login() {
     <div className="grid min-h-svh lg:grid-cols-2 bg-[#b8e6f5]">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
-          <div className="flex items-center gap-2 font-medium">
+          <div
+            className="flex items-center gap-2 font-medium"
+            onClick={() => nav("/")}
+          >
             <div className="bg-primary text-primary-foreground flex h-6 w-6 items-center justify-center rounded-md">
               <CalendarDays className="h-4 w-4" />
             </div>
-            Booking Care Admin
+            {`Booking Care ${role}`}
           </div>
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-[350px] border bg-white rounded-lg border-gray-200 p-6 shadow-lg">
             <div className="mb-6 text-center">
-              <h1 className="text-2xl font-bold">Đăng nhập</h1>
+              <h1 className="text-2xl font-bold">{`Đăng nhập ${role}`} </h1>
             </div>
             <form
               className="flex flex-col gap-6"
@@ -172,7 +179,11 @@ export default function Login() {
 
       <div className="bg-muted relative hidden lg:block">
         <img
-          src="https://media.vietnamplus.vn/images/7255a701687d11cb8c6bbc58a6c807857325724597e663675ec183dd1bdecf03a71734f76da36d3428740fcf48f3b043cdb57feb901aea868e56e8a402356a73/ha_noi_1.jpg"
+          src={
+            role === "Admin"
+              ? "https://media.vietnamplus.vn/images/7255a701687d11cb8c6bbc58a6c807857325724597e663675ec183dd1bdecf03a71734f76da36d3428740fcf48f3b043cdb57feb901aea868e56e8a402356a73/ha_noi_1.jpg"
+              : "https://hanoiopentour.vn/wp-content/uploads/2021/10/ha-noi-bay-gio-co-gi-de-tham-quan-va-tim-hieu-3.webp"
+          }
           alt="Image"
           className="absolute inset-0 h-full w-full object-cover"
         />

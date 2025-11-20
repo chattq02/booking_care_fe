@@ -1,7 +1,7 @@
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
 import { Flex, Tag } from "antd";
-import { forwardRef, useRef } from "react";
+import { forwardRef } from "react";
 import { useGetListDoctorMedicalFacility } from "../hooks/use-medical-facility";
 import {
   DropdownMenu,
@@ -14,10 +14,6 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { Button as ButtonUI } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import {
-  DoctorScheduleModal,
-  type DoctorScheduleRef,
-} from "./modal/modal-schedule-doctor";
 
 interface IProps {
   facilityId: number;
@@ -30,8 +26,6 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
     page: 1,
     per_page: 50,
   });
-
-  const doctorScheduleRef = useRef<DoctorScheduleRef>(null);
 
   const columns: ColumnsType<ResponseDoctor> = [
     {
@@ -136,7 +130,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               className="hover:bg-gray-100 cursor-pointer"
-              // onClick={() => doctorScheduleRef.current?.showModal(record)}
+              onClick={() => console.log("record", record)}
             >
               Xem lịch hẹn
             </DropdownMenuItem>
@@ -179,7 +173,6 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         rowKey="id"
         loading={isLoading}
       />
-      <DoctorScheduleModal ref={doctorScheduleRef} />
     </div>
   );
 });

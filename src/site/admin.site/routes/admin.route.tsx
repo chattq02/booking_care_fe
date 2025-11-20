@@ -20,7 +20,7 @@ export const adminRoutes: RouteObject[] = [
   // Public routes - không cần auth
   {
     element: <GuardRouteLayout auth={false} redirect="/" />,
-    children: [{ path: "/login", element: <Login /> }],
+    children: [{ path: "/login", element: <Login role="Admin" /> }],
   },
   {
     element: <GuardRouteLayout auth={true} redirect={PATH_ROUTE_ADMIN.LOGIN} />,

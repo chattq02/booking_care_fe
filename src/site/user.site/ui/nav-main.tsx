@@ -46,9 +46,11 @@ export function NavMain({
             >
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
+                  <SidebarMenuButton tooltip={item.title} className="h-11">
                     <div>{item.icon}</div>
-                    <span className="text-[16px] font-bold">{item.title}</span>
+                    <div className="text-[16px] py-1! font-bold">
+                      {item.title}
+                    </div>
                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -63,9 +65,9 @@ export function NavMain({
                         >
                           <div>
                             <div>{subItem.icon}</div>
-                            <span className="text-[14px] font-bold">
+                            <div className="text-[14px] whitespace-pre-line line-clamp-2 font-bold">
                               {subItem.name}
-                            </span>
+                            </div>
                           </div>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
