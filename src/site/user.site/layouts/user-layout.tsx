@@ -13,7 +13,7 @@ export default function UserLayout() {
     },
   };
   return (
-    <>
+    <div className="h-screen flex flex-col">
       <header className="flex h-16 shrink-0 items-center gap-2 sticky top-0 border-b px-4 z-10 bg-white">
         <div className="flex flex-1 items-center gap-2 px-3">
           <BreadcrumbPath />
@@ -33,9 +33,11 @@ export default function UserLayout() {
           </div>
         </div>
       </header>
-      <div className="@container/main bg-[#f3f5f7] flex flex-1 flex-col">
+
+      {/* Quan trọng: min-h-0 để flex item có thể co lại */}
+      <div className="@container/main bg-[#f3f5f7] flex-1">
         <Outlet />
       </div>
-    </>
+    </div>
   );
 }

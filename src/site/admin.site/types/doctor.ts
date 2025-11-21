@@ -13,4 +13,17 @@ export interface ResponseDoctor {
   cccd: string | null;
   is_verify: "YES" | "NO";
   is_update_profile: "YES" | "NO";
+  academicTitle: {
+    id: number;
+    name: string;
+    description: string;
+  };
+  departments: {
+    id: number;
+    name: string;
+  }[];
+  facilities: {
+    id: number;
+    name: string;
+  }[];
 }

@@ -340,8 +340,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       date: string,
       slotId: string
     ) => {
-      console.log("Toggle slot:", { configId, date, slotId });
-
       setScheduleConfigs((prev) =>
         prev.map((config) => {
           if (config.id !== configId) return config;
@@ -561,16 +559,18 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         facilityId: facilityId,
       };
 
-      create.mutate(dataSave, {
-        onSuccess: () => {
-          refetch();
-          hideModal();
-          setLoading(false);
-        },
-        onError: () => {
-          setLoading(false);
-        },
-      });
+      if (modalType === "create") {
+        create.mutate(dataSave, {
+          onSuccess: () => {
+            refetch();
+            hideModal();
+            setLoading(false);
+          },
+          onError: () => {
+            setLoading(false);
+          },
+        });
+      }
 
       console.log("slots", slots);
 

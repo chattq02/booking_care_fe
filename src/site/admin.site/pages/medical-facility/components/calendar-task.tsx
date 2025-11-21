@@ -146,6 +146,7 @@ export default function CalendarTask({
     user: IResponseGetUsersDepartment,
     date: Dayjs
   ) => {
+    console.log(date);
     doctorScheduleRef.current?.showModal(user, "create");
   };
 
