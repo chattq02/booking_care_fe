@@ -1,21 +1,34 @@
-import { Row, Col, Layout } from "antd";
+import { Row, Col, Layout, Flex, Spin } from "antd";
 import {
   HeartFilled,
   TrophyOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
 import { DoctorCard } from "../doctors/components/doctor-card";
-import { useGetListDoctor } from "./hooks/useGetListDoctor";
+import { useGetListDoctor } from "../doctors/hooks/useDoctor";
 import BlockHome from "./components/block-home";
+import { useGetListFacility } from "../facility/hooks/useFacility";
+import { FacilityCard } from "../facility/components/facility-card";
+import { useNavigate } from "react-router-dom";
+import { PATH_ROUTE } from "../../lib/enums/path";
 
 const { Content } = Layout;
 
 export default function Home() {
-  const { data } = useGetListDoctor({
+  const { data, isLoading: loading_doctor } = useGetListDoctor({
     keyword: "",
     page: 1,
-    per_page: 9,
+    per_page: 6,
   });
+
+  const { data: data_facility, isLoading: loading_facility } =
+    useGetListFacility({
+      keyword: "",
+      page: 1,
+      per_page: 6,
+    });
+
+  const nav = useNavigate();
 
   return (
     <Layout className="bg-linear-to-br from-blue-50 via-white to-purple-50 min-h-screen">
@@ -48,26 +61,54 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Khối bác sĩ */}
-        <BlockHome
-          title="Đặt khám bác sĩ"
-          description="Phiếu khám kèm số thứ tự và thời gian của bạn được xác nhận."
-        >
-          <Row gutter={[16, 16]}>
-            {data?.data?.map((val) => (
-              <Col key={val.id} xs={24} sm={12} md={8} lg={8}>
-                <DoctorCard
-                  role={val.academicTitle.name}
-                  id={val.id}
-                  name={val.fullName}
-                  specialty={val.departments}
-                  imageUrl={val.avatar}
-                  facilities={val.facilities}
-                />
-              </Col>
-            ))}
-          </Row>
-        </BlockHome>
+        {loading_doctor || loading_facility ? (
+          <Spin spinning />
+        ) : (
+          <Flex vertical gap={50}>
+            {/* Khối bệnh viện */}
+            <BlockHome
+              title="Đặt khám bác sĩ"
+              description="Phiếu khám kèm số thứ tự và thời gian của bạn được xác nhận."
+              onClickViewMore={() => nav(PATH_ROUTE.LISTDOCTOR)}
+            >
+              <Row gutter={[16, 16]}>
+                {data?.map((val) => (
+                  <Col key={val.id} xs={24} sm={12} md={8} lg={8}>
+                    <DoctorCard
+                      role={val.academicTitle.name}
+                      id={val.id}
+                      name={val.fullName}
+                      specialty={val.departments}
+                      imageUrl={val.avatar}
+                      facilities={val.facilities}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </BlockHome>
+
+            {/* Khối bệnh viện */}
+            <BlockHome
+              title="Đặt khám bệnh viện"
+              description="Chọn bệnh viện phù hợp với bạn."
+              onClickViewMore={() => nav(PATH_ROUTE.LISTFACILITY)}
+            >
+              <Row gutter={[16, 16]}>
+                {data_facility?.map((val) => (
+                  <Col key={val.id} xs={24} sm={12} md={8} lg={8}>
+                    <FacilityCard
+                      id={val.id}
+                      name={val.name}
+                      imageUrl={val.imageUrl}
+                      address={val.address}
+                      phone={val.phone}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            </BlockHome>
+          </Flex>
+        )}
       </Content>
     </Layout>
   );

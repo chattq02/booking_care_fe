@@ -47,7 +47,7 @@ export function DoctorCard({
           </Avatar>
         </div>
 
-        <div className="p-0">
+        <div className="p-0 flex-1">
           <Badge
             variant="secondary"
             className="w-fit text-xs font-medium bg-[#e0e5eb] text-[#455768]"
@@ -75,7 +75,6 @@ export function DoctorCard({
           <div className="line-clamp-2">
             {specialty && specialty.length > 0 && (
               <div className="mt-1">
-                {/* Hiển thị 2 phần tử đầu tiên */}
                 {specialty.map((item) => (
                   <div className="text-[13px] text-[#455768]" key={item.id}>
                     {item.name}
@@ -88,9 +87,6 @@ export function DoctorCard({
       </div>
       <div className="flex justify-between items-center gap-3 flex-wrap">
         <Button className="bg-main flex-1">Tạo lịch khám</Button>
-        <Button variant="outline" className="bg-white flex-1">
-          Chi tiết
-        </Button>
         <Button variant="outline" className="bg-white flex-1">
           <Send />
         </Button>

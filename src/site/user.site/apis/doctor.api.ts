@@ -1,4 +1,3 @@
-import axiosWithToken from "@/lib/axios/axios-private";
 import type {
   ResponseParamsResult,
   ResponseResult,
@@ -6,12 +5,13 @@ import type {
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
 import type { GetDoctorUserParams } from "../pages/home/store/params";
 import type { ISchedule } from "../types/schedule";
+import axiosPublic from "@/lib/axios/axios-public";
 
 const doctorUser = {
   getDoctorList: async (
     params?: GetDoctorUserParams
   ): Promise<ResponseParamsResult<ResponseDoctor[]>> => {
-    return await axiosWithToken.get("/user/get-list-doctor", {
+    return await axiosPublic.get("/user/get-list-doctor", {
       params: {
         ...params,
       },
@@ -21,14 +21,14 @@ const doctorUser = {
   getDoctorDetail: async (
     id: number
   ): Promise<ResponseResult<ResponseDoctor>> => {
-    return axiosWithToken.get(`/user/get-doctor/${id}`);
+    return axiosPublic.get(`/user/get-doctor/${id}`);
   },
 
   getDoctorSchedule: async (params: {
     doctorId: number;
     date: string;
   }): Promise<ResponseResult<ISchedule[]>> => {
-    return axiosWithToken.get(
+    return axiosPublic.get(
       `/user/get-schedule-doctor-day?doctorId=${params.doctorId}&date=${params.date}`
     );
   },

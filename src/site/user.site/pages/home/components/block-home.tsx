@@ -16,7 +16,7 @@ export default function BlockHome({
   description,
 }: IProps) {
   return (
-    <>
+    <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4 sm:gap-0">
         <div className="w-full sm:w-auto">
           <div className="flex items-center mb-2">
@@ -39,6 +39,6 @@ export default function BlockHome({
         </Button>
       </div>
       {children}
-    </>
+    </div>
   );
 }

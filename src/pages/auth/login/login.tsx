@@ -12,6 +12,7 @@ import { useState } from "react";
 import { accessTokenStore } from "@/stores/auth";
 import { saveCookies } from "@/lib/actions/auth";
 import { PATH_ROUTE_ADMIN } from "@/site/admin.site/libs/enums/path";
+import { PATH_ROUTE } from "@/site/user.site/lib/enums/path";
 
 // ✅ Schema validate với Zod
 const loginSchema = z.object({
@@ -63,7 +64,9 @@ export default function Login({ role }: IProps) {
           });
 
           setTimeout(() => {
-            nav(PATH_ROUTE_ADMIN.SELECT_FACILITIES);
+            role === "Admin"
+              ? nav(PATH_ROUTE_ADMIN.SELECT_FACILITIES)
+              : nav(PATH_ROUTE.HOME);
           }, 1000);
         },
         onError: (error: any) => {

@@ -1,3 +1,10 @@
+export interface ISlot {
+  startTime: string;
+  endTime: string;
+  selected: true;
+  price?: number;
+}
+
 export interface ISchedule {
   id: string;
   configName: string;
@@ -8,11 +15,7 @@ export interface ISchedule {
   daySchedules: {
     date: string;
     dayOfWeek: string;
-    slots: {
-      startTime: string;
-      endTime: string;
-      selected: true;
-    }[];
+    slots: ISlot[];
   }[];
   selectedDates: string[];
 }
