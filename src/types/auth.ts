@@ -25,11 +25,12 @@ export interface GetMeResponseData {
   gender: string;
   dateOfBirth: string;
   address: string;
-  is_supper_admin: "NO";
+  is_supper_admin: "NO" | "YES";
   createdAt: string;
   updatedAt: string;
   roles: UserRole[];
   is_selected?: boolean;
+  is_update_profile: "NO" | "YES";
 }
 
 export interface RefreshTokenResponse {
