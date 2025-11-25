@@ -23,7 +23,6 @@ import { v4 } from "uuid";
 import { useSetAtom } from "jotai";
 import { loadingAtom } from "@/stores/loading";
 import dayjs from "dayjs";
-import type { IResponseGetUsersDepartment } from "../../../specialty/type";
 import { useCreateScheduleFacility } from "../../hooks/use-schedule";
 import type { IWorkSchedule } from "../../type";
 
@@ -55,8 +54,9 @@ export interface ScheduleConfig {
 
 export interface DoctorScheduleRef {
   showModal: (
-    doctor: IResponseGetUsersDepartment,
-    type: "create" | "update"
+    schedule: ScheduleConfig[],
+    doctorId: number,
+    scheduleId?: number
   ) => void;
   hideModal: () => void;
 }
@@ -74,25 +74,15 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     const [modal, modalElement] = Modal.useModal();
     const create = useCreateScheduleFacility();
     const [form] = Form.useForm();
-    const [infoDoctor, setDoctor] = useState<IResponseGetUsersDepartment>();
-    const [scheduleConfigs, setScheduleConfigs] = useState<ScheduleConfig[]>([
-      {
-        id: v4(),
-        slotDuration: 30,
-        workStartTime: dayjs().set("hour", 8).set("minute", 0),
-        workEndTime: dayjs().set("hour", 17).set("minute", 0),
-        selectedDates: [],
-        daySchedules: [],
-        price: 0,
-        configName: "Cấu hình 1",
-      },
-    ]);
+    const [doctorId, setDoctorId] = useState<number>();
+    const [scheduleId, setScheduleId] = useState<number>();
+    const [scheduleConfigs, setScheduleConfigs] = useState<ScheduleConfig[]>(
+      []
+    );
 
-    console.log("scheduleConfigs", scheduleConfigs);
     const [showValidation, setShowValidation] = useState(false);
 
     const setLoading = useSetAtom(loadingAtom);
-    const [modalType, setModalType] = useState<"create" | "update">("create");
 
     // Lấy tất cả các ngày đã được chọn từ tất cả các config
     const getAllSelectedDates = useCallback((): string[] => {
@@ -360,14 +350,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             ),
           };
 
-          // Debug: log ra slots sau khi update
-          const updatedDay = updatedConfig.daySchedules.find(
-            (d) => d.date === date
-          );
-          if (updatedDay) {
-            console.log("Updated slots for date", date, updatedDay.slots);
-          }
-
           return updatedConfig;
         })
       );
@@ -537,9 +519,11 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
               dayOfWeek: day.dayOfWeek,
               slots: day.slots.map((slot) => {
                 return {
+                  id: slot.id || v4(),
                   startTime: slot.startTime,
                   endTime: slot.endTime,
                   selected: slot.selected,
+                  isBlock: false,
                 };
               }),
             };
@@ -555,22 +539,21 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         slots: slots,
         status: "NORMAL",
         departmentId: departmentId,
-        doctorId: infoDoctor?.id,
+        doctorId: doctorId,
         facilityId: facilityId,
+        id: scheduleId,
       };
 
-      if (modalType === "create") {
-        create.mutate(dataSave, {
-          onSuccess: () => {
-            refetch();
-            hideModal();
-            setLoading(false);
-          },
-          onError: () => {
-            setLoading(false);
-          },
-        });
-      }
+      create.mutate(dataSave, {
+        onSuccess: () => {
+          refetch();
+          hideModal();
+          setLoading(false);
+        },
+        onError: () => {
+          setLoading(false);
+        },
+      });
 
       console.log("slots", slots);
 
@@ -586,16 +569,17 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     };
 
     const showModal = (
-      doctor: IResponseGetUsersDepartment,
-      type: "create" | "update"
+      schedule: ScheduleConfig[],
+      doctorId: number,
+      scheduleId?: number
     ) => {
       setVisible(true);
-      setModalType(type);
-      setDoctor(doctor);
+      setDoctorId(doctorId);
+      setScheduleId(scheduleId);
 
       // Xử lý dữ liệu doctor để chuyển đổi thành ScheduleConfig[]
-      if (doctor) {
-        const processedConfigs = (doctor as any).map((config: any) => {
+      if (schedule) {
+        const processedConfigs = schedule.map((config: any) => {
           // Chuyển đổi workStartTime và workEndTime từ string sang Dayjs
           const workStartTime = config.workStartTime
             ? dayjs(config.workStartTime, "HH:mm")
@@ -657,6 +641,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     const hideModal = () => {
       setVisible(false);
       setShowValidation(false);
+      form.resetFields();
     };
 
     useImperativeHandle(ref, () => ({
@@ -806,6 +791,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                 initialValue={[config.workStartTime, config.workEndTime]}
               >
                 <TimePicker.RangePicker
+                  needConfirm={false}
                   format="HH:mm"
                   style={{ width: "100%" }}
                   value={[config.workStartTime, config.workEndTime]}

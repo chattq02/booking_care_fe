@@ -1,42 +1,18 @@
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Layout,
-  Tabs,
-  Card,
-  Avatar,
-  Form,
-  Input,
-  Button,
-  Table,
-  Tag,
-  Descriptions,
-  Divider,
-  Badge,
-} from "antd";
+import { Layout, Tabs, Card, Avatar, Button, Table, Tag, Grid } from "antd";
 import {
   UserOutlined,
   CalendarOutlined,
   HistoryOutlined,
-  EditOutlined,
-  SaveOutlined,
-  PhoneOutlined,
   MailOutlined,
-  EnvironmentOutlined,
-  IdcardOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
+
+import InfoUser from "./components/info-user";
+import { useAtomValue } from "jotai";
+import { userAtom } from "@/stores/auth";
 
 const { Content } = Layout;
-const { TabPane } = Tabs;
 
-const profileSchema = z.object({
-  firstName: z.string().min(1, "Vui lòng nhập tên"),
-  lastName: z.string().min(1, "Vui lòng nhập họ"),
-  email: z.string().email(),
-  phone: z.string().min(9, "Số điện thoại không hợp lệ"),
-});
+const { useBreakpoint } = Grid;
 
 // Mock data
 const appointmentData = [
@@ -107,13 +83,13 @@ const appointmentColumns = [
     title: "Bác sĩ",
     dataIndex: "doctor",
     key: "doctor",
-    responsive: ["md"] as any,
+    responsive: ["md"],
   },
   {
     title: "Khoa",
     dataIndex: "department",
     key: "department",
-    responsive: ["lg"] as any,
+    responsive: ["lg"],
   },
   {
     title: "Trạng thái",
@@ -154,7 +130,7 @@ const medicalHistoryColumns = [
     title: "Bác sĩ",
     dataIndex: "doctor",
     key: "doctor",
-    responsive: ["md"] as any,
+    responsive: ["md"],
   },
   {
     title: "Chẩn đoán",
@@ -166,13 +142,13 @@ const medicalHistoryColumns = [
     title: "Điều trị",
     dataIndex: "treatment",
     key: "treatment",
-    responsive: ["lg"] as any,
+    responsive: ["lg"],
   },
   {
     title: "Đơn thuốc",
     dataIndex: "prescription",
     key: "prescription",
-    responsive: ["xl"] as any,
+    responsive: ["xl"],
   },
   {
     title: "Thao tác",
@@ -190,345 +166,183 @@ const medicalHistoryColumns = [
 ];
 
 export default function Profile() {
-  const [form] = Form.useForm();
-  const [editing, setEditing] = useState(false);
+  const screens = useBreakpoint();
+  const infoUser = useAtomValue(userAtom);
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: "Chất",
-      lastName: "Trịnh Quang",
-      email: "chattq@solashi.com",
-      phone: "0787267411",
+  // Tab items configuration
+  const tabItems = [
+    {
+      key: "1",
+      label: (
+        <span className="flex items-center font-semibold text-sm lg:text-base">
+          <UserOutlined className="mr-1 lg:mr-2" />
+          <span className="hidden sm:inline">Thông tin cá nhân</span>
+          <span className="sm:hidden">Thông tin</span>
+        </span>
+      ),
+      children: <InfoUser />,
     },
-  });
-
-  const onSubmit = (values: any) => {
-    console.log(values);
-    setEditing(false);
-  };
-
-  const handleEdit = () => {
-    setEditing(true);
-  };
-
-  const handleSave = () => {
-    form.submit();
-  };
-
-  const handleCancel = () => {
-    setEditing(false);
-    form.resetFields();
-  };
-
-  return (
-    <Layout className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50">
-      <Content className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
-        <Card
-          className="rounded-md overflow-hidden"
-          classNames={{
-            body: "p-0!",
-          }}
-        >
-          <div className="flex flex-col lg:flex-row">
-            {/* Sidebar Profile */}
-            <div className="lg:w-1/4 bg-linear-to-b from-blue-600 to-purple-700 text-white p-6 lg:p-8">
-              <div className="text-center">
-                <div className="relative inline-block">
-                  <Avatar
-                    size={120}
-                    icon={<UserOutlined />}
-                    className="border-4 border-white/20 shadow-2xl mb-4 bg-white/10"
-                  />
-                  <Badge
-                    status="success"
-                    offset={[-10, 100]}
-                    className="border-2 border-white rounded-full"
-                  />
-                </div>
-                <h2 className="text-xl font-bold mb-1">Trịnh Quang Chất</h2>
-                <p className="text-blue-100 mb-4 flex items-center justify-center">
-                  <MailOutlined className="mr-2" />
-                  chattq@solashi.com
-                </p>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="lg:w-3/4 bg-white p-6 lg:p-8">
-              <Tabs
-                defaultActiveKey="1"
-                type="line"
-                size="large"
-                className="profile-tabs"
-              >
-                {/* Tab 1: Thông tin cá nhân */}
-                <TabPane
-                  tab={
-                    <span className="flex items-center font-semibold">
-                      <UserOutlined className="mr-2" />
-                      Thông tin cá nhân
-                    </span>
-                  }
-                  key="1"
-                >
-                  <Form
-                    form={form}
-                    layout="vertical"
-                    onFinish={onSubmit}
-                    initialValues={{
-                      firstName: "Chất",
-                      lastName: "Trịnh Quang",
-                      email: "chattq@solashi.com",
-                      phone: "0787267411",
-                    }}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Thông tin cơ bản
-                      </h3>
-                      {!editing ? (
-                        <Button
-                          type="primary"
-                          icon={<EditOutlined />}
-                          onClick={handleEdit}
-                          className="bg-blue-600 hover:bg-blue-700 border-0 font-semibold px-6 py-2 h-auto rounded-lg shadow-lg hover:shadow-xl transition-all"
-                        >
-                          Chỉnh sửa
-                        </Button>
-                      ) : (
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={handleCancel}
-                            className="font-semibold px-6 py-2 h-auto rounded-lg border-gray-300 hover:border-gray-400 transition-all"
-                          >
-                            Hủy
-                          </Button>
-                          <Button
-                            type="primary"
-                            icon={<SaveOutlined />}
-                            onClick={handleSave}
-                            className="bg-green-600 hover:bg-green-700 border-0 font-semibold px-6 py-2 h-auto rounded-lg shadow-lg hover:shadow-xl transition-all"
-                          >
-                            Lưu thay đổi
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Form.Item
-                        label={
-                          <span className="font-semibold text-gray-700">
-                            Họ
-                          </span>
-                        }
-                        name="lastName"
-                        rules={[
-                          { required: true, message: "Vui lòng nhập họ" },
-                        ]}
-                      >
-                        <Input
-                          disabled={!editing}
-                          placeholder="Nhập họ"
-                          size="large"
-                          className={`rounded-lg ${
-                            !editing ? "bg-gray-50" : ""
-                          }`}
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        label={
-                          <span className="font-semibold text-gray-700">
-                            Tên
-                          </span>
-                        }
-                        name="firstName"
-                        rules={[
-                          { required: true, message: "Vui lòng nhập tên" },
-                        ]}
-                      >
-                        <Input
-                          disabled={!editing}
-                          placeholder="Nhập tên"
-                          size="large"
-                          className={`rounded-lg ${
-                            !editing ? "bg-gray-50" : ""
-                          }`}
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        label={
-                          <span className="font-semibold text-gray-700">
-                            Email
-                          </span>
-                        }
-                        name="email"
-                        rules={[
-                          { required: true, message: "Vui lòng nhập email" },
-                          { type: "email", message: "Email không hợp lệ" },
-                        ]}
-                      >
-                        <Input
-                          disabled={!editing}
-                          placeholder="Nhập email"
-                          size="large"
-                          className={`rounded-lg ${
-                            !editing ? "bg-gray-50" : ""
-                          }`}
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        label={
-                          <span className="font-semibold text-gray-700">
-                            Số điện thoại
-                          </span>
-                        }
-                        name="phone"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập số điện thoại",
-                          },
-                          { min: 9, message: "Số điện thoại không hợp lệ" },
-                        ]}
-                      >
-                        <Input
-                          disabled={!editing}
-                          placeholder="Nhập số điện thoại"
-                          size="large"
-                          className={`rounded-lg ${
-                            !editing ? "bg-gray-50" : ""
-                          }`}
-                        />
-                      </Form.Item>
-                    </div>
-                  </Form>
-                </TabPane>
-
-                {/* Tab 2: Lịch khám của tôi */}
-                <TabPane
-                  tab={
-                    <span className="flex items-center font-semibold">
-                      <CalendarOutlined className="mr-2" />
-                      Lịch khám của tôi
-                    </span>
-                  }
-                  key="2"
-                >
-                  <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6">
-                      Lịch hẹn sắp tới
-                    </h3>
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                      <Table
-                        columns={appointmentColumns}
-                        dataSource={appointmentData}
-                        pagination={false}
-                        scroll={{ x: 800 }}
-                        className="custom-table"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                      <div className="text-3xl font-bold mb-2">3</div>
-                      <div className="text-blue-100 font-medium">
-                        Tổng lịch hẹn
-                      </div>
-                    </Card>
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-green-500 to-green-600 text-white">
-                      <div className="text-3xl font-bold mb-2">2</div>
-                      <div className="text-green-100 font-medium">
-                        Đã xác nhận
-                      </div>
-                    </Card>
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                      <div className="text-3xl font-bold mb-2">1</div>
-                      <div className="text-orange-100 font-medium">
-                        Chờ xác nhận
-                      </div>
-                    </Card>
-                  </div>
-                </TabPane>
-
-                {/* Tab 3: Lịch sử khám */}
-                <TabPane
-                  tab={
-                    <span className="flex items-center font-semibold">
-                      <HistoryOutlined className="mr-2" />
-                      Lịch sử khám
-                    </span>
-                  }
-                  key="3"
-                >
-                  <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-6">
-                      Lịch sử khám bệnh
-                    </h3>
-                    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                      <Table
-                        columns={medicalHistoryColumns}
-                        dataSource={medicalHistoryData}
-                        pagination={{
-                          pageSize: 5,
-                          showSizeChanger: true,
-                          showQuickJumper: true,
-                          className: "px-4 py-2",
-                        }}
-                        scroll={{ x: 1000 }}
-                        className="custom-table"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                      <div className="text-2xl sm:text-3xl font-bold mb-2">
-                        12
-                      </div>
-                      <div className="text-purple-100 font-medium text-sm sm:text-base">
-                        Tổng lượt khám
-                      </div>
-                    </Card>
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-green-500 to-green-600 text-white">
-                      <div className="text-2xl sm:text-3xl font-bold mb-2">
-                        8
-                      </div>
-                      <div className="text-green-100 font-medium text-sm sm:text-base">
-                        Đã hoàn thành
-                      </div>
-                    </Card>
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                      <div className="text-2xl sm:text-3xl font-bold mb-2">
-                        3
-                      </div>
-                      <div className="text-blue-100 font-medium text-sm sm:text-base">
-                        Đang điều trị
-                      </div>
-                    </Card>
-                    <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 text-white">
-                      <div className="text-2xl sm:text-3xl font-bold mb-2">
-                        1
-                      </div>
-                      <div className="text-gray-100 font-medium text-sm sm:text-base">
-                        Theo dõi định kỳ
-                      </div>
-                    </Card>
-                  </div>
-                </TabPane>
-              </Tabs>
+    {
+      key: "2",
+      label: (
+        <span className="flex items-center font-semibold text-sm lg:text-base">
+          <CalendarOutlined className="mr-1 lg:mr-2" />
+          <span className="hidden sm:inline">Lịch khám của tôi</span>
+          <span className="sm:hidden">Lịch khám</span>
+        </span>
+      ),
+      children: (
+        <>
+          <div className="mb-6 lg:mb-8">
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">
+              Lịch hẹn sắp tới
+            </h3>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <Table
+                columns={appointmentColumns}
+                dataSource={appointmentData}
+                pagination={false}
+                scroll={{ x: 800 }}
+                className="custom-table"
+                size={screens.md ? "middle" : "small"}
+              />
             </div>
           </div>
-        </Card>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <div className="text-2xl lg:text-3xl font-bold mb-1 lg:mb-2">
+                3
+              </div>
+              <div className="text-blue-100 font-medium text-sm lg:text-base">
+                Tổng lịch hẹn
+              </div>
+            </Card>
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <div className="text-2xl lg:text-3xl font-bold mb-1 lg:mb-2">
+                2
+              </div>
+              <div className="text-green-100 font-medium text-sm lg:text-base">
+                Đã xác nhận
+              </div>
+            </Card>
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+              <div className="text-2xl lg:text-3xl font-bold mb-1 lg:mb-2">
+                1
+              </div>
+              <div className="text-orange-100 font-medium text-sm lg:text-base">
+                Chờ xác nhận
+              </div>
+            </Card>
+          </div>
+        </>
+      ),
+    },
+    {
+      key: "3",
+      label: (
+        <span className="flex items-center font-semibold text-sm lg:text-base">
+          <HistoryOutlined className="mr-1 lg:mr-2" />
+          <span className="hidden sm:inline">Lịch sử khám</span>
+          <span className="sm:hidden">Lịch sử</span>
+        </span>
+      ),
+      children: (
+        <>
+          <div className="mb-6 lg:mb-8">
+            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">
+              Lịch sử khám bệnh
+            </h3>
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <Table
+                columns={medicalHistoryColumns}
+                dataSource={medicalHistoryData}
+                pagination={{
+                  pageSize: 5,
+                  showSizeChanger: true,
+                  showQuickJumper: true,
+                  className: "px-4 py-2",
+                }}
+                scroll={{ x: 1000 }}
+                className="custom-table"
+                size={screens.md ? "middle" : "small"}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+              <div className="text-xl lg:text-2xl xl:text-3xl font-bold mb-1 lg:mb-2">
+                12
+              </div>
+              <div className="text-purple-100 font-medium text-xs lg:text-sm xl:text-base">
+                Tổng lượt khám
+              </div>
+            </Card>
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-green-500 to-green-600 text-white">
+              <div className="text-xl lg:text-2xl xl:text-3xl font-bold mb-1 lg:mb-2">
+                8
+              </div>
+              <div className="text-green-100 font-medium text-xs lg:text-sm xl:text-base">
+                Đã hoàn thành
+              </div>
+            </Card>
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+              <div className="text-xl lg:text-2xl xl:text-3xl font-bold mb-1 lg:mb-2">
+                3
+              </div>
+              <div className="text-blue-100 font-medium text-xs lg:text-sm xl:text-base">
+                Đang điều trị
+              </div>
+            </Card>
+            <Card className="text-center border-0 shadow-lg rounded-2xl bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+              <div className="text-xl lg:text-2xl xl:text-3xl font-bold mb-1 lg:mb-2">
+                1
+              </div>
+              <div className="text-gray-100 font-medium text-xs lg:text-sm xl:text-base">
+                Theo dõi định kỳ
+              </div>
+            </Card>
+          </div>
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <Layout className="min-h-screen">
+      <Content className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-420 mx-auto">
+          {/* Sidebar Profile - Fixed */}
+
+          <div className="bg-linear-to-b from-blue-600 to-purple-700 text-white p-6 lg:p-8 lg:fixed top-24 left-4 right-4 lg:left-auto lg:right-auto lg:w-64 lg:rounded-md rounded-t-md z-10">
+            <div className="text-center">
+              <Avatar
+                size={120}
+                icon={<UserOutlined />}
+                className="border-4 border-white/20 shadow-2xl mb-4 bg-white/10 mx-auto"
+              />
+              <h2 className="text-xl font-bold mb-1">
+                {infoUser?.fullName ?? ""}
+              </h2>
+              <p className="text-blue-100 mb-4 flex items-center justify-center">
+                <MailOutlined className="mr-2" />
+                {infoUser?.email ?? ""}
+              </p>
+            </div>
+          </div>
+
+          {/* Main Content - Adjusted for fixed sidebar */}
+          <div className="lg:ml-70 bg-white lg:px-5 px-5 rounded-b-md lg:rounded-md">
+            <Tabs
+              defaultActiveKey="1"
+              type="line"
+              size="large"
+              className="profile-tabs "
+              items={tabItems}
+            />
+          </div>
+        </div>
       </Content>
     </Layout>
   );

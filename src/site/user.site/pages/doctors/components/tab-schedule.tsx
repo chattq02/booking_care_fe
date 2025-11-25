@@ -152,6 +152,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
                             onClickSlot({
                               ...slot,
                               price: item.price || 0,
+                              selectedDate: selectedDate,
                             })
                           }
                         >

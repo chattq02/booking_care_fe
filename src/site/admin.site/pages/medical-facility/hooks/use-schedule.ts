@@ -48,36 +48,20 @@ export const useUpdateScheduleFacility = ({
   });
 };
 
-// 🔹 Tạo lịch hẹn
+// 🔹 Lưu lịch hẹn
 export const useCreateScheduleFacility = ({
   onSuccessCallback,
   onErrorCallback,
 }: UseOptions & Record<string, any> = {}) => {
   return useMutation({
-    mutationFn: (data: IWorkSchedule) => scheduleAdmin.create(data),
+    mutationFn: (data: IWorkSchedule) => scheduleAdmin.save(data),
     onSuccess: () => {
-      toast.success("Tạo lịch hẹn thành công");
+      toast.success("Lưu hẹn thành công");
       onSuccessCallback?.();
     },
     onError: (error: any) => {
       onErrorCallback?.();
       toast.error(error.response?.data?.message || "Lỗi cập nhật");
     },
-  });
-};
-
-// 🔹 lấy chi tiết lịch hẹn từng ngày của bác sĩ
-export const useGetScheduleDateDetailByDoctor = (
-  params: ScheduleDateByDoctor
-) => {
-  return useQuery({
-    queryKey: ["getScheduleByDay", params],
-    queryFn: async () => {
-      const result = await scheduleAdmin.getScheduleByDay(params);
-      return result.data;
-    },
-
-    placeholderData: (prev) => prev,
-    staleTime: 1000 * 60 * 5,
   });
 };

@@ -7,6 +7,7 @@ import type {
   IWorkSchedule,
   ResponseMedicalFacility,
   ResponseSchedule,
+  ScheduleDataDoctorRes,
   ScheduleDateByDoctor,
   ScheduleParams,
 } from "../pages/medical-facility/type";
@@ -35,10 +36,10 @@ const scheduleAdmin = {
   },
 
   /**
-   * ➕ Tạo mới cơ sở y tế
+   * ➕ Lưu lịch
    */
-  create: (data: IWorkSchedule) => {
-    return axiosWithToken.post("/schedule/create", data);
+  save: (data: IWorkSchedule) => {
+    return axiosWithToken.post("/schedule/save", data);
   },
 
   /**
@@ -57,12 +58,15 @@ const scheduleAdmin = {
   /**
    * 🗑️ Xóa cơ sở y tế
    */
-  getScheduleByDay: (params: ScheduleDateByDoctor) => {
-    return axiosWithToken.get(`schedule/get-schedule-doctor-day`, {
+  getScheduleByDay: async (
+    params: ScheduleDateByDoctor
+  ): Promise<ScheduleDataDoctorRes> => {
+    const res = await axiosWithToken.get(`/schedule/get-schedule-doctor-day`, {
       params: {
         ...params,
       },
     });
+    return res.data;
   },
   /**
    * lấy thông tin bác sĩ

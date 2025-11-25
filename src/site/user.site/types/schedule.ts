@@ -1,8 +1,10 @@
+import { Dayjs } from "dayjs";
 export interface ISlot {
   startTime: string;
   endTime: string;
   selected: true;
   price?: number;
+  selectedDate?: Dayjs;
 }
 
 export interface ISchedule {

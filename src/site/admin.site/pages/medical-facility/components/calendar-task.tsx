@@ -13,6 +13,7 @@ import type { IResponseGetUsersDepartment } from "../../specialty/type";
 import { CirclePlus } from "lucide-react";
 import scheduleAdmin from "@/site/admin.site/apis/schedule";
 import { toast } from "sonner";
+import { v4 } from "uuid";
 
 dayjs.locale("vi");
 
@@ -118,9 +119,25 @@ export default function CalendarTask({
         departmentId: departmentId || 0,
         date: day.format("YYYY-MM-DD"),
       });
-
-      if (result && result.data) {
-        doctorScheduleRef.current?.showModal(result.data, "update");
+      if (result && result.schedule) {
+        doctorScheduleRef.current?.showModal(
+          result.schedule.length > 0
+            ? result.schedule
+            : [
+                {
+                  id: v4(),
+                  slotDuration: 0,
+                  workStartTime: dayjs().set("hour", 0).set("minute", 0),
+                  workEndTime: dayjs().set("hour", 0).set("minute", 0),
+                  selectedDates: [day],
+                  daySchedules: [],
+                  price: 0,
+                  configName: "Cấu hình 1",
+                },
+              ],
+          doctorId,
+          result?.id
+        );
       }
     } catch (error) {
       toast.error("Lỗi khi lấy lịch hẹn bác sĩ");
@@ -138,18 +155,6 @@ export default function CalendarTask({
     </div>
   );
 
-  const handleClickUser = (user: IResponseGetUsersDepartment) => {
-    doctorScheduleRef.current?.showModal(user, "create");
-  };
-
-  const handleAddSchedule = (
-    user: IResponseGetUsersDepartment,
-    date: Dayjs
-  ) => {
-    console.log(date);
-    doctorScheduleRef.current?.showModal(user, "create");
-  };
-
   // Get the start of the week (Thứ 2)
   const getWeekStart = (date: Dayjs) => {
     const day = date.day();
@@ -162,6 +167,10 @@ export default function CalendarTask({
 
   const isToday = (date: Dayjs) => {
     return date.format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD");
+  };
+
+  const isPastDay = (date: Dayjs) => {
+    return date.isBefore(dayjs(), "day");
   };
 
   return (
@@ -212,10 +221,7 @@ export default function CalendarTask({
                   className="grid grid-cols-8 border-b border-gray-200 last:border-b-0 min-h-[120px]"
                 >
                   {/* User Info - Fixed on left */}
-                  <div
-                    className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-center pt-6 sticky left-0 z-5 cursor-pointer"
-                    onClick={() => handleClickUser(user)}
-                  >
+                  <div className="p-4 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-center pt-6 sticky left-0 z-5">
                     <Avatar
                       style={{
                         height: 65,
@@ -240,13 +246,14 @@ export default function CalendarTask({
                   {weekDays.map((day, dayIdx) => {
                     const dayTasks = getTasksForDay(user, day);
                     const today = isToday(day);
+                    const isPast = isPastDay(day);
 
                     return (
                       <div
                         key={dayIdx}
                         className={`p-2 border-r border-gray-200 flex items-center justify-center ${
                           today ? "bg-amber-50" : "bg-white"
-                        }`}
+                        } ${isPast ? "bg-gray-100!" : "cursor-pointer"}`}
                       >
                         {dayTasks.length > 0 ? (
                           <div onClick={() => handleTaskClick(day, user.id)}>
@@ -254,12 +261,16 @@ export default function CalendarTask({
                           </div>
                         ) : (
                           <div
-                            className="flex justify-center items-center h-full cursor-pointer"
-                            onClick={() => handleAddSchedule(user, day)}
+                            className={`flex justify-center items-center h-full `}
+                            onClick={() =>
+                              !isPast && handleTaskClick(day, user.id)
+                            }
                           >
-                            <Tooltip placement="top" title={"Thêm lịch"}>
-                              <CirclePlus color="#1890FF" size={20} />
-                            </Tooltip>
+                            {!isPast ? (
+                              <Tooltip placement="top" title={"Thêm lịch"}>
+                                <CirclePlus color="#1890FF" size={20} />
+                              </Tooltip>
+                            ) : null}
                           </div>
                         )}
                       </div>

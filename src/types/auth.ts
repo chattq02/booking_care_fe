@@ -26,6 +26,9 @@ export interface GetMeResponseData {
   dateOfBirth: string;
   address: string;
   is_supper_admin: "NO" | "YES";
+  cccd: string;
+  bhyt: string;
+  occupation: string;
   createdAt: string;
   updatedAt: string;
   roles: UserRole[];
@@ -35,4 +38,15 @@ export interface GetMeResponseData {
 
 export interface RefreshTokenResponse {
   access_token: string;
+}
+
+export interface ReqUpdateUser {
+  fullName: string;
+  gender: string;
+  phone: string;
+  birthday: string;
+  cccd: string;
+  healthInsurance: string;
+  occupation: string;
+  address: string;
 }

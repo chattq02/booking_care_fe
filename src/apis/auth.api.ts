@@ -8,6 +8,7 @@ import type {
   LoginForm,
   LoginResponseData,
   RefreshTokenResponse,
+  ReqUpdateUser,
 } from "@/types/auth";
 import { omit } from "lodash";
 
@@ -33,6 +34,10 @@ const authApi = {
 
   getMe: (): Promise<ResponseResult<GetMeResponseData | null>> => {
     return axiosWithToken.post("/auth/me");
+  },
+
+  updateUser: async (data: Partial<ReqUpdateUser>) => {
+    return axiosWithToken.put("/auth/user", data);
   },
 
   refreshToken: async (): Promise<

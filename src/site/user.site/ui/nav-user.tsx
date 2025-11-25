@@ -40,7 +40,9 @@ export function NavUser({
     onSuccess: () => {
       toast.success("Đăng xuất thành công");
       clearTokens();
-      window.location.reload();
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
   });
 

@@ -1,4 +1,5 @@
 import type { IParams } from "@/types/params";
+import type { ScheduleConfig } from "./components/modal/modal-schedule-doctor";
 
 export type TActive = "Active" | "Inactive";
 
@@ -59,6 +60,7 @@ export interface IWorkSchedule {
   doctorId?: number;
   facilityId?: number;
   departmentId?: number;
+  id?: number;
 }
 
 export type Shift = {
@@ -68,29 +70,6 @@ export type Shift = {
 };
 
 export type Slots = Record<string, Shift[]>;
-
-interface SlotData {
-  startTime: string;
-  endTime: string;
-  selected: boolean;
-}
-
-interface DaySchedule {
-  date: string;
-  dayOfWeek: string;
-  slots: SlotData[];
-}
-
-interface ScheduleConfig {
-  id: string;
-  configName: string;
-  workStartTime: string;
-  workEndTime: string;
-  slotDuration: number;
-  price: number;
-  daySchedules: DaySchedule[];
-  selectedDates: string[];
-}
 
 export interface ScheduleDataDoctor {
   slots: ScheduleConfig[];
@@ -104,4 +83,9 @@ export interface ScheduleDateByDoctor {
   facilityId: number;
   departmentId: number;
   date: string;
+}
+
+export interface ScheduleDataDoctorRes {
+  schedule: ScheduleConfig[];
+  id: number;
 }

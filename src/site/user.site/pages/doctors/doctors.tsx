@@ -47,7 +47,7 @@ const DoctorPage = () => {
 
   const [bookingForm] = Form.useForm();
 
-  const handleBooking = async (values: ISlot) => {
+  const handleBooking = async (values: ISlot | undefined) => {
     const token = accessTokenStore.get() || Cookies.get(COOKIE_KEYS.at);
     const isAuth = !!token;
 
@@ -219,7 +219,11 @@ const DoctorPage = () => {
         width={550}
         style={{ borderRadius: "16px" }}
       >
-        <Form form={bookingForm} layout="vertical" onFinish={handleBooking}>
+        <Form
+          form={bookingForm}
+          layout="vertical"
+          onFinish={() => handleBooking(selectedSlot)}
+        >
           <div
             style={{
               background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -230,7 +234,10 @@ const DoctorPage = () => {
             }}
           >
             <h4 style={{ color: "white", marginBottom: 12 }}>
-              Thông tin đặt lịch
+              Thông tin đặt lịch:
+              <span className="font-bold ml-2">{`${selectedSlot?.selectedDate?.format(
+                "DD/MM/YYYY"
+              )}`}</span>
             </h4>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
