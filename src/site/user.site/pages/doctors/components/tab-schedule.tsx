@@ -19,7 +19,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
   const { data: scheduleData, isLoading: isScheduleLoading } =
     useGetScheduleDoctor({
       doctorId: Number(doctorId),
-      date: selectedDate.format("YYYY-MM-DD"),
+      date: selectedDate ? selectedDate.format("YYYY-MM-DD") : "",
     });
 
   return (

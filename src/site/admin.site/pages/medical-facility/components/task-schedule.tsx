@@ -76,7 +76,7 @@ export default function TaskSchedule() {
       <div className="max-w-full mx-auto">
         {/* Header Controls */}
         <div className="bg-white">
-          <Flex justify="space-between">
+          <Flex justify="space-between" wrap>
             <Flex align="center" gap={15}>
               <SearchBox
                 value={keyWord}

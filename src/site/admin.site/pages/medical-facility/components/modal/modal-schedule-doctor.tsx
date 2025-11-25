@@ -15,7 +15,6 @@ import {
   message,
   Tag,
   InputNumber,
-  Input,
 } from "antd";
 import { Dayjs } from "dayjs";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
@@ -100,7 +99,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         );
 
       return (
-        config.configName.trim() !== "" &&
         config.selectedDates.length > 0 &&
         config.price > 0 &&
         hasSelectedSlotsForAllDays
@@ -421,7 +419,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         selectedDates: [],
         daySchedules: [],
         price: 0,
-        configName: `Cấu hình ${scheduleConfigs.length + 1}`,
+        configName: "",
       };
 
       setScheduleConfigs((prev) => [...prev, newConfig]);
@@ -448,7 +446,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
 
       modal.confirm({
         title: "Xác nhận xóa",
-        content: `Bạn có chắc chắn muốn xóa cấu hình "${configToRemove.configName}" ?`,
+        content: `Bạn có chắc chắn muốn xóa cấu hình ?`,
         okText: "Xóa",
         cancelText: "Hủy",
         okType: "danger",
@@ -508,7 +506,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       const slots = scheduleConfigs.map((config) => {
         return {
           id: config.id,
-          configName: config.configName,
+          configName: "",
           workStartTime: config.workStartTime.format("HH:mm"),
           workEndTime: config.workEndTime.format("HH:mm"),
           slotDuration: config.slotDuration,
@@ -555,8 +553,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         },
       });
 
-      console.log("slots", slots);
-
       messageApi.success("Cấu hình lịch làm việc thành công!");
 
       // Reset validation sau khi submit thành công
@@ -601,7 +597,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
               slots:
                 day.slots?.map((slot: any) => ({
                   ...slot,
-                  id: `${slot.startTime}-${slot.endTime}`, // Đảm bảo ID ổn định
+                  id: v4(), // Đảm bảo ID ổn định
                 })) || [],
             })) || [];
 
@@ -613,8 +609,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             selectedDates,
             daySchedules: processedDaySchedules,
             price: Number(config.price) || 0,
-            configName:
-              config.configName || `Cấu hình ${scheduleConfigs.length + 1}`,
+            configName: "",
           };
         });
 
@@ -630,7 +625,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             selectedDates: [],
             daySchedules: [],
             price: 0,
-            configName: "Cấu hình 1",
+            configName: "",
           },
         ]);
       }
@@ -649,14 +644,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       hideModal,
     }));
 
-    const handleConfigNameChange = (configId: string, name: string) => {
-      setScheduleConfigs((prev) =>
-        prev.map((config) =>
-          config.id === configId ? { ...config, configName: name } : config
-        )
-      );
-    };
-
     // Component cho một config - FIXED: sử dụng key ổn định
     const renderScheduleConfig = (config: ScheduleConfig) => {
       const isValid = isConfigValid(config);
@@ -668,33 +655,6 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
       return (
         <Card
           key={config.id}
-          title={
-            <Space>
-              <Input
-                value={config.configName}
-                onChange={(e) =>
-                  handleConfigNameChange(config.id, e.target.value)
-                }
-                style={{
-                  width: 250,
-                  fontWeight: "bold",
-                  borderColor:
-                    shouldShowValidation && config.configName.trim() === ""
-                      ? "#ff4d4f"
-                      : "#d9d9d9",
-                }}
-                placeholder="Tên cấu hình"
-                onClick={(e) => e.stopPropagation()}
-              />
-              {shouldShowValidation && (
-                <Badge
-                  status="error"
-                  text="Chưa hoàn thành"
-                  style={{ color: "#ff4d4f", fontSize: "12px" }}
-                />
-              )}
-            </Space>
-          }
           size="small"
           extra={
             <Space>

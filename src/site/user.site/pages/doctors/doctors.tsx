@@ -34,7 +34,6 @@ import { PATH_ROUTE } from "../../lib/enums/path";
 dayjs.locale("vi");
 
 const { TextArea } = Input;
-const { TabPane } = Tabs;
 
 const DoctorPage = () => {
   const { id } = useParams();
@@ -164,38 +163,49 @@ const DoctorPage = () => {
               margin: 0,
               borderBottom: "1px solid #f0f0f0",
             }}
-          >
-            <TabPane
-              tab={
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <CalendarOutlined />
-                  Đặt lịch khám
-                </span>
-              }
-              key="schedule"
-            >
-              <TabSchedule
-                doctorId={Number(id)}
-                onClickSlot={(slot) => {
-                  setIsModalVisible(true);
-                  setSelectedSlot(slot);
-                }}
-              />
-            </TabPane>
-
-            {/* Tab Giới thiệu (giữ nguyên) */}
-            <TabPane
-              tab={
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <UserOutlined />
-                  Giới thiệu
-                </span>
-              }
-              key="about"
-            >
-              {/* ... (giữ nguyên nội dung tab about) ... */}
-            </TabPane>
-          </Tabs>
+            items={[
+              {
+                key: "schedule",
+                label: (
+                  <span
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <CalendarOutlined />
+                    Đặt lịch khám
+                  </span>
+                ),
+                children: (
+                  <TabSchedule
+                    doctorId={Number(id)}
+                    onClickSlot={(slot) => {
+                      setIsModalVisible(true);
+                      setSelectedSlot(slot);
+                    }}
+                  />
+                ),
+              },
+              {
+                key: "about",
+                label: (
+                  <span
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <UserOutlined />
+                    Giới thiệu
+                  </span>
+                ),
+                children: (
+                  <TabSchedule
+                    doctorId={Number(id)}
+                    onClickSlot={(slot) => {
+                      setIsModalVisible(true);
+                      setSelectedSlot(slot);
+                    }}
+                  />
+                ),
+              },
+            ]}
+          />
         </div>
       </div>
 
@@ -216,8 +226,8 @@ const DoctorPage = () => {
           setIsModalVisible(false);
         }}
         footer={null}
-        width={550}
-        style={{ borderRadius: "16px" }}
+        width={500}
+        style={{ borderRadius: "16px", top: 50 }}
       >
         <Form
           form={bookingForm}
@@ -233,7 +243,9 @@ const DoctorPage = () => {
               marginBottom: "24px",
             }}
           >
-            <h4 style={{ color: "white", marginBottom: 12 }}>
+            <h4
+              style={{ color: "white", textAlign: "center", marginBottom: 12 }}
+            >
               Thông tin đặt lịch:
               <span className="font-bold ml-2">{`${selectedSlot?.selectedDate?.format(
                 "DD/MM/YYYY"
