@@ -1,10 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import scheduleAdmin from "@/site/admin.site/apis/schedule";
-import type {
-  IWorkSchedule,
-  ScheduleDateByDoctor,
-  ScheduleParams,
-} from "../type";
+import type { IWorkSchedule, ScheduleParams } from "../type";
 import { toast } from "sonner";
 
 interface UseOptions {

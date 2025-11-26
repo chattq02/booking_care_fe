@@ -25,7 +25,7 @@ export function FacilityCard({
     <Card className="shadow-none rounded-md hover:shadow-md hover:border gap-0 transition-all duration-300 border border-gray-100 hover:border-blue-100 p-2.5 sm:p-3 w-full bg-white hover:bg-linear-to-br hover:from-white hover:to-blue-50/30 ">
       <div
         className="flex gap-4 items-center cursor-pointer  group-hover:from-blue-500/5 group-hover:via-purple-500/3 group-hover:to-pink-500/5 transition-all duration-500 "
-        onClick={() => nav(`${PATH_ROUTE.DOCTORS}/${id}`)}
+        onClick={() => nav(`${PATH_ROUTE.FACILITYDETAIL}/${id}`)}
       >
         <div className="w-28 h-30 group-hover:from-blue-500/10 group-hover:to-purple-500/10 rounded-md transition-all duration-300">
           <Avatar className="h-full w-full rounded-md! object-cover">

@@ -9,6 +9,7 @@ import ListDoctor from "../pages/doctors/list-doctor";
 import PrivateRouteUser from "../layouts/private-route-user";
 import Profile from "../pages/profile/profile";
 import PublicRoute from "../layouts/public-route-user";
+import FacilityDetail from "../pages/facility/facility-detail";
 
 const Doctors = lazy(() => import("../pages/doctors/doctors"));
 
@@ -34,6 +35,10 @@ export const userRoutes: RouteObject[] = [
         children: [
           { path: PATH_ROUTE.HOME, element: <Home /> },
           { path: `${PATH_ROUTE.DOCTORS}/:id`, element: <Doctors /> },
+          {
+            path: `${PATH_ROUTE.FACILITYDETAIL}/:id`,
+            element: <FacilityDetail />,
+          },
           { path: PATH_ROUTE.LISTFACILITY, element: <ListFacility /> },
           { path: PATH_ROUTE.LISTDOCTOR, element: <ListDoctor /> },
         ],

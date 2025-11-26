@@ -6,6 +6,7 @@ export const PATH_ROUTE = {
   PROFILE: "/thong-tin-ca-nhan",
   DASHBOARD: "/dashboard",
   DOCTORS: "/bac-si",
+  FACILITYDETAIL: "/co-so",
   LISTFACILITY: "/danh-sach-co-so",
   LISTDOCTOR: "/danh-sach-bac-si",
   SPECIALISTEXAMINATION: "/kham-chuyen-khoa",
