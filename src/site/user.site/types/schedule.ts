@@ -5,6 +5,7 @@ export interface ISlot {
   selected: true;
   price?: number;
   selectedDate?: Dayjs;
+  id?: string | number;
 }
 
 export interface ISchedule {

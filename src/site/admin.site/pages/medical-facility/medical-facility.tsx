@@ -1,7 +1,7 @@
 import { DataGrid } from "@/components/data-table";
 import { useAtom, useSetAtom } from "jotai";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
-import { Flex, message, Select, Tag, Avatar } from "antd";
+import { Flex, Select, Tag } from "antd";
 import SearchBox from "../info-doctor/components/search-box";
 import {
   DropdownMenu,
@@ -97,6 +97,7 @@ export default function MedicalFacility() {
   const handleDelete = useCallback(
     (id: number) => {
       setLoading(true);
+      console.log("object", id);
       // mutation.mutate(id);
     },
     [setLoading]
@@ -226,7 +227,7 @@ export default function MedicalFacility() {
         <ButtonAnt
           icon={<PlusOutlined />}
           type="primary"
-        // onClick={() => modelAcademicRef.current?.showModal()}
+          // onClick={() => modelAcademicRef.current?.showModal()}
         >
           Thêm mới
         </ButtonAnt>

@@ -1,26 +1,15 @@
-import React, { useState, useMemo } from "react";
 import {
   Card,
   Row,
   Col,
-  Divider,
   Tag,
-  Avatar,
-  Rate,
   Tabs,
-  List,
   Image,
-  Button,
   Space,
   Typography,
-  Collapse,
-  Input,
-  Select,
-  Empty,
   Grid,
-  Badge,
-  Statistic,
-  Progress,
+  Spin,
+  Layout,
 } from "antd";
 import {
   EnvironmentOutlined,
@@ -28,28 +17,29 @@ import {
   ClockCircleOutlined,
   UserOutlined,
   MedicineBoxOutlined,
-  SearchOutlined,
-  TeamOutlined,
-  HeartOutlined,
-  StarFilled,
-  CalendarOutlined,
   TrophyOutlined,
-  SafetyCertificateOutlined,
-  EyeOutlined,
 } from "@ant-design/icons";
+import { useGetFacility } from "./hooks/useFacility";
+import { useParams, useSearchParams } from "react-router-dom";
+import TabDepartment from "./components/tab-department";
 
 const { Title, Paragraph, Text } = Typography;
-const { Panel } = Collapse;
-const { Search } = Input;
-const { Option } = Select;
 const { useBreakpoint } = Grid;
+const { Content } = Layout;
 
 const FacilityDetail = () => {
-  const [activeTab, setActiveTab] = useState("1");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedSpecialty, setSelectedSpecialty] = useState("all");
+  const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const validTabs = ["introduce", "sepcility"];
+
+  const tabFromUrl = searchParams.get("tab");
+  const activeTab = validTabs.includes(tabFromUrl || "")
+    ? tabFromUrl!
+    : "introduce";
+
   const screens = useBreakpoint();
-  const [openSpecialty, setOpenSpecialty] = useState(null);
+  const { data, isLoading } = useGetFacility(Number(id));
 
   // Dữ liệu mẫu với nhiều chuyên khoa
   const hospitalData = {
@@ -171,656 +161,169 @@ const FacilityDetail = () => {
     ],
   };
 
-  // Lọc chuyên khoa và bác sĩ
-  const filteredSpecialties = useMemo(() => {
-    return hospitalData.specialties.filter((specialty) => {
-      const matchesSearch =
-        specialty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        specialty.doctors.some((doctor) =>
-          doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+  const handleActiveTab = (key: string) => {
+    setSearchParams({ tab: key });
+  };
 
-      const matchesSpecialty =
-        selectedSpecialty === "all" ||
-        specialty.id.toString() === selectedSpecialty;
-
-      return matchesSearch && matchesSpecialty;
-    });
-  }, [searchTerm, selectedSpecialty]);
-
-  const DoctorCard = ({ doctor, specialtyColor }) => (
-    <Badge.Ribbon
-      text={doctor.isAvailable ? "Có lịch" : "Bận"}
-      color={doctor.isAvailable ? "green" : "red"}
-    >
-      <Card
+  if (isLoading)
+    return (
+      <Spin
+        size="large"
         style={{
-          height: "100%",
-          border: `1px solid #f0f0f0`,
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          width: "100%",
         }}
-        bodyStyle={{ padding: "16px" }}
-      >
-        <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-          <Avatar
-            size={80}
-            src={doctor.avatar}
-            icon={<UserOutlined />}
-            style={{ border: `3px solid ${specialtyColor}20` }}
-          />
-          <div style={{ flex: 1 }}>
-            <Space direction="vertical" size={4} style={{ width: "100%" }}>
-              <div>
-                <Text strong style={{ fontSize: "16px", color: "#1f1f1f" }}>
-                  {doctor.name}
-                </Text>
-              </div>
-
-              <Text type="secondary" style={{ fontSize: "14px" }}>
-                {doctor.position}
-              </Text>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Rate
-                  disabled
-                  defaultValue={doctor.rating}
-                  style={{ fontSize: 14 }}
-                  character={<StarFilled />}
-                />
-                <Text strong style={{ color: "#faad14" }}>
-                  {doctor.rating}
-                </Text>
-              </div>
-            </Space>
-          </div>
-        </div>
-
-        <Space direction="vertical" size={8} style={{ width: "100%" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text strong style={{ fontSize: "13px" }}>
-              Kinh nghiệm:
-            </Text>
-            <Tag color="blue" style={{ margin: 0 }}>
-              {doctor.experience}
-            </Tag>
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text strong style={{ fontSize: "13px" }}>
-              Bệnh nhân:
-            </Text>
-            <Text>{doctor.patients?.toLocaleString()}+</Text>
-          </div>
-
-          <div>
-            <Text strong style={{ fontSize: "13px" }}>
-              Chuyên môn:
-            </Text>
-            <div style={{ marginTop: 4 }}>
-              {doctor.specialties.map((spec, idx) => (
-                <Tag
-                  key={idx}
-                  color={specialtyColor}
-                  style={{
-                    margin: "2px",
-                    border: "none",
-                    borderRadius: 12,
-                    fontSize: "12px",
-                  }}
-                >
-                  {spec}
-                </Tag>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            type="primary"
-            block
-            style={{
-              marginTop: 12,
-              background: specialtyColor,
-              border: "none",
-              borderRadius: 8,
-              height: "36px",
-            }}
-            icon={<CalendarOutlined />}
-            disabled={!doctor.isAvailable}
-          >
-            {doctor.isAvailable ? "Đặt lịch ngay" : "Hẹn lịch sau"}
-          </Button>
-        </Space>
-      </Card>
-    </Badge.Ribbon>
-  );
+      />
+    );
 
   return (
-    <div style={{ background: "#fafafa", minHeight: "100vh" }}>
-      {/* Hero Section */}
-      <div
-        style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          padding: "40px 24px",
-          color: "white",
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Row gutter={[32, 32]} align="middle">
-            <Col xs={24} md={14}>
-              <Space direction="vertical" size="large">
-                <div>
-                  <Tag
-                    color="gold"
-                    style={{
-                      border: "none",
-                      borderRadius: 16,
-                      padding: "4px 12px",
-                      marginBottom: 12,
-                    }}
-                  >
-                    <TrophyOutlined /> Bệnh viện xuất sắc 2023
-                  </Tag>
-                  <Title
-                    level={1}
-                    style={{
-                      color: "white",
-                      margin: 0,
-                      fontSize: screens.xs ? "28px" : "36px",
-                    }}
-                  >
-                    {hospitalData.name}
-                  </Title>
-                </div>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 16,
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <Rate
-                      disabled
-                      defaultValue={hospitalData.rating}
-                      style={{ color: "#ffd666", fontSize: 16 }}
-                    />
-                    <Text strong style={{ color: "white" }}>
-                      {hospitalData.rating} ({hospitalData.totalReviews} đánh
-                      giá)
-                    </Text>
+    <Layout className="bg-linear-to-br from-blue-50 via-white to-purple-50 min-h-screen">
+      <Content className=" mx-auto w-full">
+        {/* Hero Section */}
+        <div
+          style={{
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            padding: "30px 24px",
+            color: "white",
+          }}
+        >
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <Row gutter={[32, 32]} align="middle">
+              <Col xs={24} md={14}>
+                <Space direction="vertical" size="large">
+                  <div>
+                    <Tag
+                      color="gold"
+                      style={{
+                        border: "none",
+                        borderRadius: 16,
+                        padding: "4px 12px",
+                        marginBottom: 12,
+                      }}
+                    >
+                      <TrophyOutlined /> Bệnh viện xuất sắc 2023
+                    </Tag>
+                    <Title
+                      level={1}
+                      style={{
+                        color: "white",
+                        margin: 0,
+                        fontSize: screens.xs ? "28px" : "36px",
+                      }}
+                    >
+                      {data?.name}
+                    </Title>
                   </div>
 
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <SafetyCertificateOutlined style={{ color: "#52c41a" }} />
-                    <Text style={{ color: "white" }}>Đã xác thực</Text>
-                  </div>
-                </div>
-
-                <Space direction="vertical" size="small">
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <EnvironmentOutlined />
-                    <Text style={{ color: "white" }}>
-                      {hospitalData.address}
-                    </Text>
-                  </div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <PhoneOutlined />
-                    <Text style={{ color: "white" }}>{hospitalData.phone}</Text>
-                  </div>
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <ClockCircleOutlined />
-                    <Text style={{ color: "white" }}>
-                      Mở cửa {hospitalData.workingHours}
-                    </Text>
-                  </div>
-                </Space>
-
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<TeamOutlined />}
-                  style={{
-                    background: "#ff4d4f",
-                    border: "none",
-                    borderRadius: 8,
-                    height: "48px",
-                    padding: "0 32px",
-                    fontSize: "16px",
-                    fontWeight: 600,
-                  }}
-                >
-                  Đặt lịch khám tổng quát
-                </Button>
-              </Space>
-            </Col>
-
-            <Col xs={24} md={10}>
-              <Image
-                width="100%"
-                style={{
-                  borderRadius: 16,
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-                }}
-                src={hospitalData.images[0]}
-                alt={hospitalData.name}
-                preview={false}
-              />
-            </Col>
-          </Row>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div style={{ padding: "40px 24px", background: "white" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Row gutter={[32, 32]}>
-            {hospitalData.stats.map((stat, index) => (
-              <Col xs={12} sm={6} key={index}>
-                <div style={{ textAlign: "center" }}>
-                  <Statistic
-                    value={stat.value}
-                    suffix={stat.suffix}
-                    valueStyle={{
-                      color: "#1890ff",
-                      fontSize: "32px",
-                      fontWeight: 700,
-                    }}
-                  />
-                  <Text style={{ color: "#666", fontSize: "14px" }}>
-                    {stat.label}
-                  </Text>
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ padding: "40px 24px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <Card
-            style={{
-              borderRadius: 16,
-              boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
-              border: "none",
-            }}
-            bodyStyle={{ padding: "32px" }}
-          >
-            <Tabs
-              activeKey={activeTab}
-              onChange={setActiveTab}
-              items={[
-                {
-                  key: "1",
-                  label: (
-                    <span style={{ fontSize: "16px", fontWeight: 600 }}>
-                      <MedicineBoxOutlined />
-                      Giới thiệu
-                    </span>
-                  ),
-                  children: (
-                    <div style={{ padding: "24px 0" }}>
-                      <Row gutter={[32, 32]}>
-                        <Col xs={24} lg={16}>
-                          <Space
-                            direction="vertical"
-                            size="large"
-                            style={{ width: "100%" }}
-                          >
-                            <div>
-                              <Title level={3} style={{ color: "#1f1f1f" }}>
-                                Giới thiệu về bệnh viện
-                              </Title>
-                              <Paragraph
-                                style={{
-                                  fontSize: "16px",
-                                  lineHeight: "1.8",
-                                  color: "#666",
-                                }}
-                              >
-                                {hospitalData.description}
-                              </Paragraph>
-                            </div>
-
-                            <Divider />
-
-                            <div>
-                              <Title level={4}>Thành tích nổi bật</Title>
-                              <List
-                                dataSource={hospitalData.achievements}
-                                renderItem={(item) => (
-                                  <List.Item>
-                                    <List.Item.Meta
-                                      avatar={
-                                        <TrophyOutlined
-                                          style={{ color: "#faad14" }}
-                                        />
-                                      }
-                                      description={item}
-                                    />
-                                  </List.Item>
-                                )}
-                              />
-                            </div>
-                          </Space>
-                        </Col>
-
-                        <Col xs={24} lg={8}>
-                          <Space
-                            direction="vertical"
-                            size="large"
-                            style={{ width: "100%" }}
-                          >
-                            <Card
-                              title="Cơ sở vật chất"
-                              bordered={false}
-                              style={{ borderRadius: 12 }}
-                            >
-                              <Space
-                                direction="vertical"
-                                size={8}
-                                style={{ width: "100%" }}
-                              >
-                                {hospitalData.facilities.map(
-                                  (facility, index) => (
-                                    <div
-                                      key={index}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: 8,
-                                        padding: "8px 0",
-                                      }}
-                                    >
-                                      <div
-                                        style={{
-                                          width: 6,
-                                          height: 6,
-                                          borderRadius: "50%",
-                                          background: "#1890ff",
-                                        }}
-                                      />
-                                      <Text>{facility}</Text>
-                                    </div>
-                                  )
-                                )}
-                              </Space>
-                            </Card>
-
-                            <Card
-                              title="Hình ảnh bệnh viện"
-                              bordered={false}
-                              style={{ borderRadius: 12 }}
-                            >
-                              <Row gutter={[8, 8]}>
-                                {hospitalData.images
-                                  .slice(1)
-                                  .map((image, index) => (
-                                    <Col span={8} key={index}>
-                                      <Image
-                                        width="100%"
-                                        height={80}
-                                        style={{
-                                          borderRadius: 8,
-                                          objectFit: "cover",
-                                        }}
-                                        src={image}
-                                        alt={`Hospital ${index + 1}`}
-                                        preview={{
-                                          mask: <EyeOutlined />,
-                                        }}
-                                      />
-                                    </Col>
-                                  ))}
-                              </Row>
-                            </Card>
-                          </Space>
-                        </Col>
-                      </Row>
+                  <Space direction="vertical" size="small">
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <EnvironmentOutlined />
+                      <Text style={{ color: "white" }}>{data?.address}</Text>
                     </div>
-                  ),
-                },
-                {
-                  key: "2",
-                  label: (
-                    <span style={{ fontSize: "16px", fontWeight: 600 }}>
-                      <UserOutlined />
-                      Chuyên khoa & Bác sĩ
-                    </span>
-                  ),
-                  children: (
-                    <div style={{ padding: "24px 0" }}>
-                      {/* Search and Filter */}
-                      <Card
-                        style={{
-                          marginBottom: 24,
-                          borderRadius: 12,
-                          background: "#fafafa",
-                        }}
-                        bodyStyle={{ padding: "20px" }}
-                      >
-                        <Row gutter={[16, 16]} align="middle">
-                          <Col xs={24} md={12}>
-                            <Search
-                              placeholder="Tìm kiếm chuyên khoa hoặc bác sĩ..."
-                              allowClear
-                              enterButton={
-                                <Button
-                                  type="primary"
-                                  icon={<SearchOutlined />}
-                                  style={{
-                                    background: "#1890ff",
-                                    border: "none",
-                                  }}
-                                >
-                                  Tìm kiếm
-                                </Button>
-                              }
-                              size="large"
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              style={{ width: "100%" }}
-                            />
-                          </Col>
-                          <Col xs={24} md={6}>
-                            <Select
-                              placeholder="Tất cả chuyên khoa"
-                              style={{ width: "100%" }}
-                              size="large"
-                              value={selectedSpecialty}
-                              onChange={setSelectedSpecialty}
-                              allowClear
-                            >
-                              <Option value="all">Tất cả chuyên khoa</Option>
-                              {hospitalData.specialties.map((specialty) => (
-                                <Option
-                                  key={specialty.id}
-                                  value={specialty.id.toString()}
-                                >
-                                  {specialty.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Col>
-                          <Col xs={24} md={6}>
-                            <Text type="secondary" style={{ fontSize: "14px" }}>
-                              Tìm thấy {filteredSpecialties.length} chuyên khoa
-                            </Text>
-                          </Col>
-                        </Row>
-                      </Card>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <PhoneOutlined />
+                      <Text style={{ color: "white" }}>{data?.phone}</Text>
+                    </div>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      <ClockCircleOutlined />
+                      <Text style={{ color: "white" }}>
+                        Mở cửa {hospitalData.workingHours}
+                      </Text>
+                    </div>
+                  </Space>
+                </Space>
+              </Col>
 
-                      {/* Specialties List */}
-                      {/* Specialties List */}
-                      {filteredSpecialties.length > 0 ? (
+              <Col xs={24} md={10}>
+                <Image
+                  height={250}
+                  width="100%"
+                  style={{
+                    borderRadius: 10,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                    objectFit: "cover",
+                  }}
+                  src={data?.imageUrl}
+                  alt={data?.name}
+                  preview={false}
+                />
+              </Col>
+            </Row>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-4 sm:p-6 lg:px-8 lg:py-8">
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            <Card
+              style={{
+                boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                border: "none",
+              }}
+              className="rounded-md pt-0!"
+              classNames={{
+                body: "pt-2!",
+              }}
+            >
+              <Tabs
+                activeKey={activeTab}
+                onChange={handleActiveTab}
+                items={[
+                  {
+                    key: "introduce",
+                    label: (
+                      <span style={{ fontSize: "16px", fontWeight: 600 }}>
+                        <MedicineBoxOutlined className="mr-2" />
+                        Giới thiệu
+                      </span>
+                    ),
+                    children: (
+                      <div style={{ padding: "24px 0" }}>
                         <Space
                           direction="vertical"
-                          size={24}
+                          size="large"
                           style={{ width: "100%" }}
                         >
-                          {filteredSpecialties.map((specialty) => {
-                            const isOpen = openSpecialty === specialty.id;
-
-                            return (
-                              <Card
-                                key={specialty.id}
-                                style={{
-                                  border: `2px solid ${specialty.color}20`,
-                                  borderRadius: 16,
-                                  background: "white",
-                                  overflow: "hidden",
-                                }}
-                                bodyStyle={{ padding: 0 }}
-                              >
-                                {/* Header */}
-                                <div
-                                  style={{
-                                    background: `linear-gradient(135deg, ${specialty.color}10, ${specialty.color}05)`,
-                                    padding: "24px",
-                                    borderBottom: `1px solid ${specialty.color}20`,
-                                  }}
-                                >
-                                  <Space
-                                    size="middle"
-                                    align="start"
-                                    style={{ width: "100%" }}
-                                  >
-                                    <div
-                                      style={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: 12,
-                                        background: specialty.color,
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        fontSize: "20px",
-                                      }}
-                                    >
-                                      {specialty.icon}
-                                    </div>
-
-                                    <div style={{ flex: 1 }}>
-                                      <Space direction="vertical" size={8}>
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 12,
-                                          }}
-                                        >
-                                          <Title
-                                            level={4}
-                                            style={{
-                                              margin: 0,
-                                              color: "#1f1f1f",
-                                            }}
-                                          >
-                                            {specialty.name}
-                                          </Title>
-                                          <Tag
-                                            color={specialty.color}
-                                            style={{
-                                              border: "none",
-                                              borderRadius: 12,
-                                              fontWeight: 600,
-                                            }}
-                                          >
-                                            {specialty.doctors.length} bác sĩ
-                                          </Tag>
-                                        </div>
-                                        <Text
-                                          style={{
-                                            color: "#666",
-                                            lineHeight: 1.6,
-                                          }}
-                                        >
-                                          {specialty.description}
-                                        </Text>
-                                      </Space>
-                                    </div>
-
-                                    {/* NÚT COLLAPSE */}
-                                    <Button
-                                      type="text"
-                                      onClick={() =>
-                                        setOpenSpecialty(
-                                          isOpen ? null : specialty.id
-                                        )
-                                      }
-                                      style={{ fontWeight: 600 }}
-                                    >
-                                      {isOpen ? "Thu gọn ▲" : "Xem bác sĩ ▼"}
-                                    </Button>
-                                  </Space>
-                                </div>
-
-                                {/* BODY — SHOW OR HIDE */}
-                                {isOpen && (
-                                  <div style={{ padding: "24px" }}>
-                                    <Row gutter={[16, 16]}>
-                                      {specialty.doctors.map((doctor) => (
-                                        <Col
-                                          xs={24}
-                                          md={12}
-                                          lg={8}
-                                          key={doctor.id}
-                                        >
-                                          <DoctorCard
-                                            doctor={doctor}
-                                            specialtyColor={specialty.color}
-                                          />
-                                        </Col>
-                                      ))}
-                                    </Row>
-                                  </div>
-                                )}
-                              </Card>
-                            );
-                          })}
+                          <div>
+                            <Title level={3} style={{ color: "#1f1f1f" }}>
+                              Giới thiệu về bệnh viện
+                            </Title>
+                            <Paragraph
+                              style={{
+                                fontSize: "16px",
+                                lineHeight: "1.8",
+                                color: "#666",
+                              }}
+                            >
+                              {hospitalData.description}
+                            </Paragraph>
+                          </div>
                         </Space>
-                      ) : (
-                        <Empty
-                          description="Không tìm thấy chuyên khoa hoặc bác sĩ phù hợp"
-                          image={Empty.PRESENTED_IMAGE_SIMPLE}
-                          style={{ margin: "40px 0" }}
-                        />
-                      )}
-                    </div>
-                  ),
-                },
-              ]}
-            />
-          </Card>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "sepcility",
+                    label: (
+                      <span style={{ fontSize: "16px", fontWeight: 600 }}>
+                        <UserOutlined className="mr-2" />
+                        Chuyên khoa & Bác sĩ
+                      </span>
+                    ),
+                    children: <TabDepartment facilityId={Number(id)} />,
+                  },
+                ]}
+              />
+            </Card>
+          </div>
         </div>
-      </div>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 

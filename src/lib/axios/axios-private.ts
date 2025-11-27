@@ -1,10 +1,20 @@
 import { accessTokenStore } from "@/stores/auth";
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 import { clearTokens, saveCookies } from "../actions/auth";
 
 const axiosWithToken = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true, // ✅ gửi cookie cùng request
+});
+
+axiosWithToken.interceptors.request.use((config) => {
+  const headers = new AxiosHeaders(config.headers);
+
+  const domain = window.location.host;
+
+  headers.set("X-Client-Type", domain);
+  config.headers = headers;
+  return config;
 });
 
 // ❌ Không tự set Content-Type ở đây

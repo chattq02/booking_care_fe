@@ -1,5 +1,6 @@
 import type { IParams } from "@/types/params";
 import type { ScheduleDataDoctor } from "../medical-facility/type";
+import type { ResponseAcademicTitle } from "../academic-title/type";
 
 export interface ResponseDepartment {
   id?: number; // Mã phòng ban
@@ -25,5 +26,7 @@ export interface IResponseGetUsersDepartment {
   phone: string;
   user_type: string;
   avatar: string;
+  address: string;
   schedules: ScheduleDataDoctor[];
+  academicTitle: ResponseAcademicTitle;
 }

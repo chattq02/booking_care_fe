@@ -30,6 +30,7 @@ import { accessTokenStore } from "@/stores/auth";
 import Cookies from "js-cookie";
 import { COOKIE_KEYS } from "@/constants";
 import { PATH_ROUTE } from "../../lib/enums/path";
+import { useCreateAppointment } from "./hooks/useAppointment";
 
 dayjs.locale("vi");
 
@@ -43,6 +44,7 @@ const DoctorPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("schedule");
   const nav = useNavigate();
+  const { mutate, isPending } = useCreateAppointment();
 
   const [bookingForm] = Form.useForm();
 
@@ -57,22 +59,18 @@ const DoctorPage = () => {
       }, 1000);
       return;
     }
-
-    console.log("values", values);
-    // try {
-    //   // console.log("Đặt lịch:", {
-    //   //   ...values,
-    //   //   doctor: doctorData.name,
-    //   //   time: selectedTime,
-    //   //   price: doctorData.price,
-    //   // });
-
-    //   message.success("Đặt lịch khám thành công!");
-    //   setIsModalVisible(false);
-    //   bookingForm.resetFields();
-    // } catch (error) {
-    //   message.error("Có lỗi xảy ra khi đặt lịch!");
-    // }
+    mutate(
+      {
+        slotId: values?.id as string,
+        doctorId: Number(id),
+        note: bookingForm.getFieldValue("note"),
+      },
+      {
+        onSuccess: () => {
+          messageApi.success("Đặt lịch thành công!");
+        },
+      }
+    );
   };
 
   const formatCurrency = (amount: number) => {
@@ -282,7 +280,7 @@ const DoctorPage = () => {
               </div>
             </div>
           </div>
-          <Form.Item label="Triệu chứng/Lý do khám" name="symptoms">
+          <Form.Item label="Triệu chứng/Lý do khám" name="note">
             <TextArea
               rows={4}
               placeholder="Mô tả triệu chứng hoặc lý do khám (nếu có)"
@@ -292,6 +290,8 @@ const DoctorPage = () => {
 
           <Form.Item>
             <Button
+              loading={isPending}
+              disabled={isPending}
               type="primary"
               htmlType="submit"
               block

@@ -68,6 +68,12 @@ const medicalFacilityAdmin = {
       }
     );
   },
+
+  getDetailFacility: async (
+    id: number
+  ): Promise<ResponseResult<ResponseMedicalFacility>> => {
+    return axiosWithToken.get(`/admin/medical-facility/${id}`);
+  },
 };
 
 export default medicalFacilityAdmin;

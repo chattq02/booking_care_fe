@@ -38,6 +38,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
             </div>
             <ConfigProvider locale={viVN}>
               <DatePicker
+                allowClear={false}
                 value={selectedDate}
                 onChange={setSelectedDate}
                 format={(date) => {
@@ -52,7 +53,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
               />
             </ConfigProvider>
           </Flex>
-          {scheduleData ? (
+          {scheduleData && scheduleData?.length > 0 ? (
             scheduleData?.map((item) => (
               <div key={item.id} style={{ marginBottom: 24 }}>
                 {/* Header thông tin config */}
