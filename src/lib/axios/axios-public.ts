@@ -7,10 +7,15 @@ const axiosPublic = axios.create({
 
 axiosPublic.interceptors.request.use((config) => {
   const headers = new AxiosHeaders(config.headers);
+  const host = window.location.host;
+  const currentUrl = window.location.hostname;
 
-  const domain = window.location.host;
+  let clientType = "user";
+  if (host.includes("admin")) clientType = "admin";
+  else if (host.includes("doctor")) clientType = "doctor";
 
-  headers.set("X-Client-Type", domain);
+  headers.set("X-Client-Type", clientType);
+  headers.set("X-Current-Url", currentUrl);
   config.headers = headers;
   return config;
 });

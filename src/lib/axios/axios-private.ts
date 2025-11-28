@@ -10,9 +10,15 @@ const axiosWithToken = axios.create({
 axiosWithToken.interceptors.request.use((config) => {
   const headers = new AxiosHeaders(config.headers);
 
-  const domain = window.location.host;
+  const host = window.location.host;
+  const currentUrl = window.location.hostname;
 
-  headers.set("X-Client-Type", domain);
+  let clientType = "user";
+  if (host.includes("admin")) clientType = "admin";
+  else if (host.includes("doctor")) clientType = "doctor";
+
+  headers.set("X-Client-Type", clientType);
+  headers.set("X-Current-Url", currentUrl);
   config.headers = headers;
   return config;
 });
@@ -38,7 +44,7 @@ axiosWithToken.interceptors.response.use(
         originalRequest.url.includes("/auth/refresh-token"))
     ) {
       clearTokens();
-      window.location.replace("/login");
+      // window.location.replace("/login");
       return Promise.reject(error);
     }
 

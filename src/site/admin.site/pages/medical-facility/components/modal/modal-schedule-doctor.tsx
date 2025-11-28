@@ -120,13 +120,8 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
           const slotEndTime = currentTime.add(duration, "minute");
           if (slotEndTime.isAfter(endTime)) break;
 
-          // Tạo ID ổn định dựa trên thời gian
-          const timeKey = `${currentTime.format("HH:mm")}-${slotEndTime.format(
-            "HH:mm"
-          )}`;
-
           slots.push({
-            id: timeKey, // Sử dụng timeKey thay vì v4() để đảm bảo ổn định
+            id: v4(), // Sử dụng timeKey thay vì v4() để đảm bảo ổn định
             startTime: currentTime.format("HH:mm"),
             endTime: slotEndTime.format("HH:mm"),
             selected: false,
