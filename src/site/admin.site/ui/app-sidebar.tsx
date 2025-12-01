@@ -8,8 +8,8 @@ import {
 
 import {
   BriefcaseBusiness,
-  CalendarDays,
   ChartColumnStacked,
+  FileHeart,
   GraduationCap,
   Hospital,
   Info,
@@ -44,11 +44,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: <Info size={20} />,
           link: PATH_ROUTE_ADMIN.LIST_DOCTOR,
         },
-        {
-          name: "Khung giờ khám",
-          icon: <CalendarDays size={20} />,
-          link: PATH_ROUTE_ADMIN.MEDICAL_SCHEDULE,
-        },
       ],
     },
     {
@@ -75,6 +70,11 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           name: "Gói khám",
           icon: <TicketPlus size={20} />,
+          link: PATH_ROUTE.GENERALEXAMINATION,
+        },
+        {
+          name: "Đơn thuốc",
+          icon: <FileHeart size={20} />,
           link: PATH_ROUTE.GENERALEXAMINATION,
         },
       ],

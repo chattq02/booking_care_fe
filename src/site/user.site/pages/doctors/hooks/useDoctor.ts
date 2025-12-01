@@ -63,9 +63,9 @@ export const useGetScheduleDoctor = (
   },
   enabled = true
 ) => {
-  const key = useMemo(() => stringify(params), [params]);
+  // const key = useMemo(() => stringify(params), [params]);
   return useQuery({
-    queryKey: ["detailDoctor", key],
+    queryKey: ["detailDoctor", params],
     queryFn: async () => {
       const res = await doctorUser.getDoctorSchedule(params);
       return res.data;

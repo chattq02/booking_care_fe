@@ -44,7 +44,12 @@ const DoctorPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("schedule");
   const nav = useNavigate();
-  const { mutate, isPending } = useCreateAppointment();
+  const { mutate, isPending } = useCreateAppointment({
+    doctorId: Number(id),
+    date: selectedSlot?.selectedDate
+      ? selectedSlot?.selectedDate.format("YYYY-MM-DD")
+      : "",
+  });
 
   const [bookingForm] = Form.useForm();
 
@@ -68,6 +73,7 @@ const DoctorPage = () => {
       {
         onSuccess: () => {
           messageApi.success("Đặt lịch thành công!");
+          setIsModalVisible(false);
         },
       }
     );

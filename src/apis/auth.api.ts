@@ -1,8 +1,16 @@
 import axiosWithToken from "@/lib/axios/axios-private";
 import axiosPublic from "@/lib/axios/axios-public";
-import type { IFacility, ResponseResult } from "@/lib/axios/axios-type";
+import type {
+  IFacility,
+  PaginationResponse,
+  ResponseResult,
+} from "@/lib/axios/axios-type";
 
 import type { VerifyEmailType } from "@/site/doctor.site/types/auth";
+import type {
+  IMyAppointmentRes,
+  IParamMyAppointment,
+} from "@/site/user.site/pages/profile/types/type";
 import type {
   GetMeResponseData,
   LoginForm,
@@ -51,6 +59,15 @@ const authApi = {
       "/auth/select-facility",
       omit(data, ["address", "name", "imageUrl"])
     );
+  },
+
+  getMyAppointment: async (
+    params: IParamMyAppointment
+  ): Promise<PaginationResponse<IMyAppointmentRes[]>> => {
+    const res = await axiosWithToken.get("/user/my-appointment", {
+      params: params,
+    });
+    return res.data;
   },
 };
 

@@ -50,7 +50,7 @@ interface GenericTableProps<T> extends TableProps<T> {
   data: T[];
   customHeight?: number;
   customScrollX?: number | string;
-
+  enableScroll?: boolean;
   maxHeight?: {
     isMax: boolean;
     customScrollY?: number;
@@ -65,6 +65,7 @@ function DataGridInner<T>({
     isMax: true,
     customScrollY: undefined,
   },
+  enableScroll = true,
   ...rest
 }: GenericTableProps<T>) {
   const { height: windowHeight } = useWindowSize();
@@ -88,7 +89,7 @@ function DataGridInner<T>({
         : dataSource.length < 20
         ? undefined
         : maxHeight.customScrollY ?? 600,
-      x: "max-content",
+      x: customScrollX,
     }),
     [
       windowHeight,
@@ -142,7 +143,7 @@ function DataGridInner<T>({
         {...rest}
         bordered={true}
         dataSource={dataSource}
-        scroll={scrollConfig}
+        scroll={enableScroll ? scrollConfig : undefined}
         sticky={true}
         rowKey={(record: any) => record.id ?? record.key}
         className={`

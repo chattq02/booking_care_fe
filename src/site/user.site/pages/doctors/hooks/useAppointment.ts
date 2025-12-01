@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import {
   useMutation,
   useQuery,
@@ -58,7 +59,10 @@ export const useGetAppointmentDetail = (id: number, enabled = true) => {
 };
 
 // ---------------------- CRUD MUTATIONS ----------------------
-export const useCreateAppointment = () => {
+export const useCreateAppointment = (params: {
+  doctorId: number;
+  date: Dayjs | string;
+}) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (data: Partial<ICreateAppointment>) => {
@@ -66,7 +70,7 @@ export const useCreateAppointment = () => {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["listAppointment"] });
+      queryClient.refetchQueries({ queryKey: ["detailDoctor", params] });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Đăng ký khám thất bại");

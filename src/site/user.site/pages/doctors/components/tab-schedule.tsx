@@ -117,22 +117,23 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
                       {daySchedule.slots?.map((slot, index) => (
                         <Tag
                           key={`${daySchedule.date}-${index}`}
-                          color={slot.selected ? "blue" : "default"}
+                          color={!slot.isBlock ? "blue" : "red"}
                           style={{
-                            cursor: "pointer",
+                            cursor: !slot.isBlock ? "pointer" : "not-allowed",
+                            pointerEvents: !slot.isBlock ? "auto" : "none",
                             padding: "8px 12px",
                             margin: 0,
                             flexShrink: 0,
                             borderRadius: "6px",
                             border: `1px solid ${
-                              slot.selected ? "#1890ff" : "#d9d9d9"
+                              !slot.isBlock ? "#1890ff" : "#d9d9d9"
                             }`,
-                            background: slot.selected ? "#e6f7ff" : "#fff",
-                            color: slot.selected ? "#1890ff" : "#000",
+                            background: !slot.isBlock ? "#e6f7ff" : "#fff",
+                            color: !slot.isBlock ? "#1890ff" : "#000",
                             fontWeight: 500,
                             fontSize: "14px",
                             transition: "all 0.3s ease",
-                            boxShadow: slot.selected
+                            boxShadow: !slot.isBlock
                               ? "0 2px 4px rgba(24, 144, 255, 0.2)"
                               : "none",
                             overflow: "hidden",
@@ -145,7 +146,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
                           }}
                           onMouseLeave={(e) => {
                             e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.boxShadow = slot.selected
+                            e.currentTarget.style.boxShadow = !slot.isBlock
                               ? "0 2px 4px rgba(24, 144, 255, 0.2)"
                               : "none";
                           }}

@@ -44,7 +44,7 @@ axiosWithToken.interceptors.response.use(
         originalRequest.url.includes("/auth/refresh-token"))
     ) {
       clearTokens();
-      // window.location.replace("/login");
+      window.location.replace("/login");
       return Promise.reject(error);
     }
 

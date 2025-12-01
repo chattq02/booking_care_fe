@@ -14,6 +14,8 @@ export function formatSlug(slug: string) {
     "ham-vi": "Hàm vị - học vị",
     "chuyen-khoa": "Chuyên khoa",
     "co-so-y-te": "Cơ sở y tế",
+    "danh-sach-lich-hen": "Danh sách lịch hẹn",
+    "danh-sach-benh-nhan": "Danh sách bệnh nhân",
   };
 
   return (

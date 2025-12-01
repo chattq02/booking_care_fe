@@ -2,7 +2,7 @@ import NotFound from "@/site/NotFound";
 import AdminLayout from "../layouts/admin-layout";
 import type { RouteObject } from "react-router-dom";
 import Login from "../../../pages/auth/login/login";
-import GuardRouteLayout from "../../../layouts/private-router";
+import GuardRouteLayout from "../layouts/private-router";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
 import { withSuspense } from "../layouts/with-suspense";
 import {
@@ -11,7 +11,6 @@ import {
   LazyInfoDoctor,
   LazyMedicalFacility,
   LazyMedicalFacilityDetail,
-  LazyMedicalSchedule,
   LazySpecialty,
 } from "./lazy-components";
 import SelectFacilities from "@/pages/auth/select-facilities/select-facilities";
@@ -44,10 +43,6 @@ export const adminRoutes: RouteObject[] = [
           {
             path: "/danh-sach-bac-si",
             element: withSuspense(LazyInfoDoctor),
-          },
-          {
-            path: PATH_ROUTE_ADMIN.MEDICAL_SCHEDULE,
-            element: withSuspense(LazyMedicalSchedule),
           },
           {
             path: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
