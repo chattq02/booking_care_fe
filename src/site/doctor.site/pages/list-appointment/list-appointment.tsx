@@ -1,12 +1,12 @@
 import React from "react";
 import {
   Select,
-  Tag,
   Flex,
   Button as ButtonAnt,
   ConfigProvider,
   DatePicker,
   Avatar,
+  Tag,
 } from "antd";
 
 import type { ColumnsType } from "antd/es/table";
@@ -29,10 +29,14 @@ import {
   useUpadateStatusAppointment,
 } from "./hooks/useAppointment";
 import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/type";
-import { appointmentParamsAtom } from "./stores/params";
+import { appointmentParamsAtom, type AppointmentStatus } from "./stores/params";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import { toast } from "sonner";
+import AppointmentActionModal, {
+  type AppointmentActionModalRef,
+  type ModalType,
+} from "./components/modal-confirm-status";
 
 const ActionCell = React.memo(
   ({
@@ -78,13 +82,14 @@ const ActionCell = React.memo(
 export default function ListAppointment() {
   const [param, setParam] = useAtom(appointmentParamsAtom);
 
-  const { data, isLoading, refetch } = useGetAppointment({
-    appointmentDate: param.appointmentDate,
-    page: param.page,
-    per_page: param.per_page,
-    status: param.status,
-  });
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [modalType, setModalType] = React.useState<ModalType>(null);
+  const [selectedRecord, setSelectedRecord] =
+    React.useState<IMyAppointmentRes | null>(null);
 
+  const modalRef = React.useRef<AppointmentActionModalRef>(null);
+
+  const { data, isLoading, refetch } = useGetAppointment(param);
   const { mutate, isPending } = useUpadateStatusAppointment();
 
   const columns: ColumnsType<IMyAppointmentRes> = [
@@ -274,55 +279,98 @@ export default function ListAppointment() {
       render: (_, record) => (
         <ActionCell
           record={record}
-          onCancel={handleCancel}
-          onConfirm={handleConfirm}
-          onFinish={handleFinish}
+          onCancel={handleCancelClick}
+          onConfirm={handleConfirmClick}
+          onFinish={handleFinishClick}
         />
       ),
     },
   ];
 
-  const handleCancel = (record: IMyAppointmentRes) => {
-    mutate(
-      {
-        id: Number(record.id),
-        status: "CANCELED",
-      },
-      {
-        onSuccess: () => {
-          refetch();
-          toast.success("Hủy lịch thành công");
-        },
-      }
-    );
+  const handleCancelClick = (record: IMyAppointmentRes) => {
+    setSelectedRecord(record);
+    setModalType("cancel");
+    modalRef.current?.setCancelReason("");
+    modalRef.current?.setCancelReasonError("");
+    setModalVisible(true);
   };
-  const handleConfirm = (record: IMyAppointmentRes) => {
-    mutate(
-      {
-        id: Number(record.id),
-        status: "CONFIRMED",
-      },
-      {
-        onSuccess: () => {
-          refetch();
-          toast.success("Xác nhận thành công");
-        },
-      }
-    );
+
+  const handleConfirmClick = (record: IMyAppointmentRes) => {
+    setSelectedRecord(record);
+    setModalType("confirm");
+    setModalVisible(true);
   };
-  const handleFinish = (record: IMyAppointmentRes) => {
-    mutate(
-      {
-        id: Number(record.id),
-        status: "COMPLETED",
+
+  const handleFinishClick = (record: IMyAppointmentRes) => {
+    setSelectedRecord(record);
+    setModalType("finish");
+    setModalVisible(true);
+  };
+
+  const handleModalConfirm = (status: AppointmentStatus, remark?: string) => {
+    if (!selectedRecord) return;
+
+    const successMessage = getSuccessMessage(status);
+
+    const payload: {
+      id: number;
+      status: AppointmentStatus;
+      remark?: string;
+    } = {
+      id: Number(selectedRecord.id),
+      status,
+    };
+
+    if (remark) {
+      payload.remark = remark;
+    }
+
+    mutate(payload, {
+      onSuccess: () => {
+        refetch();
+        toast.success(successMessage);
+        handleCloseModal();
       },
-      {
-        onSuccess: () => {
-          refetch();
-          toast.success("Đã hoàn thành ca khám thành công");
-        },
-      }
-    );
+      onError: () => {
+        toast.error(`Có lỗi xảy ra khi ${getModalTitle(modalType)}`);
+      },
+    });
+  };
+
+  const getSuccessMessage = (status: AppointmentStatus) => {
+    switch (status) {
+      case "CANCELED":
+        return "Hủy lịch thành công";
+      case "CONFIRMED":
+        return "Xác nhận lịch thành công";
+      case "COMPLETED":
+        return "Đã hoàn thành ca khám thành công";
+      default:
+        return "Thao tác thành công";
+    }
+  };
+
+  const getModalTitle = (type: ModalType) => {
+    switch (type) {
+      case "cancel":
+        return "Hủy lịch hẹn";
+      case "confirm":
+        return "Xác nhận lịch hẹn";
+      case "finish":
+        return "Hoàn thành lịch hẹn";
+      default:
+        return "";
+    }
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setModalType(null);
+    setSelectedRecord(null);
+    if (modalRef.current) {
+      modalRef.current.setCancelReason("");
+      modalRef.current.setCancelReasonError("");
+    }
   };
 
   const handleTableChange = (pagination: any) => {
@@ -339,9 +387,7 @@ export default function ListAppointment() {
         <Flex gap={14}>
           <ConfigProvider locale={viVN}>
             <DatePicker
-              defaultValue={
-                param.appointmentDate ? dayjs(param.appointmentDate) : undefined
-              }
+              value={dayjs(param.appointmentDate)}
               allowClear={false}
               placeholder="Chọn ngày"
               size="middle"
@@ -395,6 +441,17 @@ export default function ListAppointment() {
         loading={isLoading || isPending}
         onChange={handleTableChange}
         className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
+      />
+
+      {/* Modal component tách riêng */}
+      <AppointmentActionModal
+        ref={modalRef}
+        open={modalVisible}
+        modalType={modalType}
+        selectedRecord={selectedRecord}
+        onCancel={handleCloseModal}
+        onConfirm={handleModalConfirm}
+        loading={isPending}
       />
     </div>
   );

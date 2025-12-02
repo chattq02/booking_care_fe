@@ -4,7 +4,7 @@ import type { RouteObject } from "react-router-dom";
 import Login from "../../../pages/auth/login/login";
 import GuardRouteLayout from "../layouts/private-router";
 import { PATH_ROUTE_ADMIN } from "../libs/enums/path";
-import { withSuspense } from "../layouts/with-suspense";
+import { withSuspense } from "../../../layouts/with-suspense";
 import {
   LazyAcademicTitle,
   LazyDashboard,

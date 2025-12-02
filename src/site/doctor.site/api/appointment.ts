@@ -19,10 +19,12 @@ const appointmentDoctor = {
 
   updateStatus: (
     id: number,
-    status: AppointmentStatus
+    status: AppointmentStatus,
+    remark?: string
   ): Promise<ResponseParamsResult<IMyAppointmentRes>> => {
     return axiosWithToken.put(`/user/appointment/${id}/status`, {
       status,
+      remark,
     });
   },
 };

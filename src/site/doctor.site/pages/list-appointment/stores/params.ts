@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
-import { parse, stringify } from "qs";
-import { atomWithHash } from "jotai-location";
+
+import { createParamsAtom } from "@/stores/params";
+import type { IParams } from "@/types/params";
 
 export type AppointmentStatus =
   | "PENDING"
@@ -15,38 +16,15 @@ export interface AppointmentParams {
   appointmentDate: Dayjs | null | string;
 }
 
-export const appointmentParamsAtom = atomWithHash<AppointmentParams>(
-  "appointment_params",
+export interface MedicalFacilityParams extends IParams {
+  status: AppointmentStatus;
+  appointmentDate: Dayjs | null | string;
+}
+
+export const appointmentParamsAtom = createParamsAtom<MedicalFacilityParams>(
+  "apointment-params",
   {
-    page: 1,
-    per_page: 100,
-    appointmentDate: dayjs(),
     status: "PENDING",
-  },
-  {
-    serialize: (value) => {
-      // loại bỏ giá trị null, undefined, hoặc rỗng
-      const cleaned = Object.fromEntries(
-        Object.entries(value).filter(
-          ([, v]) => v !== null && v !== undefined && v !== ""
-        )
-      );
-
-      return stringify(cleaned, {
-        addQueryPrefix: false,
-        skipNulls: true,
-        encode: true,
-      });
-    },
-
-    deserialize: (str) => {
-      const q = parse(str) as any;
-      return {
-        page: Number(q.page) || 1,
-        per_page: Number(q.per_page) || 100,
-        status: (q.status as AppointmentStatus) ?? "PENDING",
-        appointmentDate: q.appointmentDate ?? "",
-      };
-    },
+    appointmentDate: dayjs().format("YYYY-MM-DD"), // Luôn có giá trị
   }
 );

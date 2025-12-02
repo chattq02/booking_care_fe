@@ -7,7 +7,7 @@ export interface IMyAppointmentRes {
   };
   status: "PENDING" | "CONFIRMED" | "CANCELED" | string;
   appointmentDate: string;
-  slot: IAppointmentSlot; // JSON string
+  slot: string; // JSON string
   patient: {
     id: number;
     fullName: string;
