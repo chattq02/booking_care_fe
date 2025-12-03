@@ -45,6 +45,19 @@ export const useGetListDoctorMedicalFacility = (
   });
 };
 
+// 🔹 Lấy chi tiết cơ sở y tế
+export const useGetMedicalFacilityDetail = (id: number, enabled = true) => {
+  return useQuery({
+    queryKey: ["GetMedicalFacilityDetail", id],
+    queryFn: async () => {
+      const result = await medicalFacilityAdmin.getDetailFacility(id);
+      return result.data;
+    },
+    enabled,
+    placeholderData: (prev) => prev,
+  });
+};
+
 // 🔹 Lấy cây cơ sở y tế (theo cha – con, nếu có)
 export const useGetTreeMedicalFacility = () => {
   return useQuery({
@@ -60,8 +73,11 @@ export const useCreateMedicalFacility = ({
 }: UseCreateMedicalFacilityOptions = {}) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: ResponseMedicalFacility) =>
-      medicalFacilityAdmin.create(data),
+    mutationFn: async (data: ResponseMedicalFacility) => {
+      const response = await medicalFacilityAdmin.create(data);
+      return response.data;
+    },
+
     onSuccess: () => {
       toast.success("Tạo cơ sở y tế thành công");
       queryClient.invalidateQueries({ queryKey: ["medicalFacilities"] });
@@ -85,9 +101,7 @@ export const useUpdateMedicalFacility = ({
     mutationFn: (data: ResponseMedicalFacility) =>
       medicalFacilityAdmin.update(data),
     onSuccess: () => {
-      toast.success("Cập nhật cơ sở y tế thành công");
-      queryClient.invalidateQueries({ queryKey: ["medicalFacilities"] });
-      queryClient.invalidateQueries({ queryKey: ["medicalFacility-tree"] });
+      queryClient.invalidateQueries({ queryKey: ["GetMedicalFacilityDetail"] });
       onSuccessCallback?.();
     },
     onError: (error: any) => {

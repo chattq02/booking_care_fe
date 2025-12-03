@@ -3,19 +3,11 @@ import { useAtom, useSetAtom } from "jotai";
 import type { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { Flex, Select, Tag } from "antd";
 import SearchBox from "../info-doctor/components/search-box";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+
 import { Button as ButtonAnt } from "antd";
-import { MoreHorizontal, Pen, Trash } from "lucide-react";
+
 import { PlusOutlined } from "@ant-design/icons";
-import React, { memo, useCallback, useMemo } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { loadingAtom } from "@/stores/loading";
 import type { ResponseMedicalFacility } from "./type";
 import { medicalFacilitiesParamsAtom } from "./store/params";
@@ -27,43 +19,6 @@ import {
 } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { PATH_ROUTE_ADMIN } from "../../libs/enums/path";
-
-// 🔥 Tách ActionCell ra ngoài để tránh re-render không cần thiết
-const ActionCell = React.memo(
-  ({
-    record,
-    onDelete,
-  }: {
-    record: ResponseMedicalFacility;
-    onDelete: (id: number) => void;
-  }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-9 w-9 p-0 cursor-pointer">
-          <MoreHorizontal size={30} />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <ButtonAnt icon={<Pen size={15} className="mt-1" />}>
-            Chỉnh sửa
-          </ButtonAnt>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => onDelete(record.id ?? 0)}>
-          <ButtonAnt
-            icon={<Trash size={15} className="mt-1" />}
-            className="w-full"
-            danger
-          >
-            Xóa
-          </ButtonAnt>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  )
-);
 
 // 🔥 Tách StatusTag ra ngoài
 const StatusTag = memo(({ isActive }: { isActive: string }) =>
@@ -149,16 +104,6 @@ export default function MedicalFacility() {
         key: "isActive",
         render: (text) => <StatusTag isActive={text} />,
       },
-      {
-        width: 80,
-        fixed: "right",
-        align: "center",
-        title: "",
-        key: "action",
-        render: (_, record) => (
-          <ActionCell record={record} onDelete={handleDelete} />
-        ),
-      },
     ],
     [handleDelete]
   );
@@ -227,7 +172,7 @@ export default function MedicalFacility() {
         <ButtonAnt
           icon={<PlusOutlined />}
           type="primary"
-          // onClick={() => modelAcademicRef.current?.showModal()}
+          onClick={() => nav(`${PATH_ROUTE_ADMIN.MEDICAL_FACILITY}/tao-moi`)}
         >
           Thêm mới
         </ButtonAnt>

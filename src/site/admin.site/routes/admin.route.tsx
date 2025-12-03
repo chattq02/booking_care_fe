@@ -57,6 +57,10 @@ export const adminRoutes: RouteObject[] = [
             element: withSuspense(LazyMedicalFacility),
           },
           {
+            path: `${PATH_ROUTE_ADMIN.MEDICAL_FACILITY}/tao-moi`,
+            element: withSuspense(LazyMedicalFacilityDetail),
+          },
+          {
             path: `${PATH_ROUTE_ADMIN.MEDICAL_FACILITY}/:id/:name`,
             element: withSuspense(LazyMedicalFacilityDetail),
           },

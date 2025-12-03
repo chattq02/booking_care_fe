@@ -34,7 +34,9 @@ const medicalFacilityAdmin = {
   /**
    * ➕ Tạo mới cơ sở y tế
    */
-  create: (data: ResponseMedicalFacility) => {
+  create: (
+    data: ResponseMedicalFacility
+  ): Promise<ResponseResult<ResponseMedicalFacility>> => {
     return axiosWithToken.post("/admin/medical-facility", data);
   },
 

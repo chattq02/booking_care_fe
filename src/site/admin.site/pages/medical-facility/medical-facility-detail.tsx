@@ -18,7 +18,8 @@ const LazyMedicalFacilityDetail: React.FC = () => {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Danh sách tab hợp lệ
+  const hasId = Boolean(id);
+
   const validTabs = [
     "profile",
     "scheduleFacility",
@@ -28,15 +29,86 @@ const LazyMedicalFacilityDetail: React.FC = () => {
     "medicalSchedule",
   ];
 
-  // Lấy tab từ URL và validate
   const tabFromUrl = searchParams.get("tab");
-  const activeTab = validTabs.includes(tabFromUrl || "")
-    ? tabFromUrl!
-    : "profile";
+  const activeTab =
+    hasId && validTabs.includes(tabFromUrl || "") ? tabFromUrl! : "profile";
 
   const handleTabChange = (key: string) => {
     setSearchParams({ tab: key });
   };
+
+  // Danh sách tabs hiển thị
+  const items = [
+    {
+      key: "profile",
+      label: (
+        <Flex align="center" gap={10}>
+          <BadgeInfo size={18} />
+          Thông tin
+        </Flex>
+      ),
+      children: <InfoBasic facilityId={Number(id)} />,
+    },
+    {
+      key: "scheduleFacility",
+      label: (
+        <Flex align="center" gap={10}>
+          <CalendarDays size={18} /> Lịch làm việc
+        </Flex>
+      ),
+      children: <ScheduleFacility facilityId={Number(id)} />,
+    },
+    {
+      key: "medicalSchedule",
+      label: (
+        <Flex align="center" gap={10}>
+          <CalendarPlus2 size={18} /> Lịch khám
+        </Flex>
+      ),
+      children: <TaskSchedule />,
+    },
+    {
+      key: "listDoctor",
+      label: (
+        <Flex align="center" gap={10}>
+          <Users size={18} /> Danh sách bác sĩ
+        </Flex>
+      ),
+      children: <ListDoctor facilityId={Number(id)} />,
+    },
+    {
+      key: "specialtyFacility",
+      label: (
+        <Flex align="center" gap={10}>
+          <Award size={18} /> Chuyên khoa
+        </Flex>
+      ),
+      children: <SpecialtyFacility facilityId={Number(id)} />,
+    },
+    {
+      key: "package",
+      label: (
+        <Flex align="center" gap={10}>
+          <Tickets size={18} /> Gói khám
+        </Flex>
+      ),
+      children: <SpecialtyFacility facilityId={Number(id)} />,
+    },
+    {
+      key: "package",
+      label: (
+        <Flex align="center" gap={10}>
+          <Tickets size={18} /> Đơn thuốc
+        </Flex>
+      ),
+      children: <SpecialtyFacility facilityId={Number(id)} />,
+    },
+  ];
+
+  // Nếu không có id -> chỉ giữ lại tab profile
+  const filteredItems = hasId
+    ? items
+    : items.filter((t) => t.key === "profile");
 
   return (
     <div className="w-full px-5 mb-4">
@@ -44,80 +116,7 @@ const LazyMedicalFacilityDetail: React.FC = () => {
         activeKey={activeTab}
         onChange={handleTabChange}
         className="[&_.ant-tabs-nav]:sticky! [&_.ant-tabs-nav]:rounded-b-md [&_.ant-tabs-nav]:top-16! [&_.ant-tabs-nav]:bg-white! [&_.ant-tabs-nav]:z-50! [&_.ant-tabs-nav]:px-5"
-        items={[
-          {
-            key: "profile",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <BadgeInfo size={18} />
-                </div>
-                Thông tin
-              </Flex>
-            ),
-            children: <InfoBasic />,
-          },
-          {
-            key: "scheduleFacility",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <CalendarDays size={18} />
-                </div>
-                Lịch làm việc
-              </Flex>
-            ),
-            children: <ScheduleFacility facilityId={Number(id)} />,
-          },
-          {
-            key: "medicalSchedule",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <CalendarPlus2 size={18} />
-                </div>
-                Lịch khám
-              </Flex>
-            ),
-            children: <TaskSchedule />,
-          },
-          {
-            key: "listDoctor",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <Users size={18} />
-                </div>
-                Danh sách bác sĩ
-              </Flex>
-            ),
-            children: <ListDoctor facilityId={Number(id)} />,
-          },
-          {
-            key: "specialtyFacility",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <Award size={18} />
-                </div>
-                Chuyên khoa
-              </Flex>
-            ),
-            children: <SpecialtyFacility facilityId={Number(id)} />,
-          },
-          {
-            key: "package",
-            label: (
-              <Flex align="center" gap={10}>
-                <div>
-                  <Tickets size={18} />
-                </div>
-                Gói khám
-              </Flex>
-            ),
-            children: <SpecialtyFacility facilityId={Number(id)} />,
-          },
-        ]}
+        items={filteredItems}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import type { IParams } from "@/types/params";
 import type { ScheduleConfig } from "./components/modal/modal-schedule-doctor";
 
-export type TActive = "Active" | "Inactive";
+export type TActive = "Active" | "InActive";
 
 export interface ResponseMedicalFacility {
   id: number;
