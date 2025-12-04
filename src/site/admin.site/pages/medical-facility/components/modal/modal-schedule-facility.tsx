@@ -34,12 +34,13 @@ export interface HospitalScheduleRef {
 interface IProps {
   id_schedule: number | undefined;
   slots_detail: ISlots | undefined;
+  facilityId: number | undefined;
 }
 
 const { Option } = Select;
 
 export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
-  ({ id_schedule, slots_detail }, ref) => {
+  ({ id_schedule, slots_detail, facilityId }, ref) => {
     const [visible, setVisible] = useState(false);
     const [form] = Form.useForm<HospitalScheduleFormValues>();
     const update = useUpdateScheduleFacility({ id_schedule });
@@ -76,6 +77,7 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
         type: "FACILITY",
         slots: schedule,
         status: "NORMAL",
+        facilityId: Number(facilityId),
       };
       setLoading(true);
       update.mutate(dataSave, {
@@ -129,6 +131,25 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
               mode="multiple"
               placeholder="Chọn thứ"
               disabled={modalType === "edit"}
+              onBlur={() => {
+                // Khi blur, kiểm tra nếu có giá trị thì hiển thị workShifts
+                const selectedDays = form.getFieldValue("dayOfWeek") || [];
+                if (selectedDays.length > 0) {
+                  // Lấy giá trị hiện tại của workShifts
+                  const currentWorkShifts =
+                    form.getFieldValue("workShifts") || [];
+
+                  // Nếu chưa có ca nào, thêm ca sáng mặc định
+                  if (currentWorkShifts.length === 0) {
+                    form.setFieldValue("workShifts", [
+                      {
+                        session: "morning",
+                        range: [null, null],
+                      },
+                    ]);
+                  }
+                }
+              }}
             >
               {[
                 { value: "monday", label: "Thứ 2" },
@@ -182,12 +203,43 @@ export const HospitalScheduleModal = forwardRef<HospitalScheduleRef, IProps>(
                       {...field}
                       key={v4()}
                       name={[field.name, "range"]}
-                      label="Giờ bắt đầu"
+                      label="Khung giờ làm việc"
                       rules={[
                         {
                           required: true,
-                          message: "",
+                          message: "Vui lòng chọn khung giờ",
                         },
+                        () => ({
+                          validator(_, value) {
+                            if (!value || !value[0] || !value[1]) {
+                              return Promise.reject(
+                                new Error(
+                                  "Vui lòng chọn đầy đủ giờ bắt đầu và kết thúc"
+                                )
+                              );
+                            }
+
+                            // Kiểm tra giờ bắt đầu < giờ kết thúc
+                            if (
+                              value[0] &&
+                              value[1] &&
+                              value[0].isAfter(value[1])
+                            ) {
+                              return Promise.reject(
+                                new Error("Giờ bắt đầu phải trước giờ kết thúc")
+                              );
+                            }
+
+                            // Kiểm tra giờ hợp lệ
+                            if (value[0] && value[0].hour() < 0) {
+                              return Promise.reject(
+                                new Error("Giờ không hợp lệ")
+                              );
+                            }
+
+                            return Promise.resolve();
+                          },
+                        }),
                       ]}
                       style={{
                         flex: 1,

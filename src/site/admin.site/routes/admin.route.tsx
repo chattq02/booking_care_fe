@@ -8,10 +8,8 @@ import { withSuspense } from "../../../layouts/with-suspense";
 import {
   LazyAcademicTitle,
   LazyDashboard,
-  LazyInfoDoctor,
   LazyMedicalFacility,
   LazyMedicalFacilityDetail,
-  LazySpecialty,
 } from "./lazy-components";
 import SelectFacilities from "@/pages/auth/select-facilities/select-facilities";
 
@@ -41,16 +39,8 @@ export const adminRoutes: RouteObject[] = [
             element: withSuspense(LazyDashboard),
           },
           {
-            path: "/danh-sach-bac-si",
-            element: withSuspense(LazyInfoDoctor),
-          },
-          {
             path: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
             element: withSuspense(LazyAcademicTitle),
-          },
-          {
-            path: PATH_ROUTE_ADMIN.SPECIALTY,
-            element: withSuspense(LazySpecialty),
           },
           {
             path: PATH_ROUTE_ADMIN.MEDICAL_FACILITY,

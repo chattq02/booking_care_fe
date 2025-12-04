@@ -1,7 +1,7 @@
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
-import { Flex, Tag } from "antd";
-import { forwardRef } from "react";
+import { Button, Flex, Select, Tag } from "antd";
+import { forwardRef, useState } from "react";
 import { useGetListDoctorMedicalFacility } from "../hooks/use-medical-facility";
 import {
   DropdownMenu,
@@ -14,19 +14,29 @@ import type { ColumnsType } from "antd/es/table";
 import type { UserStatus } from "@/types/auth";
 import { Button as ButtonUI } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { PlusOutlined } from "@ant-design/icons";
+import SearchBox from "../../info-doctor/components/search-box";
+import type { IDoctorParams } from "../../info-doctor/type";
 
 interface IProps {
   facilityId: number;
 }
 
 const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
-  const { data: listDoctors, isLoading } = useGetListDoctorMedicalFacility({
-    id: Number(facilityId),
+  const [param, setParam] = useState<IDoctorParams>({
     keyword: "",
+    status: "All",
     page: 1,
     per_page: 50,
   });
-
+  const { data: listDoctors, isLoading } = useGetListDoctorMedicalFacility({
+    id: Number(facilityId),
+    keyword: param.keyword ?? "",
+    page: 1,
+    per_page: 50,
+    status: param.status,
+  });
+  console.log("param", param.status);
   const columns: ColumnsType<ResponseDoctor> = [
     {
       title: "Id",
@@ -153,6 +163,46 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         >
           Danh sách bác sĩ
         </h3>
+      </Flex>
+      <Flex style={{ marginBottom: 12 }} gap={14} justify="space-between" wrap>
+        <Flex gap={14}>
+          <SearchBox
+            value={param.keyword}
+            onSearch={(value) => {
+              setParam({
+                ...param,
+                keyword: value,
+                page: 1,
+              });
+            }}
+          />
+          <Select
+            defaultValue={param.status}
+            style={{ width: 150 }}
+            onChange={(value) =>
+              setParam({
+                ...param,
+                status: value,
+                page: 1,
+              })
+            }
+            options={[
+              { value: "All", label: "Tất cả" },
+              { value: "Active", label: "Đang hoạt động" },
+              { value: "Pending", label: "Chưa verify" },
+              { value: "Banned", label: "Bị khóa" },
+            ]}
+          />
+        </Flex>
+        <Flex gap={14}>
+          <Button
+            icon={<PlusOutlined />}
+            type="primary"
+            // onClick={() => setIsModalOpen(true)}
+          >
+            Thêm mới
+          </Button>
+        </Flex>
       </Flex>
 
       <DataGrid<ResponseDoctor>

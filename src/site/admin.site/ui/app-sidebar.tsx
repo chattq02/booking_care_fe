@@ -7,15 +7,10 @@ import {
 } from "@/components/ui/sidebar";
 
 import {
-  BriefcaseBusiness,
   ChartColumnStacked,
-  FileHeart,
   GraduationCap,
   Hospital,
-  Info,
   MapPin,
-  TicketPlus,
-  UserStar,
 } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
@@ -34,19 +29,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       isCollapsed: false,
     },
     {
-      title: "Quản lý bác sĩ",
-      url: "#",
-      icon: <UserStar size={20} />,
-      isActive: true,
-      items: [
-        {
-          name: "Danh sách bác sĩ",
-          icon: <Info size={20} />,
-          link: PATH_ROUTE_ADMIN.LIST_DOCTOR,
-        },
-      ],
-    },
-    {
       title: "Quản lý y tế",
       url: "#",
       icon: <Hospital size={20} />,
@@ -61,21 +43,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           name: "Hàm vị, học vị",
           icon: <GraduationCap size={20} />,
           link: PATH_ROUTE_ADMIN.ACADEMIC_TITLE,
-        },
-        {
-          name: "Chuyên khoa",
-          icon: <BriefcaseBusiness size={20} />,
-          link: PATH_ROUTE_ADMIN.SPECIALTY,
-        },
-        {
-          name: "Gói khám",
-          icon: <TicketPlus size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
-        },
-        {
-          name: "Đơn thuốc",
-          icon: <FileHeart size={20} />,
-          link: PATH_ROUTE.GENERALEXAMINATION,
         },
       ],
     },

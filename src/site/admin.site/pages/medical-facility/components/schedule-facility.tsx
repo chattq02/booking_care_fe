@@ -173,6 +173,7 @@ const ScheduleFacility = forwardRef<HTMLDivElement, IProps>(
           ref={hospitalScheduleModalRef}
           id_schedule={id_schedule}
           slots_detail={slots}
+          facilityId={facilityId}
         />
       </>
     );

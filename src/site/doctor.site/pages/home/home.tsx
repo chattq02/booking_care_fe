@@ -25,10 +25,6 @@ import {
   ClockCircleOutlined,
   DollarOutlined,
   TeamOutlined,
-  MedicineBoxOutlined,
-  FileTextOutlined,
-  MessageOutlined,
-  SettingOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   EyeOutlined,
@@ -57,11 +53,9 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 
 const Home = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
-  const [filterDate, setFilterDate] = useState(dayjs());
   const [dateRange, setDateRange] = useState([
     dayjs().startOf("month"),
     dayjs().endOf("month"),

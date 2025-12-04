@@ -9,7 +9,6 @@ export const LazyInfoDoctor = lazy(
 export const LazyAcademicTitle = lazy(
   () => import("../pages/academic-title/academic-title")
 );
-export const LazySpecialty = lazy(() => import("../pages/specialty/specialty"));
 
 export const LazyMedicalFacility = lazy(
   () => import("../pages/medical-facility/medical-facility")

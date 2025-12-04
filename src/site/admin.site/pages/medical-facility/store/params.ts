@@ -1,8 +1,9 @@
 import { createParamsAtom } from "@/stores/params";
+import type { UserStatus } from "@/types/auth";
 import type { IParams } from "@/types/params";
 
 export interface MedicalFacilityParams extends IParams {
-  status?: "All" | "Active" | "Inactive";
+  status?: UserStatus | "All";
   id?: number | undefined;
   // add other params here
 }
