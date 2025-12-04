@@ -9,10 +9,12 @@ import {
   BadgeInfo,
   CalendarDays,
   CalendarPlus2,
+  Pill,
   Tickets,
   Users,
 } from "lucide-react";
 import TaskSchedule from "./components/task-schedule";
+import Medicine from "./components/medicine/medicine";
 
 const LazyMedicalFacilityDetail: React.FC = () => {
   const { id } = useParams();
@@ -27,6 +29,7 @@ const LazyMedicalFacilityDetail: React.FC = () => {
     "specialtyFacility",
     "package",
     "medicalSchedule",
+    "medicine",
   ];
 
   const tabFromUrl = searchParams.get("tab");
@@ -95,13 +98,13 @@ const LazyMedicalFacilityDetail: React.FC = () => {
       children: <SpecialtyFacility facilityId={Number(id)} />,
     },
     {
-      key: "package",
+      key: "medicine",
       label: (
         <Flex align="center" gap={10}>
-          <Tickets size={18} /> Đơn thuốc
+          <Pill size={18} /> Đơn thuốc
         </Flex>
       ),
-      children: <SpecialtyFacility facilityId={Number(id)} />,
+      children: <Medicine facilityId={Number(id)} />,
     },
   ];
 

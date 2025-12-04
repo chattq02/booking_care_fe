@@ -89,3 +89,22 @@ export interface ScheduleDataDoctorRes {
   schedule: ScheduleConfig[];
   id: number;
 }
+
+export interface IMedicine {
+  id: number;
+  name: string;
+  description?: string;
+  unit: string;
+  price: number;
+}
+
+export interface ICreateMedicineDto {
+  name: string;
+  description?: string;
+  unit: string;
+  price: number;
+}
+
+export interface IUpdateMedicineDto extends ICreateMedicineDto {
+  id: number;
+}
