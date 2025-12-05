@@ -103,6 +103,7 @@ export interface ICreateMedicineDto {
   description?: string;
   unit: string;
   price: number;
+  stock: number;
 }
 
 export interface IUpdateMedicineDto extends ICreateMedicineDto {

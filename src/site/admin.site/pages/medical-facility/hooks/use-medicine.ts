@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import medicineApi from "@/site/admin.site/apis/medicine";
 import type { ICreateMedicineDto, IUpdateMedicineDto } from "../type";
-import type { IParams } from "@/types/params";
 import { toast } from "sonner";
+import type { MedicineParams } from "../store/params";
 
 interface UseOptions {
   onSuccessCallback?: () => void;
@@ -12,7 +12,7 @@ interface UseOptions {
 /* ----------------------------------------------------
  * 🔹 Lấy danh sách thuốc
  * -------------------------------------------------- */
-export const useGetListMedicine = (params: IParams, enabled = true) => {
+export const useGetListMedicine = (params: MedicineParams, enabled = true) => {
   return useQuery({
     queryKey: ["ListMedicine", params],
     queryFn: async () => {

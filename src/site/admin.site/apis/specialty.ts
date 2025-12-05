@@ -3,7 +3,7 @@ import type {
   ResponseParamsResult,
   ResponseResult,
 } from "@/lib/axios/axios-type";
-import type { IParams } from "@/types/params";
+
 import type {
   IPramsGetUsersDepartment,
   IResponseGetUsersDepartment,
@@ -15,7 +15,7 @@ const departmentAdmin = {
    * 🧩 Lấy danh sách phòng ban (có phân trang, tìm kiếm)
    */
   getList: async (
-    params?: IParams
+    params?: IPramsGetUsersDepartment
   ): Promise<ResponseParamsResult<ResponseDepartment[]>> => {
     return axiosWithToken.get("/admin/department", {
       params: {

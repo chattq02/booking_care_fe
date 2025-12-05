@@ -10,6 +10,7 @@ import type { VerifyEmailType } from "@/site/doctor.site/types/auth";
 import type {
   IMyAppointmentRes,
   IParamMyAppointment,
+  RegisterDoctorDto,
 } from "@/site/user.site/pages/profile/types/type";
 import type {
   GetMeResponseData,
@@ -68,6 +69,10 @@ const authApi = {
       params: params,
     });
     return res.data;
+  },
+
+  registerDoctor: async (data: RegisterDoctorDto) => {
+    return await axiosWithToken.post("/auth/register-doctor", data);
   },
 };
 

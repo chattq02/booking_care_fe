@@ -10,7 +10,6 @@ import {
   CalendarDays,
   CalendarPlus2,
   Pill,
-  Tickets,
   Users,
 } from "lucide-react";
 import TaskSchedule from "./components/task-schedule";
@@ -27,7 +26,6 @@ const LazyMedicalFacilityDetail: React.FC = () => {
     "scheduleFacility",
     "listDoctor",
     "specialtyFacility",
-    "package",
     "medicalSchedule",
     "medicine",
   ];
@@ -89,19 +87,10 @@ const LazyMedicalFacilityDetail: React.FC = () => {
       children: <SpecialtyFacility facilityId={Number(id)} />,
     },
     {
-      key: "package",
-      label: (
-        <Flex align="center" gap={10}>
-          <Tickets size={18} /> Gói khám
-        </Flex>
-      ),
-      children: <SpecialtyFacility facilityId={Number(id)} />,
-    },
-    {
       key: "medicine",
       label: (
         <Flex align="center" gap={10}>
-          <Pill size={18} /> Đơn thuốc
+          <Pill size={18} /> Kho thuốc
         </Flex>
       ),
       children: <Medicine facilityId={Number(id)} />,

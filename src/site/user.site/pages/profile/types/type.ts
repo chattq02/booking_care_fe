@@ -42,3 +42,16 @@ export interface IParamMyAppointment {
   page: number;
   per_page: number;
 }
+
+export interface RegisterDoctorDto {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  cccd: string;
+  avatar?: File | string;
+  academicTitleId: number;
+  departmentId: number;
+  facilityId: number;
+}

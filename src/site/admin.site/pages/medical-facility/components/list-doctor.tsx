@@ -1,7 +1,7 @@
 import { DataGrid } from "@/components/data-table";
 import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
 import { Button, Flex, Select, Tag } from "antd";
-import { forwardRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { useGetListDoctorMedicalFacility } from "../hooks/use-medical-facility";
 import {
   DropdownMenu,
@@ -17,26 +17,34 @@ import { MoreHorizontal } from "lucide-react";
 import { PlusOutlined } from "@ant-design/icons";
 import SearchBox from "../../info-doctor/components/search-box";
 import type { IDoctorParams } from "../../info-doctor/type";
+import AddDoctorModal, {
+  type AddDoctorModalRef,
+} from "./modal/add-doctor-modal";
 
 interface IProps {
   facilityId: number;
 }
 
 const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
+  const modalRef = useRef<AddDoctorModalRef>(null);
   const [param, setParam] = useState<IDoctorParams>({
     keyword: "",
     status: "All",
     page: 1,
     per_page: 50,
   });
-  const { data: listDoctors, isLoading } = useGetListDoctorMedicalFacility({
+  const {
+    data: listDoctors,
+    isLoading,
+    refetch,
+  } = useGetListDoctorMedicalFacility({
     id: Number(facilityId),
     keyword: param.keyword ?? "",
     page: 1,
     per_page: 50,
     status: param.status,
   });
-  console.log("param", param.status);
+
   const columns: ColumnsType<ResponseDoctor> = [
     {
       title: "Id",
@@ -198,7 +206,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
           <Button
             icon={<PlusOutlined />}
             type="primary"
-            // onClick={() => setIsModalOpen(true)}
+            onClick={() => modalRef.current?.open()}
           >
             Thêm mới
           </Button>
@@ -222,6 +230,12 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         }}
         rowKey="id"
         loading={isLoading}
+      />
+
+      <AddDoctorModal
+        ref={modalRef}
+        facilityId={Number(facilityId)}
+        refetch={refetch}
       />
     </div>
   );

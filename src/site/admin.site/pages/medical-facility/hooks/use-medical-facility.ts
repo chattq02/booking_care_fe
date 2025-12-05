@@ -9,6 +9,8 @@ import type { ResponseMedicalFacility } from "../type";
 import type { MedicalFacilityParams } from "../store/params";
 import { useMemo } from "react";
 import { stringify } from "qs";
+import type { RegisterDoctorDto } from "@/site/user.site/pages/profile/types/type";
+import authApi from "@/apis/auth.api";
 
 interface UseCreateMedicalFacilityOptions {
   onSuccessCallback?: () => void;
@@ -129,6 +131,25 @@ export const useDeleteMedicalFacility = () => {
     onError: (error: any) => {
       setLoading(false);
       toast.error(error.response?.data?.message || "Không xóa được cơ sở y tế");
+    },
+  });
+};
+
+export const useRegisterDoctor = ({
+  onSuccessCallback,
+  onErrorCallback,
+}: UseCreateMedicalFacilityOptions = {}) => {
+  return useMutation({
+    mutationFn: (data: RegisterDoctorDto) => authApi.registerDoctor(data),
+
+    onSuccess: () => {
+      toast.success("Tạo tài khoản bác sĩ thành công");
+      onSuccessCallback?.();
+    },
+
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi tạo bác sĩ");
+      onErrorCallback?.();
     },
   });
 };

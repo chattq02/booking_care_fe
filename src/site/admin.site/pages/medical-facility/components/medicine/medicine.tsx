@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Button,
-  Table,
   Modal,
   Form,
   Input,
   InputNumber,
   Popconfirm,
+  Flex,
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type {
@@ -20,13 +20,21 @@ import {
   useGetListMedicine,
   useUpdateMedicine,
 } from "../../hooks/use-medicine";
+import SearchBox from "../../../info-doctor/components/search-box";
+import { DataGrid } from "@/components/data-table";
+import type { MedicineParams } from "../../store/params";
 
 interface IProps {
   facilityId: number;
 }
 
 export default function Medicine({ facilityId }: IProps) {
-  const [params, setParams] = useState({ page: 1, per_page: 10 });
+  const [params, setParams] = useState<MedicineParams>({
+    keyword: "",
+    page: 1,
+    per_page: 50,
+    facilityId,
+  });
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<IMedicine | null>(null);
 
@@ -94,8 +102,15 @@ export default function Medicine({ facilityId }: IProps) {
       title: "Giá",
       dataIndex: "price",
       key: "price",
-      render: (val: number) => `${val.toLocaleString()} đ`,
+      render: (val: number) => (val ? `${val?.toLocaleString()} đ` : 0),
     },
+    {
+      title: "Tồn kho",
+      dataIndex: "stock",
+      key: "stock",
+      render: (val: number) => (val ? val?.toLocaleString() : 0),
+    },
+
     {
       title: "Hành động",
       key: "actions",
@@ -124,35 +139,71 @@ export default function Medicine({ facilityId }: IProps) {
     },
   ];
 
+  const handleTableChange = useCallback(
+    (pagination: any) => {
+      setParams({
+        ...params,
+        page: pagination.current,
+        per_page: pagination.pageSize,
+      });
+    },
+    [params, setParams]
+  );
+
   return (
     <div className="bg-white rounded-md p-5.5">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Danh sách thuốc</h2>
+      <Flex gap={10} align="center" className="mb-5!">
+        <div className="h-6 w-[5px] bg-[#9afaeb] rounded" />
+        <h3 className="text-xl font-semibold" data-section="listDoctor">
+          Danh sách thuốc
+        </h3>
+      </Flex>
+      <Flex style={{ marginBottom: 12 }} gap={14} justify="space-between" wrap>
+        <Flex gap={14}>
+          <SearchBox
+            value={params.keyword}
+            onSearch={(value) => {
+              setParams({
+                ...params,
+                keyword: value,
+                page: 1,
+              });
+            }}
+          />
+        </Flex>
+        <Flex gap={14}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setEditing(null);
+              form.resetFields();
+              setOpenModal(true);
+            }}
+          >
+            Thêm thuốc
+          </Button>
+        </Flex>
+      </Flex>
 
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => {
-            setEditing(null);
-            form.resetFields();
-            setOpenModal(true);
-          }}
-        >
-          Thêm thuốc
-        </Button>
-      </div>
-
-      <Table
-        loading={isLoading}
-        rowKey="id"
-        dataSource={data?.data || []}
+      <DataGrid<IMedicine>
         columns={columns}
+        data={data?.data ?? []}
         pagination={{
-          current: params.page,
-          pageSize: params.per_page,
-          total: data?.total || 0,
-          onChange: (page, per_page) => setParams({ page, per_page }),
+          current: Number(data?.current_page) ?? 1,
+          pageSize: Number(data?.per_page) ?? 100,
+          total: data?.total ?? 0,
+          showSizeChanger: true,
+          showTotal: (total) => `Tổng ${total} bản ghi`,
+          position: ["bottomCenter"],
         }}
+        onChange={handleTableChange}
+        maxHeight={{
+          isMax: false,
+          customScrollY: 500,
+        }}
+        rowKey="id"
+        loading={isLoading}
       />
 
       {/* ---------------------------------------------------
@@ -162,6 +213,7 @@ export default function Medicine({ facilityId }: IProps) {
         title={editing ? "Cập nhật thuốc" : "Thêm thuốc"}
         open={openModal}
         onCancel={() => setOpenModal(false)}
+        cancelText={"Hủy"}
         onOk={handleSubmit}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
       >
@@ -189,14 +241,27 @@ export default function Medicine({ facilityId }: IProps) {
           >
             <Input placeholder="Ví dụ: viên, hộp" />
           </Form.Item>
-
+          <Form.Item
+            label="Số lượng"
+            name="stock"
+            rules={[{ required: true, message: "Nhập số lượng" }]}
+            className="w-full"
+          >
+            <InputNumber
+              style={{ width: "100%" }}
+              placeholder="0"
+              min={1}
+              formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            />
+          </Form.Item>
           <Form.Item
             label="Giá"
             name="price"
             rules={[{ required: true, message: "Nhập giá" }]}
+            className="w-full"
           >
             <InputNumber
-              className="w-full"
+              style={{ width: "100%" }}
               placeholder="0"
               min={0}
               formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}

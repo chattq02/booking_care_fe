@@ -13,3 +13,7 @@ export const medicalFacilitiesParamsAtom =
     status: "All",
     id: undefined,
   });
+
+export interface MedicineParams extends IParams {
+  facilityId: number;
+}
