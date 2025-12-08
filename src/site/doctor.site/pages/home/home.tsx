@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import {
   Layout,
   Card,
   Row,
   Col,
   Statistic,
-  Table,
   Tag,
   Button,
   Avatar,
@@ -14,9 +13,7 @@ import {
   Progress,
   Grid,
   DatePicker,
-  Select,
   Divider,
-  Badge,
   Descriptions,
 } from "antd";
 import {
@@ -25,13 +22,9 @@ import {
   ClockCircleOutlined,
   DollarOutlined,
   TeamOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  EyeOutlined,
   UserSwitchOutlined,
   RightCircleOutlined,
   FilterOutlined,
-  UserAddOutlined,
   LineChartOutlined,
   PlayCircleOutlined,
   CheckOutlined,
@@ -40,7 +33,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import PatientPopup from "./components/patient-popup";
+import AppointmentTable from "./components/appointment-table";
+import { useAppointmentReport } from "../list-appointment/hooks/useAppointment";
 
 dayjs.locale("vi");
 dayjs.extend(advancedFormat);
@@ -50,17 +44,21 @@ const { Content } = Layout;
 const { Title, Text } = Typography;
 const { useBreakpoint } = Grid;
 const { RangePicker } = DatePicker;
-const { Option } = Select;
 
 const Home = () => {
-  const [appointments, setAppointments] = useState([]);
-  const [stats, setStats] = useState({});
-  const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState([
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
-  const [filterType, setFilterType] = useState("month");
+  const { data, isLoading } = useAppointmentReport({
+    fromDate: "2025-12-01",
+    toDate: "2025-12-28",
+  });
+
+  console.log("data", data);
+  const [appointments, setAppointments] = useState([]);
+  const [stats, setStats] = useState({});
+
   const [currentPatient, setCurrentPatient] = useState(null);
   const [nextPatient, setNextPatient] = useState(null);
   const screens = useBreakpoint();
@@ -144,38 +142,6 @@ const Home = () => {
     },
   ];
 
-  const sampleStats = {
-    totalAppointments: 24,
-    completedAppointments: 18,
-    pendingAppointments: 4,
-    cancelledAppointments: 2,
-    totalPatients: 156,
-    newPatients: 12,
-    monthlyEarnings: 85000000,
-    todayEarnings: 4500000,
-  };
-
-  useEffect(() => {
-    // Giả lập fetch data
-    setTimeout(() => {
-      const todayAppointments = sampleAppointments.filter(
-        (appointment) => appointment.date === dayjs().format("YYYY-MM-DD")
-      );
-
-      setAppointments(todayAppointments);
-      setStats(sampleStats);
-
-      // Tìm bệnh nhân hiện tại và kế tiếp
-      const current = todayAppointments.find((app) => app.isCurrent);
-      const next = todayAppointments.find((app) => app.isNext);
-
-      setCurrentPatient(current);
-      setNextPatient(next);
-
-      setLoading(false);
-    }, 1000);
-  }, []);
-
   // Hàm xử lý lọc dữ liệu
   const handleFilterChange = (dates, dateStrings) => {
     if (dates) {
@@ -231,157 +197,18 @@ const Home = () => {
     setNextPatient(newNext);
   };
 
-  // Hàm xem chi tiết bệnh nhân (mở popup)
-  const handleViewPatientDetail = (patient) => {
-    patientPopupRef.current?.openPopup(patient);
-  };
-
-  // Hàm xử lý hủy lịch hẹn
-  const handleCancelAppointment = (patientId) => {
-    const updatedAppointments = appointments.map((appointment) => {
-      if (appointment.id === patientId) {
-        return { ...appointment, status: "cancelled" };
-      }
-      return appointment;
-    });
-    setAppointments(updatedAppointments);
-  };
-
-  // Cột cho bảng lịch hẹn (responsive)
-  const appointmentColumns = [
-    {
-      title: "Bệnh nhân",
-      dataIndex: "patientName",
-      key: "patientName",
-      responsive: ["md"],
-      render: (text, record) => (
-        <Space>
-          <Avatar
-            size={screens.xs ? "small" : "default"}
-            style={{ backgroundColor: record.avatarColor }}
-            icon={<UserOutlined />}
-          />
-          <div>
-            <div style={{ fontWeight: 500 }}>
-              {screens.xs ? text.split(" ").pop() : text}
-            </div>
-            {record.isCurrent && (
-              <Tag color="green" size="small">
-                Đang khám
-              </Tag>
-            )}
-            {record.isNext && (
-              <Tag color="blue" size="small">
-                Tiếp theo
-              </Tag>
-            )}
-          </div>
-        </Space>
-      ),
-    },
-    {
-      title: "Thời gian",
-      dataIndex: "time",
-      key: "time",
-      responsive: ["sm"],
-      render: (time, record) => (
-        <Space direction="vertical" size={0}>
-          <Tag color="blue" style={{ margin: screens.xs ? "2px 0" : "0" }}>
-            <ClockCircleOutlined /> {time}
-          </Tag>
-          <Text type="secondary" style={{ fontSize: "12px" }}>
-            {dayjs(record.date).format("DD/MM/YYYY")}
-          </Text>
-        </Space>
-      ),
-    },
-    {
-      title: "Loại khám",
-      dataIndex: "type",
-      key: "type",
-      responsive: ["md"],
-      render: (type) => (
-        <Text style={{ fontSize: screens.xs ? "12px" : "14px" }}>
-          {screens.xs ? type.substring(0, 10) + "..." : type}
-        </Text>
-      ),
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status) => {
-        const statusConfig = {
-          confirmed: {
-            color: "green",
-            text: "Đã xác nhận",
-            icon: <CheckCircleOutlined />,
-          },
-          waiting: {
-            color: "orange",
-            text: "Chờ xác nhận",
-            icon: <ClockCircleOutlined />,
-          },
-          cancelled: {
-            color: "red",
-            text: "Đã hủy",
-            icon: <CloseCircleOutlined />,
-          },
-        };
-        const config = statusConfig[status];
-        return (
-          <Tag
-            color={config.color}
-            icon={config.icon}
-            style={{
-              fontSize: screens.xs ? "11px" : "12px",
-              padding: screens.xs ? "2px 6px" : "4px 8px",
-            }}
-          >
-            {config.text}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Hành động",
-      key: "action",
-      responsive: ["lg"],
-      render: (_, record) => (
-        <Space>
-          <Button
-            size={screens.xs ? "small" : "middle"}
-            icon={<EyeOutlined />}
-            onClick={() => handleViewPatientDetail(record)}
-          >
-            Chi tiết
-          </Button>
-          {record.status === "waiting" && (
-            <Button
-              type="primary"
-              size={screens.xs ? "small" : "middle"}
-              onClick={() => handleSwitchPatient(record.id)}
-            >
-              Bắt đầu khám
-            </Button>
-          )}
-        </Space>
-      ),
-    },
-  ];
-
   // Format tiền tệ
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
       style: "currency",
       currency: "VND",
       minimumFractionDigits: 0,
-    }).format(amount);
+    }).format(Number(amount) || 0);
   };
 
   // Tính phần trăm cho thống kê
-  const calculatePercentage = (value, total) => {
-    return total > 0 ? Math.round((value / total) * 100) : 0;
+  const calculatePercentage = (value: number, total: number) => {
+    return total > 0 ? Math.round((Number(value) / Number(total)) * 100) : 0;
   };
 
   // Thành phần hiển thị bệnh nhân hiện tại
@@ -393,8 +220,7 @@ const Home = () => {
           <span>Bệnh nhân hiện tại</span>
         </Space>
       }
-      loading={loading}
-      bordered={false}
+      loading={isLoading}
       style={{
         borderRadius: "8px",
         boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
@@ -461,7 +287,7 @@ const Home = () => {
           <span>Bệnh nhân kế tiếp</span>
         </Space>
       }
-      loading={loading}
+      loading={isLoading}
       bordered={false}
       style={{
         borderRadius: "8px",
@@ -533,7 +359,6 @@ const Home = () => {
         >
           {/* Header với filter */}
           <Card
-            bordered={false}
             style={{
               marginBottom: 16,
               borderRadius: "8px",
@@ -550,15 +375,6 @@ const Home = () => {
               <Col xs={24} md={12}>
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <Select
-                      value={filterType}
-                      onChange={setFilterType}
-                      style={{ minWidth: 120 }}
-                    >
-                      <Option value="day">Theo ngày</Option>
-                      <Option value="week">Theo tuần</Option>
-                      <Option value="month">Theo tháng</Option>
-                    </Select>
                     <RangePicker
                       value={dateRange}
                       onChange={handleFilterChange}
@@ -590,23 +406,11 @@ const Home = () => {
               </Col>
             </Row>
           </Card>
-
-          {/* Bệnh nhân hiện tại và kế tiếp */}
-          <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-            <Col xs={24} md={12}>
-              <CurrentPatientCard />
-            </Col>
-            <Col xs={24} md={12}>
-              <NextPatientCard />
-            </Col>
-          </Row>
-
           {/* Stats Cards - Responsive */}
-          <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} lg={6}>
+          <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+            <Col xs={24} sm={12} lg={8}>
               <Card
-                loading={loading}
-                bordered={false}
+                loading={isLoading}
                 style={{
                   borderRadius: "8px",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
@@ -620,7 +424,7 @@ const Home = () => {
                       <span>Tổng cuộc hẹn</span>
                     </Space>
                   }
-                  value={stats.totalAppointments || 0}
+                  value={data?.total_appointment || 0}
                   valueStyle={{
                     color: "#1890ff",
                     fontSize: screens.xs ? "24px" : "28px",
@@ -636,10 +440,9 @@ const Home = () => {
                 </div>
               </Card>
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Card
-                loading={loading}
-                bordered={false}
+                loading={isLoading}
                 style={{
                   borderRadius: "8px",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
@@ -653,7 +456,7 @@ const Home = () => {
                       <span>Bệnh nhân</span>
                     </Space>
                   }
-                  value={stats.totalPatients || 0}
+                  value={data?.total_patients || 0}
                   valueStyle={{
                     color: "#52c41a",
                     fontSize: screens.xs ? "24px" : "28px",
@@ -669,43 +472,9 @@ const Home = () => {
                 </div>
               </Card>
             </Col>
-            <Col xs={24} sm={12} lg={6}>
+            <Col xs={24} sm={12} lg={8}>
               <Card
-                loading={loading}
-                bordered={false}
-                style={{
-                  borderRadius: "8px",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-                  height: "100%",
-                }}
-              >
-                <Statistic
-                  title={
-                    <Space>
-                      <UserAddOutlined style={{ color: "#fa8c16" }} />
-                      <span>Bệnh nhân mới</span>
-                    </Space>
-                  }
-                  value={stats.newPatients || 0}
-                  valueStyle={{
-                    color: "#fa8c16",
-                    fontSize: screens.xs ? "24px" : "28px",
-                  }}
-                />
-                <div style={{ marginTop: 8 }}>
-                  <Text
-                    type="secondary"
-                    style={{ fontSize: screens.xs ? "12px" : "14px" }}
-                  >
-                    Tháng này
-                  </Text>
-                </div>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} lg={6}>
-              <Card
-                loading={loading}
-                bordered={false}
+                loading={isLoading}
                 style={{
                   borderRadius: "8px",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
@@ -719,8 +488,8 @@ const Home = () => {
                       <span>Doanh thu</span>
                     </Space>
                   }
-                  value={stats.todayEarnings || 0}
-                  formatter={(value) => formatCurrency(value)}
+                  value={data?.total_revenue || 0}
+                  formatter={(value) => formatCurrency(Number(value))}
                   valueStyle={{
                     color: "#722ed1",
                     fontSize: screens.xs ? "20px" : "24px",
@@ -737,51 +506,21 @@ const Home = () => {
               </Card>
             </Col>
           </Row>
+          {/* Bệnh nhân hiện tại và kế tiếp */}
+          <Row gutter={[16, 16]}>
+            <Col xs={24} md={12}>
+              <CurrentPatientCard />
+            </Col>
+            <Col xs={24} md={12}>
+              <NextPatientCard />
+            </Col>
+          </Row>
 
           {/* Main Content Row */}
           <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
             {/* Lịch hẹn */}
             <Col xs={24} lg={16}>
-              <Card
-                title={
-                  <Space>
-                    <CalendarOutlined />
-                    <span>
-                      Lịch hẹn ({dateRange[0].format("DD/MM")} -{" "}
-                      {dateRange[1].format("DD/MM")})
-                    </span>
-                    <Badge
-                      count={appointments.length}
-                      style={{ backgroundColor: "#1890ff" }}
-                    />
-                  </Space>
-                }
-                extra={
-                  <Button type="primary" size={screens.xs ? "small" : "middle"}>
-                    Xem tất cả
-                  </Button>
-                }
-                loading={loading}
-                bordered={false}
-                style={{
-                  borderRadius: "8px",
-                  boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-                }}
-              >
-                <Table
-                  columns={appointmentColumns}
-                  dataSource={appointments}
-                  pagination={false}
-                  rowKey="id"
-                  scroll={screens.xs ? { x: 500 } : {}}
-                  size={screens.xs ? "small" : "middle"}
-                  rowClassName={(record) => {
-                    if (record.isCurrent) return "current-patient-row";
-                    if (record.isNext) return "next-patient-row";
-                    return "";
-                  }}
-                />
-              </Card>
+              <AppointmentTable />
             </Col>
 
             {/* Thống kê nhanh */}
@@ -793,8 +532,7 @@ const Home = () => {
                     <span>Thống kê nhanh</span>
                   </Space>
                 }
-                loading={loading}
-                bordered={false}
+                loading={isLoading}
                 style={{
                   borderRadius: "8px",
                   boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
@@ -806,8 +544,8 @@ const Home = () => {
                       <Progress
                         type="dashboard"
                         percent={calculatePercentage(
-                          stats.completedAppointments,
-                          stats.totalAppointments
+                          data?.total_patients || 0,
+                          data?.total_appointment || 0
                         )}
                         strokeColor={{
                           "0%": "#108ee9",
@@ -834,8 +572,8 @@ const Home = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {stats.completedAppointments}/{stats.totalAppointments}{" "}
-                        cuộc hẹn
+                        {data?.total_patients}/{data?.total_appointment} cuộc
+                        hẹn
                       </div>
                     </div>
                   </Col>
@@ -844,8 +582,8 @@ const Home = () => {
                       <Progress
                         type="circle"
                         percent={calculatePercentage(
-                          stats.pendingAppointments,
-                          stats.totalAppointments
+                          data?.total_appointment_pending || 0,
+                          data?.total_appointment || 0
                         )}
                         strokeColor="#fa8c16"
                         size={screens.xs ? 120 : 150}
@@ -869,7 +607,7 @@ const Home = () => {
                           fontWeight: 500,
                         }}
                       >
-                        {stats.pendingAppointments} cuộc hẹn
+                        {data?.total_appointment_pending || 0} cuộc hẹn
                       </div>
                     </div>
                   </Col>
@@ -895,7 +633,7 @@ const Home = () => {
                         >
                           <Text strong>Doanh thu tháng:</Text>
                           <Text strong style={{ color: "#722ed1" }}>
-                            {formatCurrency(stats.monthlyEarnings || 0)}
+                            {formatCurrency(data?.total_revenue || 0)}
                           </Text>
                         </div>
                         <div
@@ -907,7 +645,7 @@ const Home = () => {
                         >
                           <Text type="secondary">Đã hủy:</Text>
                           <Text type="secondary">
-                            {stats.cancelledAppointments || 0} cuộc hẹn
+                            {data?.total_appointment_cancel || 0} cuộc hẹn
                           </Text>
                         </div>
                         <div
@@ -920,8 +658,8 @@ const Home = () => {
                           <Text type="secondary">Tỉ lệ hoàn thành:</Text>
                           <Text type="secondary">
                             {calculatePercentage(
-                              stats.completedAppointments,
-                              stats.totalAppointments
+                              data?.total_appointment_pending || 0,
+                              data?.total_appointment || 0
                             )}
                             %
                           </Text>
@@ -935,12 +673,6 @@ const Home = () => {
           </Row>
         </Content>
       </Layout>
-
-      {/* Popup bệnh nhân */}
-      <PatientPopup
-        ref={patientPopupRef}
-        onCancelAppointment={handleCancelAppointment}
-      />
     </>
   );
 };

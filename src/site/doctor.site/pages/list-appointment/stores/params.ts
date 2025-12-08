@@ -16,15 +16,20 @@ export interface AppointmentParams {
   appointmentDate: Dayjs | null | string;
 }
 
-export interface MedicalFacilityParams extends IParams {
+export interface AppointmentParams extends IParams {
   status: AppointmentStatus;
   appointmentDate: Dayjs | null | string;
 }
 
-export const appointmentParamsAtom = createParamsAtom<MedicalFacilityParams>(
+export const appointmentParamsAtom = createParamsAtom<AppointmentParams>(
   "apointment-params",
   {
     status: "PENDING",
     appointmentDate: dayjs().format("YYYY-MM-DD"), // Luôn có giá trị
   }
 );
+
+export interface AppointmentReportParams {
+  fromDate: string;
+  toDate: string;
+}

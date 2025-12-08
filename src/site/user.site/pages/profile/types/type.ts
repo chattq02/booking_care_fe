@@ -55,3 +55,11 @@ export interface RegisterDoctorDto {
   departmentId: number;
   facilityId: number;
 }
+
+export interface ReportAppointment {
+  total_revenue: number;
+  total_appointment: number;
+  total_patients: number;
+  total_appointment_cancel: number;
+  total_appointment_pending: number;
+}

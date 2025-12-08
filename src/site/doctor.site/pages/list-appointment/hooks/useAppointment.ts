@@ -1,7 +1,11 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { type PaginationResponse } from "@/lib/axios/axios-type";
 import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/type";
-import type { AppointmentParams, AppointmentStatus } from "../stores/params";
+import type {
+  AppointmentParams,
+  AppointmentReportParams,
+  AppointmentStatus,
+} from "../stores/params";
 import appointmentDoctor from "@/site/doctor.site/api/appointment";
 import { useMemo } from "react";
 import { stringify } from "qs";
@@ -33,5 +37,16 @@ export const useUpadateStatusAppointment = () => {
       );
       return res.data;
     },
+  });
+};
+
+export const useAppointmentReport = (param: AppointmentReportParams) => {
+  return useQuery({
+    queryKey: ["appointment-report", param],
+    queryFn: async () => {
+      const res = await appointmentDoctor.report(param);
+      return res.data;
+    },
+    placeholderData: (prev) => prev,
   });
 };

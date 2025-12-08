@@ -1,8 +1,15 @@
 import axiosWithToken from "@/lib/axios/axios-private";
-import type { ResponseParamsResult } from "@/lib/axios/axios-type";
-import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/type";
+import type {
+  ResponseParamsResult,
+  ResponseResult,
+} from "@/lib/axios/axios-type";
+import type {
+  IMyAppointmentRes,
+  ReportAppointment,
+} from "@/site/user.site/pages/profile/types/type";
 import type {
   AppointmentParams,
+  AppointmentReportParams,
   AppointmentStatus,
 } from "../pages/list-appointment/stores/params";
 
@@ -25,6 +32,16 @@ const appointmentDoctor = {
     return axiosWithToken.put(`/user/appointment/${id}/status`, {
       status,
       remark,
+    });
+  },
+
+  report: (
+    params: AppointmentReportParams
+  ): Promise<ResponseResult<ReportAppointment>> => {
+    return axiosWithToken.get(`/user/appointment-report`, {
+      params: {
+        ...params,
+      },
     });
   },
 };
