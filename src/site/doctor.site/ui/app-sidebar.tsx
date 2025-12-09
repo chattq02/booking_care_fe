@@ -6,7 +6,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
-import { Calendar, ChartColumnStacked, Info } from "lucide-react";
+import { ChartColumnStacked, Info } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import { PATH_ROUTE } from "@/site/user.site/lib/enums/path";
@@ -22,12 +22,6 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/",
       icon: <ChartColumnStacked size={20} />,
       isCollapsed: false,
-    },
-    {
-      title: "Danh sách lịch hẹn",
-      url: PATH_ROUTE_DOCTOR.APPOINTMENT_LIST,
-      icon: <Calendar size={20} />,
-      isActive: true,
     },
     {
       title: "Danh sách bệnh nhân",

@@ -6,4 +6,5 @@ export const PATH_ROUTE_DOCTOR = {
   DASHBOARD: "/dashboard",
   APPOINTMENT_LIST: "/danh-sach-lich-hen",
   PATIENTS_LIST: "/danh-sach-benh-nhan",
+  PATIENTS_DETAIL: "/chi-tiet-benh-nhan",
 } as const;

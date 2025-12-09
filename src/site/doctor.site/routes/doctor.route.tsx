@@ -5,8 +5,7 @@ import Login from "@/pages/auth/login/login";
 import DoctorLayout from "../layouts/doctor-layout";
 import Home from "../pages/home/home";
 import ListPatient from "../pages/list-patient/list-patient";
-import { withSuspense } from "@/layouts/with-suspense";
-import { LazyListAppointment } from "./lazy-compoents";
+import PatientDetail from "../pages/list-patient/patient-detail";
 
 export const doctorRoutes: RouteObject[] = [
   {
@@ -25,12 +24,12 @@ export const doctorRoutes: RouteObject[] = [
         children: [
           { path: PATH_ROUTE_DOCTOR.HOME, element: <Home /> },
           {
-            path: PATH_ROUTE_DOCTOR.APPOINTMENT_LIST,
-            element: withSuspense(LazyListAppointment),
-          },
-          {
             path: PATH_ROUTE_DOCTOR.PATIENTS_LIST,
             element: <ListPatient />,
+          },
+          {
+            path: `${PATH_ROUTE_DOCTOR.PATIENTS_DETAIL}/:id`,
+            element: <PatientDetail />,
           },
         ],
       },

@@ -89,7 +89,14 @@ export default function ListAppointment() {
 
   const modalRef = React.useRef<AppointmentActionModalRef>(null);
 
-  const { data, isLoading, refetch } = useGetAppointment(param);
+  const { data, isLoading, refetch } = useGetAppointment({
+    fromDate: "",
+    keyword: "",
+    page: 1,
+    per_page: 10,
+    status: "PENDING",
+    toDate: "",
+  });
   const { mutate, isPending } = useUpadateStatusAppointment();
 
   const columns: ColumnsType<IMyAppointmentRes> = [

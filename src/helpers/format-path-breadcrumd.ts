@@ -16,6 +16,7 @@ export function formatSlug(slug: string) {
     "tao-moi": "Tạo mới",
     "danh-sach-lich-hen": "Danh sách lịch hẹn",
     "danh-sach-benh-nhan": "Danh sách bệnh nhân khám",
+    "chi-tiet-benh-nhan": "Chi tiết bệnh nhân",
   };
 
   return (

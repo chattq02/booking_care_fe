@@ -15,6 +15,7 @@ export interface IPatientInfo {
   email: string | null;
   avatar: string | null;
   gender: "MALE" | "FEMALE" | "OTHER";
+  cccd: string;
 }
 
 // Thông tin 1 appointment

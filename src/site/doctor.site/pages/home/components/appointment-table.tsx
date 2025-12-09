@@ -2,10 +2,10 @@ import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/typ
 import { CalendarOutlined } from "@ant-design/icons";
 import {
   Avatar,
-  Badge,
   Button as ButtonAnt,
   Card,
-  Grid,
+  Flex,
+  Select,
   Space,
   Table,
   Tag,
@@ -37,13 +37,14 @@ import type {
 } from "../../list-appointment/components/modal-confirm-status";
 import AppointmentActionModal from "../../list-appointment/components/modal-confirm-status";
 import { toast } from "sonner";
+import "dayjs/locale/vi";
+import SearchBox from "@/site/admin.site/pages/info-doctor/components/search-box";
 
 const ActionCell = React.memo(
   ({
     record,
     onCancel,
     onConfirm,
-    onFinish,
   }: {
     record: IMyAppointmentRes;
     onCancel: (record: IMyAppointmentRes) => void;
@@ -69,16 +70,10 @@ const ActionCell = React.memo(
             Xác nhận
           </ButtonAnt>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <ButtonAnt className="w-full" onClick={() => onFinish(record)}>
-            Hoàn thành
-          </ButtonAnt>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 );
-const { useBreakpoint } = Grid;
 
 interface IProps {
   dateRange: Dayjs[];
@@ -97,7 +92,6 @@ export default function AppointmentTable({
     per_page: 10,
     status: "PENDING",
   });
-  const screens = useBreakpoint();
   const { data, isLoading, refetch } = useGetAppointment(param);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [modalType, setModalType] = React.useState<ModalType>(null);
@@ -397,6 +391,14 @@ export default function AppointmentTable({
     }
   };
 
+  const handleTableChange = (pagination: any) => {
+    setParam({
+      ...param,
+      page: pagination.current,
+      per_page: pagination.pageSize,
+    });
+  };
+
   return (
     <Card
       title={
@@ -406,16 +408,26 @@ export default function AppointmentTable({
             Lịch hẹn ({dateRange[0].format("DD/MM")} -{" "}
             {dateRange[1].format("DD/MM")})
           </span>
-          <Badge
-            count={data?.data.length}
-            style={{ backgroundColor: "#1890ff" }}
-          />
         </Space>
       }
       extra={
-        <ButtonAnt type="primary" size={screens.xs ? "small" : "middle"}>
-          Xem tất cả
-        </ButtonAnt>
+        <Select
+          defaultValue={param.status}
+          style={{ width: 150 }}
+          onChange={(value) =>
+            setParam({
+              ...param,
+              status: value,
+              page: 1,
+            })
+          }
+          options={[
+            { value: "PENDING", label: "Chờ duyệt" },
+            { value: "CONFIRMED", label: "Đã xác nhận" },
+            { value: "COMPLETED", label: "Đã hoàn thành" },
+            { value: "CANCELED", label: "Đã hủy" },
+          ]}
+        />
       }
       loading={isLoading}
       style={{
@@ -423,6 +435,20 @@ export default function AppointmentTable({
         boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
       }}
     >
+      <Flex gap={14} justify="space-between" wrap style={{ marginBottom: 16 }}>
+        <Flex gap={14}>
+          <SearchBox
+            value={param.keyword}
+            onSearch={(value) => {
+              setParam({
+                ...param,
+                keyword: value,
+                page: 1,
+              });
+            }}
+          />
+        </Flex>
+      </Flex>
       <Table
         columns={columns}
         dataSource={data?.data ?? []}
@@ -437,10 +463,10 @@ export default function AppointmentTable({
         bordered
         scroll={{
           x: "max-content",
-          y: 500,
+          y: 300,
         }}
         rowKey="id"
-        size={screens.xs ? "small" : "middle"}
+        onChange={handleTableChange}
       />
       <AppointmentActionModal
         ref={modalRef}

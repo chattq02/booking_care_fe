@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   Layout,
   Card,
@@ -26,8 +26,6 @@ import {
   RightCircleOutlined,
   FilterOutlined,
   LineChartOutlined,
-  PlayCircleOutlined,
-  CheckOutlined,
 } from "@ant-design/icons";
 import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/vi";
@@ -39,6 +37,8 @@ import {
   useGetCurrentAndNextPatient,
 } from "../list-appointment/hooks/useAppointment";
 import type { RangePickerProps } from "antd/es/date-picker";
+import { useNavigate } from "react-router-dom";
+import { PATH_ROUTE_DOCTOR } from "../../lib/enums/path";
 
 dayjs.locale("vi");
 dayjs.extend(advancedFormat);
@@ -54,6 +54,7 @@ const Home = () => {
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
+  const nav = useNavigate();
 
   const { data, isLoading, refetch } = useAppointmentReport({
     fromDate: dateRange[0].format("YYYY-MM-DD"),
@@ -72,9 +73,6 @@ const Home = () => {
   const handleFilterChange: RangePickerProps["onChange"] = (dates: any) => {
     setDateRange(dates);
   };
-
-  // Hàm chuyển đổi bệnh nhân
-  const handleSwitchPatient = (patientId: number) => {};
 
   // Format tiền tệ
   const formatCurrency = (amount: number) => {
@@ -123,6 +121,9 @@ const Home = () => {
           </div>
           <Divider style={{ margin: "12px 0" }} />
           <Descriptions column={1} size="small">
+            <Descriptions.Item label="Ngày khám">
+              {dataUser?.current.appointmentDate}
+            </Descriptions.Item>
             <Descriptions.Item label="Thời gian">
               <Tag color="blue">
                 <ClockCircleOutlined /> {dataUser?.current.slot.startTime} -{" "}
@@ -135,16 +136,20 @@ const Home = () => {
             <Descriptions.Item label="Email">
               {dataUser?.current.patient.email}
             </Descriptions.Item>
+            <Descriptions.Item label="CCCD">
+              {dataUser?.current.patient.cccd}
+            </Descriptions.Item>
           </Descriptions>
           <Button
             type="primary"
             block
-            icon={<CheckOutlined />}
-            // onClick={() => {
-            //   patientPopupRef.current?.openPopup(currentPatient);
-            // }}
+            onClick={() => {
+              nav(
+                `${PATH_ROUTE_DOCTOR.PATIENTS_DETAIL}/${dataUser.current?.id}`
+              );
+            }}
           >
-            Hoàn thành khám
+            Thông tin bệnh nhân
           </Button>
         </Space>
       ) : (
@@ -191,6 +196,9 @@ const Home = () => {
           </div>
           <Divider style={{ margin: "12px 0" }} />
           <Descriptions column={1} size="small">
+            <Descriptions.Item label="Ngày khám">
+              {dataUser?.next.appointmentDate}
+            </Descriptions.Item>
             <Descriptions.Item label="Thời gian dự kiến">
               <Tag color="orange">
                 <ClockCircleOutlined /> {dataUser?.next.slot.startTime} -{" "}
@@ -203,23 +211,13 @@ const Home = () => {
             <Descriptions.Item label="Email">
               {dataUser?.next.patient.email}
             </Descriptions.Item>
-            {/* <Descriptions.Item label="Trạng thái">
-              <Tag
-                color={nextPatient.status === "waiting" ? "orange" : "green"}
-              >
-                {nextPatient.status === "waiting" ? "Chờ khám" : "Sẵn sàng"}
-              </Tag>
-            </Descriptions.Item> */}
+            <Descriptions.Item label="CCCD">
+              {dataUser?.next.patient.cccd}
+            </Descriptions.Item>
+            <Descriptions.Item label="Trạng thái">
+              <Tag color={"orange"}>Chờ khám</Tag>
+            </Descriptions.Item>
           </Descriptions>
-          <Button
-            type="default"
-            block
-            icon={<PlayCircleOutlined />}
-            onClick={() => handleSwitchPatient(Number(dataUser?.next?.id))}
-            disabled={dataUser?.current !== null}
-          >
-            Bắt đầu khám
-          </Button>
         </Space>
       ) : (
         <div style={{ textAlign: "center", padding: "20px" }}>
