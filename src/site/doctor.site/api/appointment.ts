@@ -8,14 +8,16 @@ import type {
   ReportAppointment,
 } from "@/site/user.site/pages/profile/types/type";
 import type {
-  AppointmentParams,
+  AppointmentCurrentNextPatientParams,
+  AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
 } from "../pages/list-appointment/stores/params";
+import type { ICurrentNextAppointmentRes } from "../pages/home/types";
 
 const appointmentDoctor = {
   getList: (
-    params?: AppointmentParams
+    params?: AppointmentParamsDasboard
   ): Promise<ResponseParamsResult<IMyAppointmentRes[]>> => {
     return axiosWithToken.get("/user/appointment-doctor", {
       params: {
@@ -43,6 +45,12 @@ const appointmentDoctor = {
         ...params,
       },
     });
+  },
+
+  getCurrentAndNext: (
+    params: AppointmentCurrentNextPatientParams
+  ): Promise<ResponseResult<ICurrentNextAppointmentRes>> => {
+    return axiosWithToken.get("/user/appointment-current-next", { params });
   },
 };
 

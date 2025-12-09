@@ -11,8 +11,8 @@ import {
   Tag,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import dayjs from "dayjs";
-import React, { useState } from "react";
+import { Dayjs } from "dayjs";
+import React, { useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +23,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { useGetAppointment } from "../../list-appointment/hooks/useAppointment";
-import type { AppointmentParams } from "../../list-appointment/stores/params";
+import {
+  useGetAppointment,
+  useUpadateStatusAppointment,
+} from "../../list-appointment/hooks/useAppointment";
+import type {
+  AppointmentParamsDasboard,
+  AppointmentStatus,
+} from "../../list-appointment/stores/params";
+import type {
+  AppointmentActionModalRef,
+  ModalType,
+} from "../../list-appointment/components/modal-confirm-status";
+import AppointmentActionModal from "../../list-appointment/components/modal-confirm-status";
+import { toast } from "sonner";
 
 const ActionCell = React.memo(
   ({
@@ -68,39 +80,59 @@ const ActionCell = React.memo(
 );
 const { useBreakpoint } = Grid;
 
-export default function AppointmentTable() {
-  const [param, setParam] = useState<AppointmentParams>({
-    appointmentDate: dayjs().format("YYYY-MM-DD"),
+interface IProps {
+  dateRange: Dayjs[];
+  refetch_report: () => void;
+}
+
+export default function AppointmentTable({
+  dateRange,
+  refetch_report,
+}: IProps) {
+  const [param, setParam] = useState<AppointmentParamsDasboard>({
+    fromDate: dateRange[0].format("YYYY-MM-DD"),
+    toDate: dateRange[1].format("YYYY-MM-DD"),
     keyword: "",
     page: 1,
     per_page: 10,
     status: "PENDING",
   });
-  const [dateRange, setDateRange] = useState([
-    dayjs().startOf("month"),
-    dayjs().endOf("month"),
-  ]);
   const screens = useBreakpoint();
   const { data, isLoading, refetch } = useGetAppointment(param);
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [modalType, setModalType] = React.useState<ModalType>(null);
+  const [selectedRecord, setSelectedRecord] =
+    React.useState<IMyAppointmentRes | null>(null);
+  const modalRef = React.useRef<AppointmentActionModalRef>(null);
+
+  const { mutate, isPending } = useUpadateStatusAppointment();
+
+  useEffect(() => {
+    setParam((prev) => ({
+      ...prev,
+      fromDate: dateRange[0].format("YYYY-MM-DD"),
+      toDate: dateRange[1].format("YYYY-MM-DD"),
+    }));
+  }, [dateRange]);
 
   const handleCancelClick = (record: IMyAppointmentRes) => {
-    //   setSelectedRecord(record);
-    //   setModalType("cancel");
-    //   modalRef.current?.setCancelReason("");
-    //   modalRef.current?.setCancelReasonError("");
-    //   setModalVisible(true);
+    setSelectedRecord(record);
+    setModalType("cancel");
+    modalRef.current?.setCancelReason("");
+    modalRef.current?.setCancelReasonError("");
+    setModalVisible(true);
   };
 
   const handleConfirmClick = (record: IMyAppointmentRes) => {
-    //   setSelectedRecord(record);
-    //   setModalType("confirm");
-    //   setModalVisible(true);
+    setSelectedRecord(record);
+    setModalType("confirm");
+    setModalVisible(true);
   };
 
   const handleFinishClick = (record: IMyAppointmentRes) => {
-    //   setSelectedRecord(record);
-    //   setModalType("finish");
-    //   setModalVisible(true);
+    setSelectedRecord(record);
+    setModalType("finish");
+    setModalVisible(true);
   };
 
   const columns: ColumnsType<IMyAppointmentRes> = [
@@ -298,13 +330,73 @@ export default function AppointmentTable() {
     },
   ];
 
-  const handleTableChange = (pagination: any) => {
-    setParam({
-      ...param,
-      page: pagination.current,
-      per_page: pagination.pageSize,
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    setModalType(null);
+    setSelectedRecord(null);
+    if (modalRef.current) {
+      modalRef.current.setCancelReason("");
+      modalRef.current.setCancelReasonError("");
+    }
+  };
+
+  const handleModalConfirm = (status: AppointmentStatus, remark?: string) => {
+    if (!selectedRecord) return;
+
+    const successMessage = getSuccessMessage(status);
+
+    const payload: {
+      id: number;
+      status: AppointmentStatus;
+      remark?: string;
+    } = {
+      id: Number(selectedRecord.id),
+      status,
+    };
+
+    if (remark) {
+      payload.remark = remark;
+    }
+
+    mutate(payload, {
+      onSuccess: () => {
+        refetch();
+        refetch_report();
+        toast.success(successMessage);
+        handleCloseModal();
+      },
+      onError: () => {
+        toast.error(`Có lỗi xảy ra khi ${getModalTitle(modalType)}`);
+      },
     });
   };
+
+  const getSuccessMessage = (status: AppointmentStatus) => {
+    switch (status) {
+      case "CANCELED":
+        return "Hủy lịch thành công";
+      case "CONFIRMED":
+        return "Xác nhận lịch thành công";
+      case "COMPLETED":
+        return "Đã hoàn thành ca khám thành công";
+      default:
+        return "Thao tác thành công";
+    }
+  };
+
+  const getModalTitle = (type: ModalType) => {
+    switch (type) {
+      case "cancel":
+        return "Hủy lịch hẹn";
+      case "confirm":
+        return "Xác nhận lịch hẹn";
+      case "finish":
+        return "Hoàn thành lịch hẹn";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Card
       title={
@@ -349,6 +441,15 @@ export default function AppointmentTable() {
         }}
         rowKey="id"
         size={screens.xs ? "small" : "middle"}
+      />
+      <AppointmentActionModal
+        ref={modalRef}
+        open={modalVisible}
+        modalType={modalType}
+        selectedRecord={selectedRecord}
+        onCancel={handleCloseModal}
+        onConfirm={handleModalConfirm}
+        loading={isPending}
       />
     </Card>
   );

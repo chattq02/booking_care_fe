@@ -33,3 +33,14 @@ export interface AppointmentReportParams {
   fromDate: string;
   toDate: string;
 }
+
+export interface AppointmentParamsDasboard extends IParams {
+  status: AppointmentStatus;
+  fromDate: Dayjs | null | string;
+  toDate: Dayjs | null | string;
+}
+
+export interface AppointmentCurrentNextPatientParams {
+  doctorId: number | null;
+  appointmentDate: Dayjs | null | string;
+}

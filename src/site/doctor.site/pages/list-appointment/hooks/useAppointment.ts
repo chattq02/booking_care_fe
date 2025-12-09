@@ -2,18 +2,19 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type PaginationResponse } from "@/lib/axios/axios-type";
 import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/type";
 import type {
-  AppointmentParams,
+  AppointmentCurrentNextPatientParams,
+  AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
 } from "../stores/params";
 import appointmentDoctor from "@/site/doctor.site/api/appointment";
-import { useMemo } from "react";
-import { stringify } from "qs";
 
-export const useGetAppointment = (param: AppointmentParams, enabled = true) => {
-  const key = useMemo(() => stringify(param), [param]);
+export const useGetAppointment = (
+  param: AppointmentParamsDasboard,
+  enabled = true
+) => {
   return useQuery<PaginationResponse<IMyAppointmentRes[]>>({
-    queryKey: ["list-appointment", key],
+    queryKey: ["list-appointment", param],
     queryFn: async () => {
       const res = await appointmentDoctor.getList(param);
       return res.data;
@@ -47,6 +48,21 @@ export const useAppointmentReport = (param: AppointmentReportParams) => {
       const res = await appointmentDoctor.report(param);
       return res.data;
     },
+    placeholderData: (prev) => prev,
+  });
+};
+
+export const useGetCurrentAndNextPatient = (
+  param: AppointmentCurrentNextPatientParams,
+  enabled = true
+) => {
+  return useQuery({
+    queryKey: ["current-next-patient", param],
+    queryFn: async () => {
+      const res = await appointmentDoctor.getCurrentAndNext(param);
+      return res.data;
+    },
+    enabled,
     placeholderData: (prev) => prev,
   });
 };

@@ -29,12 +29,16 @@ import {
   PlayCircleOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import "dayjs/locale/vi";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AppointmentTable from "./components/appointment-table";
-import { useAppointmentReport } from "../list-appointment/hooks/useAppointment";
+import {
+  useAppointmentReport,
+  useGetCurrentAndNextPatient,
+} from "../list-appointment/hooks/useAppointment";
+import type { RangePickerProps } from "antd/es/date-picker";
 
 dayjs.locale("vi");
 dayjs.extend(advancedFormat);
@@ -46,156 +50,31 @@ const { useBreakpoint } = Grid;
 const { RangePicker } = DatePicker;
 
 const Home = () => {
-  const [dateRange, setDateRange] = useState([
+  const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([
     dayjs().startOf("month"),
     dayjs().endOf("month"),
   ]);
-  const { data, isLoading } = useAppointmentReport({
-    fromDate: "2025-12-01",
-    toDate: "2025-12-28",
+
+  const { data, isLoading, refetch } = useAppointmentReport({
+    fromDate: dateRange[0].format("YYYY-MM-DD"),
+    toDate: dateRange[1].format("YYYY-MM-DD"),
   });
 
-  console.log("data", data);
-  const [appointments, setAppointments] = useState([]);
-  const [stats, setStats] = useState({});
+  const { data: dataUser, isLoading: isLoadingUser } =
+    useGetCurrentAndNextPatient({
+      doctorId: null,
+      appointmentDate: dayjs().format("YYYY-MM-DD"),
+    });
 
-  const [currentPatient, setCurrentPatient] = useState(null);
-  const [nextPatient, setNextPatient] = useState(null);
   const screens = useBreakpoint();
 
-  // Ref để điều khiển popup từ component cha
-  const patientPopupRef = useRef();
-
-  // Dữ liệu mẫu với ngày tháng
-  const sampleAppointments = [
-    {
-      id: 1,
-      patientName: "Nguyễn Văn A",
-      time: "09:00",
-      date: dayjs().format("YYYY-MM-DD"),
-      status: "confirmed",
-      type: "Khám tổng quát",
-      avatarColor: "#1890ff",
-      phone: "0987654321",
-      email: "nguyenvana@example.com",
-      isCurrent: true,
-      isNext: false,
-      bloodPressure: "120/80 mmHg",
-      heartRate: "75 bpm",
-      temperature: "36.5°C",
-      weight: "65 kg",
-      height: "170 cm",
-      diagnosis: "Viêm họng cấp",
-      conclusion: "Cần nghỉ ngơi và uống thuốc đúng giờ",
-    },
-    {
-      id: 2,
-      patientName: "Trần Thị B",
-      time: "10:30",
-      date: dayjs().format("YYYY-MM-DD"),
-      status: "waiting",
-      type: "Tái khám",
-      avatarColor: "#52c41a",
-      phone: "0987123456",
-      email: "tranthib@example.com",
-      isCurrent: false,
-      isNext: true,
-    },
-    {
-      id: 3,
-      patientName: "Lê Văn C",
-      time: "11:15",
-      date: dayjs().format("YYYY-MM-DD"),
-      status: "confirmed",
-      type: "Khám chuyên khoa",
-      avatarColor: "#fa8c16",
-      phone: "0912345678",
-      email: "levanc@example.com",
-      isCurrent: false,
-      isNext: false,
-    },
-    {
-      id: 4,
-      patientName: "Phạm Thị D",
-      time: "14:00",
-      date: dayjs().add(1, "day").format("YYYY-MM-DD"),
-      status: "cancelled",
-      type: "Tư vấn online",
-      avatarColor: "#f5222d",
-      phone: "0978123456",
-      email: "phamthid@example.com",
-      isCurrent: false,
-      isNext: false,
-    },
-    {
-      id: 5,
-      patientName: "Hoàng Văn E",
-      time: "08:30",
-      date: dayjs().add(1, "day").format("YYYY-MM-DD"),
-      status: "confirmed",
-      type: "Khám tổng quát",
-      avatarColor: "#722ed1",
-      phone: "0965123456",
-      email: "hoangvane@example.com",
-      isCurrent: false,
-      isNext: false,
-    },
-  ];
-
-  // Hàm xử lý lọc dữ liệu
-  const handleFilterChange = (dates, dateStrings) => {
-    if (dates) {
-      setDateRange(dates);
-
-      const filteredAppointments = sampleAppointments.filter((appointment) => {
-        const appointmentDate = dayjs(appointment.date);
-        return (
-          appointmentDate.isAfter(dates[0].subtract(1, "day")) &&
-          appointmentDate.isBefore(dates[1].add(1, "day"))
-        );
-      });
-
-      setAppointments(filteredAppointments);
-
-      const total = filteredAppointments.length;
-      const completed = filteredAppointments.filter(
-        (a) => a.status === "confirmed"
-      ).length;
-      const pending = filteredAppointments.filter(
-        (a) => a.status === "waiting"
-      ).length;
-      const cancelled = filteredAppointments.filter(
-        (a) => a.status === "cancelled"
-      ).length;
-
-      setStats((prev) => ({
-        ...prev,
-        totalAppointments: total,
-        completedAppointments: completed,
-        pendingAppointments: pending,
-        cancelledAppointments: cancelled,
-      }));
-    }
+  // Xử lý khi thay đổi giá trị
+  const handleFilterChange: RangePickerProps["onChange"] = (dates: any) => {
+    setDateRange(dates);
   };
 
   // Hàm chuyển đổi bệnh nhân
-  const handleSwitchPatient = (patientId) => {
-    const updatedAppointments = appointments.map((appointment) => ({
-      ...appointment,
-      isCurrent: appointment.id === patientId,
-      isNext: appointment.id === nextPatient?.id,
-    }));
-
-    setAppointments(updatedAppointments);
-
-    const newCurrent = updatedAppointments.find((app) => app.id === patientId);
-    const newNext = updatedAppointments.find(
-      (app) => app.status === "waiting" && !app.isCurrent
-    );
-
-    setCurrentPatient(newCurrent);
-    setNextPatient(newNext);
-  };
+  const handleSwitchPatient = (patientId: number) => {};
 
   // Format tiền tệ
   const formatCurrency = (amount: number) => {
@@ -220,49 +99,50 @@ const Home = () => {
           <span>Bệnh nhân hiện tại</span>
         </Space>
       }
-      loading={isLoading}
+      loading={isLoadingUser}
       style={{
         borderRadius: "8px",
         boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
         height: "100%",
       }}
     >
-      {currentPatient ? (
+      {dataUser?.current ? (
         <Space direction="vertical" style={{ width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Avatar
               size={64}
-              style={{ backgroundColor: currentPatient.avatarColor }}
+              // style={{ backgroundColor: currentPatient.avatarColor }}
               icon={<UserOutlined />}
             />
             <div>
               <Title level={4} style={{ margin: 0 }}>
-                {currentPatient.patientName}
+                {dataUser?.current.patient.fullName}
               </Title>
-              <Text type="secondary">{currentPatient.type}</Text>
+              {/* <Text type="secondary">{currentPatient.type}</Text> */}
             </div>
           </div>
           <Divider style={{ margin: "12px 0" }} />
           <Descriptions column={1} size="small">
             <Descriptions.Item label="Thời gian">
               <Tag color="blue">
-                <ClockCircleOutlined /> {currentPatient.time}
+                <ClockCircleOutlined /> {dataUser?.current.slot.startTime} -{" "}
+                {dataUser?.current.slot.endTime}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Số điện thoại">
-              {currentPatient.phone}
+              {dataUser?.current.patient.phone}
             </Descriptions.Item>
             <Descriptions.Item label="Email">
-              {currentPatient.email}
+              {dataUser?.current.patient.email}
             </Descriptions.Item>
           </Descriptions>
           <Button
             type="primary"
             block
             icon={<CheckOutlined />}
-            onClick={() => {
-              patientPopupRef.current?.openPopup(currentPatient);
-            }}
+            // onClick={() => {
+            //   patientPopupRef.current?.openPopup(currentPatient);
+            // }}
           >
             Hoàn thành khám
           </Button>
@@ -287,50 +167,56 @@ const Home = () => {
           <span>Bệnh nhân kế tiếp</span>
         </Space>
       }
-      loading={isLoading}
-      bordered={false}
+      loading={isLoadingUser}
       style={{
         borderRadius: "8px",
         boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
         height: "100%",
       }}
     >
-      {nextPatient ? (
+      {dataUser?.next ? (
         <Space direction="vertical" style={{ width: "100%" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Avatar
               size={64}
-              style={{ backgroundColor: nextPatient.avatarColor }}
+              // style={{ backgroundColor: nextPatient.avatarColor }}
               icon={<UserOutlined />}
             />
             <div>
               <Title level={4} style={{ margin: 0 }}>
-                {nextPatient.patientName}
+                {dataUser?.next.patient.fullName}
               </Title>
-              <Text type="secondary">{nextPatient.type}</Text>
+              {/* <Text type="secondary">{nextPatient.type}</Text> */}
             </div>
           </div>
           <Divider style={{ margin: "12px 0" }} />
           <Descriptions column={1} size="small">
             <Descriptions.Item label="Thời gian dự kiến">
               <Tag color="orange">
-                <ClockCircleOutlined /> {nextPatient.time}
+                <ClockCircleOutlined /> {dataUser?.next.slot.startTime} -{" "}
+                {dataUser?.next.slot.endTime}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Trạng thái">
+            <Descriptions.Item label="Số điện thoại">
+              {dataUser?.next.patient.phone}
+            </Descriptions.Item>
+            <Descriptions.Item label="Email">
+              {dataUser?.next.patient.email}
+            </Descriptions.Item>
+            {/* <Descriptions.Item label="Trạng thái">
               <Tag
                 color={nextPatient.status === "waiting" ? "orange" : "green"}
               >
                 {nextPatient.status === "waiting" ? "Chờ khám" : "Sẵn sàng"}
               </Tag>
-            </Descriptions.Item>
+            </Descriptions.Item> */}
           </Descriptions>
           <Button
             type="default"
             block
             icon={<PlayCircleOutlined />}
-            onClick={() => handleSwitchPatient(nextPatient.id)}
-            disabled={currentPatient !== null}
+            onClick={() => handleSwitchPatient(Number(dataUser?.next?.id))}
+            disabled={dataUser?.current !== null}
           >
             Bắt đầu khám
           </Button>
@@ -345,6 +231,46 @@ const Home = () => {
       )}
     </Card>
   );
+
+  const disabledDate: RangePickerProps["disabledDate"] = (
+    current: Dayjs,
+    { from }
+  ) => {
+    if (from) {
+      // 31 ngày = 30 ngày + ngày bắt đầu
+      const maxDate = from.add(30, "days");
+      const minDate = from.subtract(30, "days");
+
+      return (
+        current &&
+        (current.isAfter(maxDate, "day") || current.isBefore(minDate, "day"))
+      );
+    }
+    return false;
+  };
+
+  const handleCalendarChange: RangePickerProps["onCalendarChange"] = (
+    dates: [Dayjs | null, Dayjs | null] | null
+  ) => {
+    if (dates && dates[0] && dates[1]) {
+      const startDate = dates[0];
+      const endDate = dates[1];
+      const diffDays = endDate.diff(startDate, "days");
+
+      // Nếu chọn quá 31 ngày, tự động điều chỉnh
+      if (Math.abs(diffDays) > 30) {
+        if (diffDays > 0) {
+          // Nếu chọn ngày kết thúc quá xa
+          const newEndDate = startDate.add(30, "days");
+          setDateRange([startDate, newEndDate]);
+        } else {
+          // Nếu chọn ngày bắt đầu quá xa
+          const newStartDate = endDate.subtract(30, "days");
+          setDateRange([newStartDate, endDate]);
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -376,12 +302,15 @@ const Home = () => {
                 <Space direction="vertical" style={{ width: "100%" }}>
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                     <RangePicker
-                      value={dateRange}
+                      value={[dateRange[0], dateRange[1]]}
                       onChange={handleFilterChange}
-                      format="DD/MM/YYYY"
-                      style={{ flex: 1 }}
+                      onCalendarChange={handleCalendarChange}
+                      disabledDate={disabledDate}
+                      format="YYYY/MM/DD"
                       allowClear={false}
+                      style={{ flex: 1 }}
                     />
+
                     <Button
                       icon={<FilterOutlined />}
                       onClick={() => {
@@ -389,10 +318,6 @@ const Home = () => {
                           dayjs().startOf("day"),
                           dayjs().endOf("day"),
                         ]);
-                        const todayAppts = sampleAppointments.filter(
-                          (a) => a.date === dayjs().format("YYYY-MM-DD")
-                        );
-                        setAppointments(todayAppts);
                       }}
                     >
                       Hôm nay
@@ -520,7 +445,10 @@ const Home = () => {
           <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
             {/* Lịch hẹn */}
             <Col xs={24} lg={16}>
-              <AppointmentTable />
+              <AppointmentTable
+                dateRange={dateRange}
+                refetch_report={refetch}
+              />
             </Col>
 
             {/* Thống kê nhanh */}
