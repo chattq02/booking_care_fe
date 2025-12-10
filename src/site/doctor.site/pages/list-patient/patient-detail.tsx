@@ -64,23 +64,6 @@ const PatientDetail: React.FC = () => {
 
   const tabItems = [
     {
-      key: "history",
-      label: (
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          <HistoryOutlined />
-          <Text strong>Lịch sử khám bệnh</Text>
-        </span>
-      ),
-      children: <TabMedicalHistory />,
-    },
-
-    {
       key: "personal",
       label: (
         <span
@@ -95,6 +78,22 @@ const PatientDetail: React.FC = () => {
         </span>
       ),
       children: <TabInfoPatient patient={data?.patient} />,
+    },
+    {
+      key: "history",
+      label: (
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+        >
+          <HistoryOutlined />
+          <Text strong>Lịch sử khám bệnh</Text>
+        </span>
+      ),
+      children: <TabMedicalHistory patientId={Number(patientId)} />,
     },
   ];
 

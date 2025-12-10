@@ -44,7 +44,7 @@ export default function TabMedicalExamination({ appointmentId }: IProps) {
   const [medicalHistory, setMedicalHistory] = useState("");
   const [messageApi, contextHolder] = message.useMessage();
   const [modal, modalElement] = Modal.useModal();
-  const { mutate } = useSaveMedicalRecord();
+  const { mutate, isPending } = useSaveMedicalRecord();
   const nav = useNavigate();
 
   // Hàm xử lý thêm/cập nhật thuốc
@@ -219,12 +219,12 @@ export default function TabMedicalExamination({ appointmentId }: IProps) {
       mutate(payload as MedicalAppointmentData, {
         onSuccess: () => {
           nav(PATH_ROUTE_DOCTOR.HOME);
-          message.success("Đã lấy dữ liệu thành công!");
+          messageApi.success("Đã lấy dữ liệu thành công!");
         },
       });
     } catch (error) {
       console.error("Validation errors:", error);
-      message.error(
+      messageApi.error(
         "Vui lòng nhập đầy đủ thông tin trước khi hoàn thành khám!"
       );
     }
@@ -508,7 +508,11 @@ export default function TabMedicalExamination({ appointmentId }: IProps) {
         </Row>
       </div>
       <div className="mt-3 flex justify-end">
-        <Button type="primary" onClick={handleCompleteExamination}>
+        <Button
+          type="primary"
+          onClick={handleCompleteExamination}
+          loading={isPending}
+        >
           Hoàn thành khám
         </Button>
       </div>

@@ -142,6 +142,9 @@ const Home = () => {
             <Descriptions.Item label="CCCD">
               {dataUser?.current.patient.cccd}
             </Descriptions.Item>
+            <Descriptions.Item label="Giá khám">
+              {formatCurrency(dataUser?.current.paymentAmount || 0)}
+            </Descriptions.Item>
           </Descriptions>
           <Button
             type="primary"
@@ -219,6 +222,9 @@ const Home = () => {
             </Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
               <Tag color={"orange"}>Chờ khám</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Giá khám">
+              {formatCurrency(dataUser?.next.paymentAmount || 0)}
             </Descriptions.Item>
           </Descriptions>
         </Space>

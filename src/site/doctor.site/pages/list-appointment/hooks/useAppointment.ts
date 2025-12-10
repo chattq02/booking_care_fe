@@ -95,6 +95,17 @@ export const useGetDetailPatient = (id: number, isAppointmentId: boolean) => {
   });
 };
 
+export const useGetDetailPatientHistory = (id: number) => {
+  return useQuery({
+    queryKey: ["get-history-appointment", id],
+    queryFn: async () => {
+      const res = await appointmentDoctor.getAppointmentHistory(id);
+      return res.data;
+    },
+    placeholderData: (prev) => prev,
+  });
+};
+
 export const useSaveMedicalRecord = () => {
   return useMutation({
     mutationFn: async (data: MedicalAppointmentData) => {

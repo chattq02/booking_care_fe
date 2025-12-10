@@ -4,46 +4,24 @@ import {
   Tag,
   Typography,
   Space,
-  Row,
-  Col,
   Card,
   Collapse,
+  Flex,
 } from "antd";
 import { CalendarOutlined } from "@ant-design/icons";
-
-interface MedicalHistory {
-  date: string;
-  diagnosis: string;
-  doctor: string;
-  prescription: string;
-}
+import { useGetDetailPatientHistory } from "../../list-appointment/hooks/useAppointment";
 
 const { Panel } = Collapse;
 
 const { Text } = Typography;
+interface IProps {
+  patientId: number;
+}
 
-export default function TabMedicalHistory() {
-  // Dữ liệu mẫu cho lịch sử khám bệnh
-  const sampleMedicalHistory: MedicalHistory[] = [
-    {
-      date: "2024-01-15",
-      diagnosis: "Viêm họng cấp",
-      doctor: "BS. Nguyễn Văn A",
-      prescription: "Paracetamol, Amoxicillin",
-    },
-    {
-      date: "2023-11-20",
-      diagnosis: "Cảm cúm",
-      doctor: "BS. Trần Thị B",
-      prescription: "Vitamin C, Thuốc ho",
-    },
-    {
-      date: "2023-09-10",
-      diagnosis: "Khám tổng quát",
-      doctor: "BS. Lê Văn C",
-      prescription: "Không",
-    },
-  ];
+export default function TabMedicalHistory({ patientId }: IProps) {
+  const { data } = useGetDetailPatientHistory(Number(patientId));
+
+  console.log("data", data?.data_history);
   // Tạo CSS cho scrollbar tùy chỉnh
   const scrollbarStyles = {
     /* Tùy chỉnh scrollbar cho Chrome, Safari và Edge */
@@ -82,13 +60,13 @@ export default function TabMedicalHistory() {
           border: "none",
         }}
       >
-        {sampleMedicalHistory.map((record, index) => (
+        {data?.data_history.map((record, index) => (
           <Panel
             header={
               <Space>
                 <CalendarOutlined />
                 <Text strong style={{ fontSize: "14px" }}>
-                  {dayjs(record.date).format("DD/MM/YYYY")}
+                  {dayjs(record.appointmentDate).format("DD/MM/YYYY")}
                 </Text>
                 <Tag
                   color="blue"
@@ -102,7 +80,7 @@ export default function TabMedicalHistory() {
               </Space>
             }
             key={index}
-            extra={<Text type="secondary">{record.doctor}</Text>}
+            extra={<Text type="secondary">BS. {record.doctor.fullName}</Text>}
             style={{
               marginBottom: "12px",
               borderRadius: "8px",
@@ -110,42 +88,114 @@ export default function TabMedicalHistory() {
               overflow: "hidden",
             }}
           >
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <Card
-                  size="small"
-                  title="Thông tin khám"
-                  style={{
-                    borderRadius: "8px",
-                  }}
-                >
-                  <Descriptions column={1} size="small">
-                    <Descriptions.Item label="Ngày khám">
-                      {dayjs(record.date).format("DD/MM/YYYY")}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Bác sĩ">
-                      {record.doctor}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Chẩn đoán">
-                      <Text strong>{record.diagnosis}</Text>
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Card>
-              </Col>
-              <Col span={12}>
-                <Card
-                  size="small"
-                  title="Đơn thuốc"
-                  style={{
-                    borderRadius: "8px",
-                  }}
-                >
-                  <Text style={{ fontSize: "14px" }}>
-                    {record.prescription}
-                  </Text>
-                </Card>
-              </Col>
-            </Row>
+            <Flex vertical gap={10}>
+              <Card
+                size="small"
+                title="Thông tin khám"
+                style={{
+                  borderRadius: "8px",
+                }}
+              >
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Ngày khám">
+                    {dayjs(record.appointmentDate).format("DD/MM/YYYY")}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Bác sĩ">
+                    {record.doctor.fullName}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Chẩn đoán">
+                    <Text strong>{record.diagnosis}</Text>
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+              <Card
+                size="small"
+                title="Thông tin sức khỏe"
+                style={{
+                  borderRadius: "8px",
+                }}
+              >
+                <Descriptions column={1} size="small">
+                  <Descriptions.Item label="Huyết áp">
+                    <Text strong>{record.bloodPressure}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Nhịp tim">
+                    <Text strong>{record.heartRate}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Cân nặng">
+                    <Text strong>{record.weight}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Chiều cao">
+                    <Text strong>{record.height}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Tiền sử">
+                    <Text strong>{record.medicalHistory}</Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Ghi chú">
+                    <Text strong>{record.conclusion}</Text>
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+              <Card size="small" title="Đơn thuốc" style={{ borderRadius: 8 }}>
+                {record?.prescription?.items?.length ? (
+                  record.prescription.items.map((item: any) => (
+                    <Card
+                      key={item.id}
+                      size="small"
+                      style={{
+                        marginBottom: 10,
+                        borderRadius: 8,
+                        background: "#fafafa",
+                        border: "1px solid #eee",
+                      }}
+                      title={
+                        <div style={{ fontWeight: 600, fontSize: 14 }}>
+                          {item.medicineName}
+                        </div>
+                      }
+                    >
+                      <div style={{ fontSize: 14 }}>
+                        <div>
+                          <strong>Liều lượng:</strong> {item.dosage} {item.unit}
+                        </div>
+                        <div>
+                          <strong>Số lượng:</strong> {item.quantity}
+                        </div>
+                        <div>
+                          <strong>Tần suất:</strong> {item.frequency}
+                        </div>
+                        <div>
+                          <strong>Thời gian dùng:</strong> {item.duration} ngày
+                        </div>
+                        <div>
+                          <strong>Thời điểm uống:</strong> {item.mealTime}
+                        </div>
+                        <div>
+                          <strong>Hướng dẫn:</strong> {item.instruction}
+                        </div>
+                        {item.startDate && (
+                          <div>
+                            <strong>Từ ngày:</strong> {item.startDate}
+                          </div>
+                        )}
+                        {item.endDate && (
+                          <div>
+                            <strong>Đến ngày:</strong> {item.endDate}
+                          </div>
+                        )}
+                        {item.note && (
+                          <div>
+                            <strong>Ghi chú:</strong> {item.note}
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+                  ))
+                ) : (
+                  <Text>Không có đơn thuốc</Text>
+                )}
+              </Card>
+            </Flex>
           </Panel>
         ))}
       </Collapse>

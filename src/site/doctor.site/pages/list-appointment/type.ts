@@ -1,3 +1,5 @@
+import type { AppointmentStatus } from "./stores/params";
+
 // ROOT RESPONSE ITEM
 export interface ICompletedPaidAppointmentRes {
   patientId: number;
@@ -119,4 +121,65 @@ export interface MedicalAppointmentData {
   medicalHistory: string;
   conclusion: string;
   prescription: Prescription;
+}
+
+export interface IAppointmentHistoryItem {
+  id: number;
+  doctor: DoctorInfo;
+  status: AppointmentStatus;
+  appointmentDate: string;
+  slot: ISlotDetail;
+  patient: PatientInfo;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+  uuid: string;
+  facility: IFacilityMini;
+  paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
+  paymentAmount: number | null;
+  doctorId: number;
+  patientId: number;
+  scheduleId: number;
+  attachments: any | null;
+  facilityId: number;
+  remark: string | null;
+  bloodPressure: string | null;
+  temperature: number | null;
+  weight: number | null;
+  height: number | null;
+  medicalHistory: string | null;
+  diagnosis: string | null;
+  conclusion: string | null;
+  heartRate: number | null;
+  instruction: string | null;
+  prescription: Prescription | null;
+}
+
+export interface IFacilityMini {
+  id: number;
+  name: string;
+  address: string;
+}
+
+export interface IPatientDetailHistory {
+  id: number;
+  fullName: string;
+  email: string;
+  phone: string;
+  birthday: string;
+  gender: string;
+  avatar: string | null;
+  address: string;
+  cccd: string;
+  bhyt: string | null;
+}
+
+export interface IAppointmentHistoryRes {
+  data_history: IAppointmentHistoryItem[];
+  patient: IPatientDetailHistory; // dùng type riêng cho lịch sử
+  current_page: number;
+  next_page_url: string | null;
+  prev_page_url: string | null;
+  per_page: number;
+  total: number;
 }

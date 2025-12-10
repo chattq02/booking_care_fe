@@ -16,6 +16,7 @@ import type {
 } from "../pages/list-appointment/stores/params";
 import type { ICurrentNextAppointmentRes } from "../pages/home/types";
 import type {
+  IAppointmentHistoryRes,
   ICompletedPaidAppointmentRes,
   IPatientDetailAppointmentRes,
   MedicalAppointmentData,
@@ -78,6 +79,12 @@ const appointmentDoctor = {
           `/user/appointment-patient-detail-by-appointmentId/${id}`
         )
       : axiosWithToken.get(`/user/appointment-patient-detail-history/${id}`);
+  },
+
+  getAppointmentHistory: (
+    id: number
+  ): Promise<ResponseResult<IAppointmentHistoryRes>> => {
+    return axiosWithToken.get(`/user/appointment-patient-detail-history/${id}`);
   },
 
   // 🔥 API Lưu thông tin khám bệnh + đơn thuốc
