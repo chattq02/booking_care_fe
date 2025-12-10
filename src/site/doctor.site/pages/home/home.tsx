@@ -56,16 +56,19 @@ const Home = () => {
   ]);
   const nav = useNavigate();
 
-  const { data, isLoading, refetch } = useAppointmentReport({
+  const { data, isLoading } = useAppointmentReport({
     fromDate: dateRange[0].format("YYYY-MM-DD"),
     toDate: dateRange[1].format("YYYY-MM-DD"),
   });
 
-  const { data: dataUser, isLoading: isLoadingUser } =
-    useGetCurrentAndNextPatient({
-      doctorId: null,
-      appointmentDate: dayjs().format("YYYY-MM-DD"),
-    });
+  const {
+    data: dataUser,
+    isLoading: isLoadingUser,
+    refetch: refetchUser,
+  } = useGetCurrentAndNextPatient({
+    doctorId: null,
+    appointmentDate: dayjs().format("YYYY-MM-DD"),
+  });
 
   const screens = useBreakpoint();
 
@@ -145,7 +148,7 @@ const Home = () => {
             block
             onClick={() => {
               nav(
-                `${PATH_ROUTE_DOCTOR.PATIENTS_DETAIL}/${dataUser.current?.id}`
+                `${PATH_ROUTE_DOCTOR.PATIENTS_DETAIL}?appointmentId=${dataUser.current?.id}`
               );
             }}
           >
@@ -445,7 +448,7 @@ const Home = () => {
             <Col xs={24} lg={16}>
               <AppointmentTable
                 dateRange={dateRange}
-                refetch_report={refetch}
+                refetch_user={refetchUser}
               />
             </Col>
 

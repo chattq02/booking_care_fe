@@ -77,13 +77,10 @@ const ActionCell = React.memo(
 
 interface IProps {
   dateRange: Dayjs[];
-  refetch_report: () => void;
+  refetch_user: () => void;
 }
 
-export default function AppointmentTable({
-  dateRange,
-  refetch_report,
-}: IProps) {
+export default function AppointmentTable({ dateRange, refetch_user }: IProps) {
   const [param, setParam] = useState<AppointmentParamsDasboard>({
     fromDate: dateRange[0].format("YYYY-MM-DD"),
     toDate: dateRange[1].format("YYYY-MM-DD"),
@@ -355,7 +352,7 @@ export default function AppointmentTable({
     mutate(payload, {
       onSuccess: () => {
         refetch();
-        refetch_report();
+        refetch_user();
         toast.success(successMessage);
         handleCloseModal();
       },

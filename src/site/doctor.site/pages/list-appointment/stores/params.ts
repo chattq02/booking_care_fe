@@ -44,3 +44,13 @@ export interface AppointmentCurrentNextPatientParams {
   doctorId: number | null;
   appointmentDate: Dayjs | null | string;
 }
+
+export interface AppointmentCompletedPaidParams {
+  doctorId?: number;
+  patientId?: number;
+  fromDate?: string;
+  toDate?: string;
+  page?: number;
+  per_page?: number;
+  keyword: string;
+}

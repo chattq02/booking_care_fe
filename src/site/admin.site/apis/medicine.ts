@@ -3,19 +3,19 @@ import type {
   ResponseParamsResult,
   ResponseResult,
 } from "@/lib/axios/axios-type";
-import type { IParams } from "@/types/params";
 import type {
   ICreateMedicineDto,
   IMedicine,
   IUpdateMedicineDto,
 } from "../pages/medical-facility/type";
+import type { MedicineParams } from "../pages/medical-facility/store/params";
 
 const medicineApi = {
   /**
    * 🧩 Lấy danh sách thuốc (có phân trang + tìm kiếm)
    */
   getList: async (
-    params?: IParams
+    params?: MedicineParams
   ): Promise<ResponseParamsResult<IMedicine[]>> => {
     return axiosWithToken.get("/medicine", {
       params: {

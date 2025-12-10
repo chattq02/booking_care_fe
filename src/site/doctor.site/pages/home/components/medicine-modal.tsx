@@ -1,3 +1,4 @@
+import ListMedicine from "@/site/admin.site/components/list-medicine";
 import { MedicineBoxOutlined } from "@ant-design/icons";
 import {
   Modal,
@@ -10,12 +11,12 @@ import {
   message,
   InputNumber,
   DatePicker,
-  Switch,
 } from "antd";
 import type dayjs from "dayjs";
 import React, { useState } from "react";
 
-interface Medicine {
+export interface Medicine {
+  medicineId: number;
   id: number;
   name: string;
   brand?: string;
@@ -27,11 +28,8 @@ interface Medicine {
   mealTime?: string;
   instruction?: string;
   note?: string;
-  startDate?: dayjs.Dayjs;
-  endDate?: dayjs.Dayjs;
-  hasRefill?: boolean;
-  isGeneric?: boolean;
-  requiresPrescription?: boolean;
+  startDate?: dayjs.Dayjs | null;
+  endDate?: dayjs.Dayjs | null;
 }
 
 interface AddMedicineModalProps {
@@ -39,6 +37,7 @@ interface AddMedicineModalProps {
   onClose: () => void;
   onSave: (medicine: Medicine) => void;
   editingMedicine: Medicine | null;
+  facilityId: number;
 }
 const { TextArea } = Input;
 const { Option } = Select;
@@ -49,9 +48,11 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
   onClose,
   onSave,
   editingMedicine,
+  facilityId,
 }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   // Khởi tạo form với dữ liệu nếu đang edit
   React.useEffect(() => {
@@ -68,22 +69,20 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
     try {
       setLoading(true);
       const values = await form.validateFields();
-
-      // Giả lập delay
       setTimeout(() => {
         onSave(values as Medicine);
         form.resetFields();
         setLoading(false);
         onClose();
-        message.success(
+        messageApi.success(
           editingMedicine
             ? "Cập nhật thuốc thành công!"
             : "Thêm thuốc mới thành công!"
         );
-      }, 500);
+      }, 400);
     } catch (error) {
       setLoading(false);
-      message.error("Vui lòng kiểm tra lại thông tin!");
+      messageApi.error("Vui lòng kiểm tra lại thông tin!");
     }
   };
 
@@ -129,6 +128,9 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
       okText={editingMedicine ? "Cập nhật" : "Thêm"}
       cancelText="Hủy"
       width={600}
+      style={{
+        top: 50,
+      }}
       styles={{
         body: {
           paddingTop: "16px",
@@ -136,30 +138,40 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
         },
       }}
     >
+      {contextHolder}
       <Form
         form={form}
         layout="vertical"
         initialValues={{
           quantity: 1,
-          hasRefill: false,
+          unit: "ml",
         }}
       >
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name="name"
-              label="Tên thuốc"
-              rules={[{ required: true, message: "Vui lòng nhập tên thuốc" }]}
-            >
-              <Input placeholder="Ví dụ: Paracetamol" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item name="brand" label="Nhãn hiệu">
-              <Input placeholder="Ví dụ: Panadol" />
-            </Form.Item>
-          </Col>
-        </Row>
+        <Form.Item name="medicineId" hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item
+          style={{
+            width: "100%",
+          }}
+          name="name"
+          label="Tên thuốc"
+          rules={[{ required: true, message: "Vui lòng nhập tên thuốc" }]}
+        >
+          <ListMedicine
+            style={{
+              width: "100%",
+            }}
+            defaultValue={form.getFieldValue("medicineId")}
+            facilityId={facilityId}
+            onChange={(value, option) => {
+              form.setFieldsValue({
+                name: option?.children,
+                medicineId: Number(value),
+              });
+            }}
+          />
+        </Form.Item>
 
         <Row gutter={16}>
           <Col span={8}>
@@ -268,37 +280,6 @@ const AddMedicineModal: React.FC<AddMedicineModalProps> = ({
             placeholder="Ví dụ: Không dùng cho phụ nữ có thai..."
           />
         </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item
-              name="hasRefill"
-              label="Được tái kê"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="isGeneric"
-              label="Thuốc generic"
-              valuePropName="checked"
-            >
-              <Switch />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name="requiresPrescription"
-              label="Cần kê đơn"
-              valuePropName="checked"
-              initialValue={true}
-            >
-              <Switch />
-            </Form.Item>
-          </Col>
-        </Row>
       </Form>
     </Modal>
   );

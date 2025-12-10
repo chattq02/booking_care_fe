@@ -8,12 +8,18 @@ import type {
   ReportAppointment,
 } from "@/site/user.site/pages/profile/types/type";
 import type {
+  AppointmentCompletedPaidParams,
   AppointmentCurrentNextPatientParams,
   AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
 } from "../pages/list-appointment/stores/params";
 import type { ICurrentNextAppointmentRes } from "../pages/home/types";
+import type {
+  ICompletedPaidAppointmentRes,
+  IPatientDetailAppointmentRes,
+  MedicalAppointmentData,
+} from "../pages/list-appointment/type";
 
 const appointmentDoctor = {
   getList: (
@@ -51,6 +57,32 @@ const appointmentDoctor = {
     params: AppointmentCurrentNextPatientParams
   ): Promise<ResponseResult<ICurrentNextAppointmentRes>> => {
     return axiosWithToken.get("/user/appointment-current-next", { params });
+  },
+
+  getCompletedAndPaid: (
+    params?: AppointmentCompletedPaidParams
+  ): Promise<ResponseParamsResult<ICompletedPaidAppointmentRes[]>> => {
+    return axiosWithToken.get("/user/appointment-completed-paid", {
+      params: {
+        ...params,
+      },
+    });
+  },
+
+  getPatientDetail: (
+    id: number,
+    isAppointmentId: boolean = false
+  ): Promise<ResponseResult<IPatientDetailAppointmentRes>> => {
+    return isAppointmentId
+      ? axiosWithToken.get(
+          `/user/appointment-patient-detail-by-appointmentId/${id}`
+        )
+      : axiosWithToken.get(`/user/appointment-patient-detail-history/${id}`);
+  },
+
+  // 🔥 API Lưu thông tin khám bệnh + đơn thuốc
+  saveMedicalRecord: (data: MedicalAppointmentData) => {
+    return axiosWithToken.post("/user/appointment-medical-record", data);
   },
 };
 

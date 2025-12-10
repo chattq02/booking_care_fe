@@ -2,12 +2,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { type PaginationResponse } from "@/lib/axios/axios-type";
 import type { IMyAppointmentRes } from "@/site/user.site/pages/profile/types/type";
 import type {
+  AppointmentCompletedPaidParams,
   AppointmentCurrentNextPatientParams,
   AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
 } from "../stores/params";
 import appointmentDoctor from "@/site/doctor.site/api/appointment";
+import type { MedicalAppointmentData } from "../type";
 
 export const useGetAppointment = (
   param: AppointmentParamsDasboard,
@@ -64,5 +66,40 @@ export const useGetCurrentAndNextPatient = (
     },
     enabled,
     placeholderData: (prev) => prev,
+  });
+};
+
+export const useGetCompletedAndPaidAppointments = (
+  param: AppointmentCompletedPaidParams,
+  enabled = true
+) => {
+  return useQuery({
+    queryKey: ["completed-paid-appointments", param],
+    queryFn: async () => {
+      const res = await appointmentDoctor.getCompletedAndPaid(param);
+      return res.data; // format giống hook cũ
+    },
+    enabled,
+    placeholderData: (prev) => prev,
+  });
+};
+
+export const useGetDetailPatient = (id: number, isAppointmentId: boolean) => {
+  return useQuery({
+    queryKey: ["get-detail-patient", id],
+    queryFn: async () => {
+      const res = await appointmentDoctor.getPatientDetail(id, isAppointmentId);
+      return res.data;
+    },
+    placeholderData: (prev) => prev,
+  });
+};
+
+export const useSaveMedicalRecord = () => {
+  return useMutation({
+    mutationFn: async (data: MedicalAppointmentData) => {
+      const res = await appointmentDoctor.saveMedicalRecord(data);
+      return res.data;
+    },
   });
 };
