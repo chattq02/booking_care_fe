@@ -9,19 +9,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ColumnsType } from "antd/lib/table";
-import { useGetMyAppointment } from "../hooks/useUpdateUser";
-import type { IMyAppointmentRes } from "../types/type";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import {
+  useGetPatientAppointmentStatus,
+  useUpadateStatusAppointmentUser,
+} from "@/site/doctor.site/pages/list-appointment/hooks/useAppointment";
+import { toast } from "sonner";
+import type { IAppointmentHistoryItem } from "@/site/doctor.site/pages/list-appointment/type";
 
 const ActionCell = React.memo(
   ({
     record,
     onCancel,
   }: {
-    record: IMyAppointmentRes;
-    onCancel: (record: IMyAppointmentRes) => void;
+    record: IAppointmentHistoryItem;
+    onCancel: (record: IAppointmentHistoryItem) => void;
   }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,7 +33,10 @@ const ActionCell = React.memo(
           <MoreHorizontal size={30} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent
+        align="end"
+        hidden={Boolean(record.status === "CANCELED")}
+      >
         <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
@@ -43,12 +50,15 @@ const ActionCell = React.memo(
 );
 
 export default function MyAppointment() {
-  const { data, isLoading } = useGetMyAppointment({
+  const { data, isLoading, refetch } = useGetPatientAppointmentStatus({
     page: 1,
     per_page: 50,
+    status: "CONFIRMED",
   });
 
-  const columns: ColumnsType<IMyAppointmentRes> = [
+  const { mutate, isPending } = useUpadateStatusAppointmentUser();
+
+  const columns: ColumnsType<IAppointmentHistoryItem> = [
     {
       title: "Ngày",
       dataIndex: "appointmentDate",
@@ -150,13 +160,29 @@ export default function MyAppointment() {
     },
   ];
 
-  const handleCancel = async (data: IMyAppointmentRes) => {
+  const handleCancel = async (data: IAppointmentHistoryItem) => {
     console.log(data);
+    mutate(
+      {
+        id: data.id,
+        status: "CANCELED",
+        remark: "",
+      },
+      {
+        onSuccess: () => {
+          toast.success("Hủy thành công!");
+          refetch();
+        },
+        onError: (err: any) => {
+          toast.error(err.response?.data?.message || "Có lỗi xảy ra!");
+        },
+      }
+    );
   };
 
   return (
     <div className="mb-6 lg:mb-8">
-      <DataGrid<IMyAppointmentRes>
+      <DataGrid<IAppointmentHistoryItem>
         columns={columns}
         data={data?.data ?? []}
         pagination={{
@@ -172,7 +198,7 @@ export default function MyAppointment() {
           isMax: true,
           customScrollY: 800,
         }}
-        loading={isLoading}
+        loading={isLoading || isPending}
         // onChange={handleTableChange}
         className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
       />

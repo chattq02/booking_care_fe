@@ -55,8 +55,7 @@ export default function Profile() {
       label: (
         <span className="flex items-center font-semibold text-sm lg:text-base">
           <HistoryOutlined className="mr-1 lg:mr-2" />
-          <span className="hidden sm:inline">Lịch sử khám</span>
-          <span className="sm:hidden">Lịch sử</span>
+          <span className="hidden sm:inline">Lịch sử khám bệnh</span>
         </span>
       ),
       children: <TabHistoryAppointment />,
@@ -82,6 +81,10 @@ export default function Profile() {
               <p className="text-blue-100 mb-4 flex items-center justify-center">
                 <MailOutlined className="mr-2" />
                 {infoUser?.email ?? ""}
+              </p>
+              <p className="text-blue-100 mb-4 flex items-center justify-center">
+                <strong className="mr-1">User ID: </strong>
+                {infoUser?.id ?? ""}
               </p>
             </div>
           </div>

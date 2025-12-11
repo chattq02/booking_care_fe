@@ -86,7 +86,12 @@ export function DoctorCard({
         </div>
       </div>
       <div className="flex justify-between items-center gap-3 flex-wrap">
-        <Button className="bg-main flex-1">Tạo lịch khám</Button>
+        <Button
+          className="bg-main flex-1 cursor-pointer"
+          onClick={() => nav(`${PATH_ROUTE.DOCTORS}/${id}/?tab=schedule`)}
+        >
+          Tạo lịch khám
+        </Button>
         <Button variant="outline" className="bg-white flex-1">
           <Send />
         </Button>

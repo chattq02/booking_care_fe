@@ -7,6 +7,7 @@ import type {
   AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
+  AppointmentUserFindParams,
 } from "../stores/params";
 import appointmentDoctor from "@/site/doctor.site/api/appointment";
 import type { MedicalAppointmentData } from "../type";
@@ -110,6 +111,36 @@ export const useSaveMedicalRecord = () => {
   return useMutation({
     mutationFn: async (data: MedicalAppointmentData) => {
       const res = await appointmentDoctor.saveMedicalRecord(data);
+      return res.data;
+    },
+  });
+};
+
+export const useGetPatientAppointmentStatus = (
+  params: AppointmentUserFindParams
+) => {
+  return useQuery({
+    queryKey: ["get-patient-appointment-status", params],
+    queryFn: async () => {
+      const res = await appointmentDoctor.appointmentFindStatus(params);
+      return res.data;
+    },
+    placeholderData: (prev) => prev,
+  });
+};
+
+export const useUpadateStatusAppointmentUser = () => {
+  return useMutation({
+    mutationFn: async (data: {
+      id: number;
+      status: AppointmentStatus;
+      remark?: string;
+    }) => {
+      const res = await appointmentDoctor.updateStatusUser(
+        data.id,
+        data.status,
+        data.remark
+      );
       return res.data;
     },
   });

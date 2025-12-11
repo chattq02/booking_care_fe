@@ -10,6 +10,7 @@ import {
   Flex,
   Spin,
   message,
+  Empty,
 } from "antd";
 import {
   UserOutlined,
@@ -19,7 +20,7 @@ import {
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useGetDetailDoctor } from "./hooks/useDoctor";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -38,11 +39,12 @@ const { TextArea } = Input;
 
 const DoctorPage = () => {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [messageApi, contextHolder] = message.useMessage();
   const { data, isLoading } = useGetDetailDoctor(Number(id));
   const [selectedSlot, setSelectedSlot] = useState<ISlot>();
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState("schedule");
+
   const nav = useNavigate();
   const { mutate, isPending } = useCreateAppointment({
     doctorId: Number(id),
@@ -52,6 +54,19 @@ const DoctorPage = () => {
   });
 
   const [bookingForm] = Form.useForm();
+
+  const validTabs = ["about", "schedule"];
+
+  const tabFromUrl = searchParams.get("tab");
+  const activeTab = validTabs.includes(tabFromUrl || "")
+    ? tabFromUrl!
+    : "schedule";
+
+  const handleTabChange = (key: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", key);
+    setSearchParams(params);
+  };
 
   const handleBooking = async (values: ISlot | undefined) => {
     const token = accessTokenStore.get() || Cookies.get(COOKIE_KEYS.at);
@@ -160,8 +175,8 @@ const DoctorPage = () => {
         </div>
         <div className="bg-white border-t-0 border rounded-b-md">
           <Tabs
+            onChange={handleTabChange}
             activeKey={activeTab}
-            onChange={setActiveTab}
             style={{ padding: "0 24px" }}
             tabBarStyle={{
               margin: 0,
@@ -199,13 +214,21 @@ const DoctorPage = () => {
                   </span>
                 ),
                 children: (
-                  <TabSchedule
-                    doctorId={Number(id)}
-                    onClickSlot={(slot) => {
-                      setIsModalVisible(true);
-                      setSelectedSlot(slot);
-                    }}
-                  />
+                  <Space
+                    direction="vertical"
+                    size="large"
+                    style={{ width: "100%", padding: "10px 0" }}
+                  >
+                    {data?.description ? (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: data?.description ?? "",
+                        }}
+                      ></div>
+                    ) : (
+                      <Empty />
+                    )}
+                  </Space>
                 ),
               },
             ]}

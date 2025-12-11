@@ -26,4 +26,5 @@ export interface ResponseDoctor {
     id: number;
     name: string;
   }[];
+  description?: string;
 }

@@ -13,9 +13,11 @@ import type {
   AppointmentParamsDasboard,
   AppointmentReportParams,
   AppointmentStatus,
+  AppointmentUserFindParams,
 } from "../pages/list-appointment/stores/params";
 import type { ICurrentNextAppointmentRes } from "../pages/home/types";
 import type {
+  IAppointmentHistoryItem,
   IAppointmentHistoryRes,
   ICompletedPaidAppointmentRes,
   IPatientDetailAppointmentRes,
@@ -39,6 +41,17 @@ const appointmentDoctor = {
     remark?: string
   ): Promise<ResponseParamsResult<IMyAppointmentRes>> => {
     return axiosWithToken.put(`/user/appointment/${id}/status`, {
+      status,
+      remark,
+    });
+  },
+
+  updateStatusUser: (
+    id: number,
+    status: AppointmentStatus,
+    remark?: string
+  ): Promise<ResponseParamsResult<IMyAppointmentRes>> => {
+    return axiosWithToken.put(`/user/appointment/${id}`, {
       status,
       remark,
     });
@@ -90,6 +103,16 @@ const appointmentDoctor = {
   // 🔥 API Lưu thông tin khám bệnh + đơn thuốc
   saveMedicalRecord: (data: MedicalAppointmentData) => {
     return axiosWithToken.post("/user/appointment-medical-record", data);
+  },
+
+  appointmentFindStatus: (
+    params?: AppointmentUserFindParams
+  ): Promise<ResponseParamsResult<IAppointmentHistoryItem[]>> => {
+    return axiosWithToken.get("/user/appointment-find-status", {
+      params: {
+        ...params,
+      },
+    });
   },
 };
 

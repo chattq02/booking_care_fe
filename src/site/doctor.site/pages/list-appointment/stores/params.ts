@@ -54,3 +54,9 @@ export interface AppointmentCompletedPaidParams {
   per_page?: number;
   keyword: string;
 }
+
+export interface AppointmentUserFindParams {
+  page?: number;
+  per_page?: number;
+  status?: AppointmentStatus;
+}
