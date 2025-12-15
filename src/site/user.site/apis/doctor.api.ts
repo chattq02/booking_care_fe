@@ -6,6 +6,7 @@ import type { ResponseDoctor } from "@/site/admin.site/types/doctor";
 import type { GetDoctorUserParams } from "../pages/home/store/params";
 import type { ISchedule } from "../types/schedule";
 import axiosPublic from "@/lib/axios/axios-public";
+import type { SearchResult } from "../components/search-box";
 
 const doctorUser = {
   getDoctorList: async (
@@ -35,9 +36,11 @@ const doctorUser = {
 
   getDoctorAndFacilitiesSearch: async (
     keyword: string
-  ): Promise<ResponseResult<ISchedule[]>> => {
+  ): Promise<ResponseResult<SearchResult[]>> => {
     return axiosPublic.get(`/doctor/search-users-facilities`, {
-      params: keyword,
+      params: {
+        keyword,
+      },
     });
   },
 };

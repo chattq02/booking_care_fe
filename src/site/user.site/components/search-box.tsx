@@ -3,14 +3,21 @@ import { Input } from "@/components/ui/input";
 import { Search, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import debounce from "lodash/debounce";
+import doctorUser from "../apis/doctor.api";
+import { Avatar } from "antd";
+import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 
-interface SearchResult {
-  id: string | number;
-  title: string;
-  description?: string;
-  type?: string;
-  [key: string]: any;
+interface User {
+  avatar: string;
+  id: number;
+  name: string;
+  type: "USER" | "FACILITY";
+  user_type: string;
+  uuid: string;
+  academicTitle?: string;
+  imageUrl?: string;
 }
+export type SearchResult = User;
 
 interface SearchBoxProps {
   placeholder?: string;
@@ -18,22 +25,14 @@ interface SearchBoxProps {
   onResultSelect?: (result: SearchResult) => void;
   className?: string;
   debounceDelay?: number;
-  isLoading?: boolean;
   minChars?: number;
-  showRecentSearches?: boolean;
-  recentSearches?: SearchResult[];
-  showPopularSearches?: boolean;
-  popularSearches?: SearchResult[];
-  maxSuggestions?: number;
 }
 
 export function SearchBox({
   placeholder = "Tìm kiếm...",
-  onSearch,
   onResultSelect,
   className,
   debounceDelay = 500,
-  isLoading: externalLoading,
   minChars = 2,
 }: SearchBoxProps) {
   const [query, setQuery] = useState("");
@@ -46,18 +45,18 @@ export function SearchBox({
 
   // Hàm thực hiện tìm kiếm
   const performSearch = async (searchQuery: string) => {
-    if (!onSearch || searchQuery.length < minChars) {
+    if (searchQuery.length < minChars) {
       setResults([]);
       return;
     }
 
     setIsLoading(true);
     try {
-      const searchResults = await onSearch(searchQuery);
-      setResults(searchResults);
+      const data = await doctorUser.getDoctorAndFacilitiesSearch(searchQuery);
+      setResults(data.data);
     } catch (error) {
-      console.error("Search failed:", error);
       setResults([]);
+      setIsLoading(false);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +104,7 @@ export function SearchBox({
   const handleResultSelect = (result: SearchResult) => {
     onResultSelect?.(result);
     setShowDropdown(false);
-    setQuery(result.title);
+    setQuery(result.name);
   };
 
   // Xóa tìm kiếm
@@ -125,7 +124,7 @@ export function SearchBox({
     setShowDropdown(true);
   };
 
-  const displayLoading = externalLoading ?? isLoading;
+  const displayLoading = isLoading;
   const hasSearchResults = results.length > 0 && query.length >= minChars;
 
   const shouldShowDropdown =
@@ -191,19 +190,36 @@ export function SearchBox({
                 <div className="space-y-1">
                   {results.map((result) => (
                     <button
-                      key={`result-${result.id}`}
+                      key={`result-${result.uuid}`}
                       type="button"
                       onClick={() => handleResultSelect(result)}
-                      className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none transition-colors flex items-start gap-2"
+                      className="w-full flex items-center rounded-sm cursor-pointer px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none transition-colors gap-2"
                     >
                       <Search className="size-4 text-muted-foreground mt-0.5 shrink-0" />
+                      <Avatar
+                        size={32}
+                        src={
+                          result.type === "USER"
+                            ? result.avatar
+                            : result.imageUrl
+                        }
+                        icon={
+                          result.type === "USER" ? (
+                            <UserOutlined />
+                          ) : (
+                            <HomeOutlined />
+                          )
+                        }
+                      />
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">
-                          {result.title}
+                          {result.type === "USER"
+                            ? ` BS. ${result.name}`
+                            : result.name}
                         </div>
-                        {result.description && (
-                          <div className="text-xs text-muted-foreground truncate">
-                            {result.description}
+                        {result.type === "USER" && (
+                          <div className="truncate text-[12px] text-gray-500">
+                            {result.academicTitle ?? "---"}
                           </div>
                         )}
                       </div>
