@@ -165,14 +165,22 @@ export default function Login({ role }: IProps) {
                   <Button type="submit" disabled={isPending}>
                     {isPending ? "Đang đăng nhập..." : "Login"}
                   </Button>
-                  <div className="flex items-center">
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Quên mật khẩu?
-                    </a>
-                  </div>
+                  {role === "User" && (
+                    <div className="flex items-center justify-between">
+                      <div
+                        className="text-sm underline-offset-4 hover:underline cursor-pointer"
+                        onClick={() => nav(PATH_ROUTE.REGISTER)}
+                      >
+                        Đăng ký
+                      </div>
+                      <div
+                        className=" text-sm underline-offset-4 hover:underline cursor-pointer"
+                        onClick={() => nav(PATH_ROUTE.FORGOT_PASSWORD)}
+                      >
+                        Quên mật khẩu?
+                      </div>
+                    </div>
+                  )}
                 </Field>
               </FieldGroup>
             </form>

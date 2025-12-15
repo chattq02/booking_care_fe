@@ -1,8 +1,8 @@
 import "./App.css";
 import "./index.css";
 import AdminApp from "./site/admin.site/admin-app";
+import DefaultApp from "./site/default.site/default-app";
 import DoctorApp from "./site/doctor.site/doctor-app";
-import NotFound from "./site/NotFound";
 import UserApp from "./site/user.site/user-app";
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   if (host.includes("user")) return <UserApp />;
   if (host.includes("doctor")) return <DoctorApp />;
 
-  return <NotFound />;
+  return <DefaultApp />;
 }
 
 export default App;

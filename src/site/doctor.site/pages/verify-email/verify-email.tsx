@@ -1,32 +1,36 @@
 import { useEffect } from "react";
 import { useQueryParamsObject } from "@/hooks/use-query-params-object";
 import { useVerifyEmail } from "./hooks/useVerifyEmail";
-import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function VerifyEmail() {
   const { token } = useQueryParamsObject();
   const { mutate, isPending, isSuccess, isError, error, data } =
     useVerifyEmail();
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     if (token)
-      mutate({
-        token,
-        type: "Verify",
-      });
+      mutate(
+        {
+          token,
+          type: "Verify",
+        },
+        {
+          onSuccess: (data: any) => {
+            const user_type = data?.data?.user_type;
+            if (user_type === "Patient") {
+              window.location.href = "http://user.localhost:5100/login";
+            } else if (user_type === "Doctor") {
+              window.location.href = "http://doctor.localhost:5100/login";
+            }
+            toast.success("Xác thực email thành công");
+          },
+          onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Có lỗi xảy ra!");
+          },
+        }
+      );
   }, [token]);
-
-  // ✅ Chuyển sang login khi xác thực thành công
-  useEffect(() => {
-    if (isSuccess) {
-      const timer = setTimeout(() => {
-        navigate("/login"); // thay "/login" bằng route login của bạn
-      }, 1500); // delay 1.5s để user thấy message
-      return () => clearTimeout(timer);
-    }
-  }, [isSuccess, navigate]);
 
   const handleResendVerifyEmail = () => {
     mutate({

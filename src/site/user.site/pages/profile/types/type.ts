@@ -56,6 +56,12 @@ export interface RegisterDoctorDto {
   facilityId: number;
 }
 
+export interface RegisterUserDto {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
 export interface ReportAppointment {
   total_revenue: number;
   total_appointment: number;

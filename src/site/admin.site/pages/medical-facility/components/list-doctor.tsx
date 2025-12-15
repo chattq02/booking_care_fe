@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ColumnsType } from "antd/es/table";
@@ -20,6 +19,11 @@ import type { IDoctorParams } from "../../info-doctor/type";
 import AddDoctorModal, {
   type AddDoctorModalRef,
 } from "./modal/add-doctor-modal";
+import { useForgotPasswordDoctor } from "@/pages/auth/hooks/useAuth";
+import { toast } from "sonner";
+import ChangeStatusDoctorModal, {
+  type ChangeStatusModalRef,
+} from "./modal/change-status-doctor-modal";
 
 interface IProps {
   facilityId: number;
@@ -27,12 +31,14 @@ interface IProps {
 
 const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
   const modalRef = useRef<AddDoctorModalRef>(null);
+  const changeStatusModalRef = useRef<ChangeStatusModalRef>(null);
   const [param, setParam] = useState<IDoctorParams>({
     keyword: "",
     status: "All",
     page: 1,
     per_page: 50,
   });
+
   const {
     data: listDoctors,
     isLoading,
@@ -44,6 +50,8 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
     per_page: 50,
     status: param.status,
   });
+
+  const { mutate: forgotPasswordDoctor } = useForgotPasswordDoctor();
 
   const columns: ColumnsType<ResponseDoctor> = [
     {
@@ -148,18 +156,32 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
           <DropdownMenuContent align="end">
             <DropdownMenuItem
               className="hover:bg-gray-100 cursor-pointer"
-              onClick={() => console.log("record", record)}
+              onClick={() => changeStatusModalRef.current?.open(record)}
             >
-              Xem lịch hẹn
+              Đổi trạng thái
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem
+              className="hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleSendPassword(record)}
+            >
+              Gửi lại mật khẩu
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
   ];
+
+  const handleSendPassword = async (record: ResponseDoctor) => {
+    forgotPasswordDoctor(record.email, {
+      onSuccess: () => {
+        toast.success("Gửi lại mật khẩu thành công");
+      },
+      onError: () => {
+        toast.error("Gửi lại mật khẩu thất bại");
+      },
+    });
+  };
   return (
     <div className="bg-white rounded-md p-5.5">
       <Flex gap={10} align="center" className="mb-5!">
@@ -237,6 +259,7 @@ const ListDoctor = forwardRef<HTMLDivElement, IProps>(({ facilityId }, ref) => {
         facilityId={Number(facilityId)}
         refetch={refetch}
       />
+      <ChangeStatusDoctorModal ref={changeStatusModalRef} refetch={refetch} />
     </div>
   );
 });

@@ -11,6 +11,7 @@ import type {
   IMyAppointmentRes,
   IParamMyAppointment,
   RegisterDoctorDto,
+  RegisterUserDto,
 } from "@/site/user.site/pages/profile/types/type";
 import type {
   GetMeResponseData,
@@ -18,6 +19,7 @@ import type {
   LoginResponseData,
   RefreshTokenResponse,
   ReqUpdateUser,
+  UserStatus,
 } from "@/types/auth";
 import { omit } from "lodash";
 
@@ -73,6 +75,22 @@ const authApi = {
 
   registerDoctor: async (data: RegisterDoctorDto) => {
     return await axiosWithToken.post("/auth/register-doctor", data);
+  },
+
+  registerUser: (data: RegisterUserDto) => {
+    return axiosPublic.post("/auth/register-user", data);
+  },
+
+  forgotPassword: (email: string) => {
+    return axiosPublic.post("/auth/forgot-password", { email });
+  },
+
+  forgotPasswordDoctor: (email: string) => {
+    return axiosPublic.post("/auth/forgot-password-doctor", { email });
+  },
+
+  changeStatusDoctor: (data: { email: string; user_status: UserStatus }) => {
+    return axiosWithToken.post("/auth/change-status-doctor", data);
   },
 };
 

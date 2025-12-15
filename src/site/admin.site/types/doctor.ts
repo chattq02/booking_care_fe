@@ -1,3 +1,5 @@
+import type { UserStatus } from "@/types/auth";
+
 export interface ResponseDoctor {
   id: number;
   uuid: string;
@@ -9,7 +11,7 @@ export interface ResponseDoctor {
   address: string | null;
   createdAt: string; // ISO date string
   avatar: string | null;
-  user_status: "Active" | "Inactive" | "Pending" | "Banned"; // tuỳ hệ thống của bạn
+  user_status: UserStatus; // tuỳ hệ thống của bạn
   cccd: string | null;
   is_verify: "YES" | "NO";
   is_update_profile: "YES" | "NO";

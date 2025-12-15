@@ -17,6 +17,7 @@ export interface ResponseDepartment {
 
 export interface IPramsGetUsersDepartment extends IParams {
   facilityId?: number;
+  departmentId?: number;
 }
 
 export interface IResponseGetUsersDepartment {

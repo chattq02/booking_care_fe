@@ -32,6 +32,14 @@ const doctorUser = {
       `/user/get-schedule-doctor-day?doctorId=${params.doctorId}&date=${params.date}`
     );
   },
+
+  getDoctorAndFacilitiesSearch: async (
+    keyword: string
+  ): Promise<ResponseResult<ISchedule[]>> => {
+    return axiosPublic.get(`/doctor/search-users-facilities`, {
+      params: keyword,
+    });
+  },
 };
 
 export default doctorUser;

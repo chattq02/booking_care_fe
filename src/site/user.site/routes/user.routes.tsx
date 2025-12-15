@@ -10,14 +10,24 @@ import PrivateRouteUser from "../layouts/private-route-user";
 import Profile from "../pages/profile/profile";
 import PublicRoute from "../layouts/public-route-user";
 import FacilityDetail from "../pages/facility/facility-detail";
+import Register from "@/pages/auth/register/register";
+import ForgotPassword from "@/pages/auth/forgot-password/forgot-password";
 
 const Doctors = lazy(() => import("../pages/doctors/doctors"));
 
 export const userRoutes: RouteObject[] = [
   {
     element: <PrivateRouteUser auth={false} redirect="/" />,
-    children: [{ path: PATH_ROUTE.LOGIN, element: <Login role="User" /> }],
+    children: [
+      { path: PATH_ROUTE.LOGIN, element: <Login role="User" /> },
+      { path: PATH_ROUTE.REGISTER, element: <Register role="User" /> },
+      {
+        path: PATH_ROUTE.FORGOT_PASSWORD,
+        element: <ForgotPassword role="User" />,
+      },
+    ],
   },
+
   {
     element: <PrivateRouteUser auth={true} redirect={PATH_ROUTE.LOGIN} />,
     children: [

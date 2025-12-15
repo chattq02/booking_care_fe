@@ -9,6 +9,7 @@ import { COOKIE_KEYS } from "@/constants";
 import { useAtomValue } from "jotai";
 import { useState } from "react";
 import { Drawer, Button } from "antd";
+import doctorUser from "../apis/doctor.api";
 
 export default function UserLayout() {
   const user = useAtomValue(userAtom);
@@ -24,6 +25,21 @@ export default function UserLayout() {
 
   const token = accessTokenStore.get() || Cookies.get(COOKIE_KEYS.at);
   const isAuth = !!token;
+
+  const handleSearch = async (query: string) => {
+    // Simulate API call
+    const data = await doctorUser.getDoctorAndFacilitiesSearch(query);
+
+    console.log("data", data);
+
+    return [];
+  };
+
+  const handleResultSelect = (result) => {
+    console.log("Selected:", result);
+    // Navigate to product detail page
+    // router.push(`/products/${result.id}`);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,7 +62,14 @@ export default function UserLayout() {
 
         {/* Search box - Hiển thị khác nhau tùy breakpoint */}
         <div className="hidden md:block relative md:w-1/3 lg:w-1/4 xl:w-1/5 min-w-[200px]">
-          <SearchBox />
+          <SearchBox
+            placeholder="Tìm kiếm sản phẩm, thương hiệu..."
+            onSearch={handleSearch}
+            onResultSelect={handleResultSelect}
+            debounceDelay={400}
+            minChars={2}
+            className="max-w-xl"
+          />
         </div>
 
         {/* Navigation icons and user */}
