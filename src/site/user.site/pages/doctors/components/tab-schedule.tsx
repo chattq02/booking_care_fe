@@ -1,26 +1,142 @@
-import { Flex, DatePicker, ConfigProvider, Tag, Empty, Spin } from "antd";
+import {
+  Flex,
+  DatePicker,
+  ConfigProvider,
+  Tag,
+  Empty,
+  Spin,
+  Select,
+} from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import "dayjs/locale/vi";
 import viVN from "antd/locale/vi_VN";
 import { useGetScheduleDoctor } from "../hooks/useDoctor";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ISlot } from "@/site/user.site/types/schedule";
+import { useSearchParams } from "react-router-dom";
 
 dayjs.locale("vi");
 
 interface IProps {
   doctorId: number;
-  onClickSlot: (slot: ISlot) => void;
+  onClickSlot: (slot: ISlot, departmentSlot: IOption | undefined) => void;
+  list_departments: { id: number; name: string }[];
 }
 
-export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
-  const [selectedDate, setSelectedDate] = useState(dayjs());
+export interface IOption {
+  value: number;
+  label: string;
+}
+
+export default function TabSchedule({
+  list_departments,
+  doctorId,
+  onClickSlot,
+}: IProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Lấy giá trị từ URL params nếu có, nếu không thì dùng giá trị mặc định
+  const initialDate = searchParams.get("date")
+    ? dayjs(searchParams.get("date"))
+    : dayjs();
+
+  const initialDepartmentId = searchParams.get("departmentId");
+
+  // Tìm department tương ứng từ list_departments
+  const initialDepartment = initialDepartmentId
+    ? list_departments.find((dept) => dept.id === Number(initialDepartmentId))
+    : undefined;
+
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [department, setDepartment] = useState<IOption | undefined>(
+    initialDepartment
+      ? {
+          value: initialDepartment.id,
+          label: initialDepartment.name,
+        }
+      : undefined
+  );
+
   const { data: scheduleData, isLoading: isScheduleLoading } =
     useGetScheduleDoctor({
       doctorId: Number(doctorId),
       date: selectedDate ? selectedDate.format("YYYY-MM-DD") : "",
+      departmentId: Number(department?.value || 0),
     });
+
+  // Hàm cập nhật URL params
+  const updateSearchParams = (params: {
+    date?: string;
+    departmentId?: string;
+  }) => {
+    const newParams = new URLSearchParams(searchParams);
+
+    if (params.date !== undefined) {
+      if (params.date) {
+        newParams.set("date", params.date);
+      } else {
+        newParams.delete("date");
+      }
+    }
+
+    if (params.departmentId !== undefined) {
+      if (params.departmentId) {
+        newParams.set("departmentId", params.departmentId);
+      } else {
+        newParams.delete("departmentId");
+      }
+    }
+
+    setSearchParams(newParams);
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null) => {
+    if (date) {
+      setSelectedDate(date);
+      updateSearchParams({ date: date.format("YYYY-MM-DD") });
+    }
+  };
+
+  const handleDepartmentChange = (
+    _value: number,
+    option?:
+      | {
+          value: number;
+          label: string;
+        }
+      | {
+          value: number;
+          label: string;
+        }[]
+      | undefined
+  ) => {
+    const dept = option as IOption;
+    setDepartment(dept);
+    updateSearchParams({
+      departmentId: dept?.value ? dept.value.toString() : "",
+    });
+  };
+
+  // Xử lý khi component mount để đồng bộ state với URL params
+  useEffect(() => {
+    const dateParam = searchParams.get("date");
+    const deptParam = searchParams.get("departmentId");
+
+    if (dateParam && dayjs(dateParam).isValid()) {
+      setSelectedDate(dayjs(dateParam));
+    }
+
+    if (deptParam) {
+      const dept = list_departments.find((d) => d.id === Number(deptParam));
+      if (dept) {
+        setDepartment({
+          value: dept.id,
+          label: dept.name,
+        });
+      }
+    }
+  }, []);
 
   return (
     <div style={{ padding: "24px 0" }}>
@@ -32,6 +148,7 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
             align="center"
             style={{ marginBottom: 24, borderRadius: 12 }}
             gap={15}
+            wrap
           >
             <div>
               <h4>📅 Chọn ngày khám</h4>
@@ -40,9 +157,9 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
               <DatePicker
                 allowClear={false}
                 value={selectedDate}
-                onChange={setSelectedDate}
+                onChange={handleDateChange}
                 format={(date) => {
-                  const formatted = date.format("dddd - DD/MM/YYYY"); // vd: "chủ nhật - 23/11/2025"
+                  const formatted = date.format("dddd - DD/MM/YYYY");
                   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
                 }}
                 disabledDate={(current) =>
@@ -52,6 +169,18 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
                 size="large"
               />
             </ConfigProvider>
+            <Select
+              value={department?.value}
+              style={{ width: 250 }}
+              placeholder="Chọn chuyên khoa"
+              popupMatchSelectWidth={false}
+              size="large"
+              onChange={handleDepartmentChange}
+              options={list_departments?.map((val) => ({
+                value: val.id,
+                label: val.name,
+              }))}
+            />
           </Flex>
           {scheduleData && scheduleData?.length > 0 ? (
             scheduleData?.map((item) => (
@@ -151,11 +280,14 @@ export default function TabSchedule({ doctorId, onClickSlot }: IProps) {
                               : "none";
                           }}
                           onClick={() =>
-                            onClickSlot({
-                              ...slot,
-                              price: item.price || 0,
-                              selectedDate: selectedDate,
-                            })
+                            onClickSlot(
+                              {
+                                ...slot,
+                                price: item.price || 0,
+                                selectedDate: selectedDate,
+                              },
+                              department ?? undefined
+                            )
                           }
                         >
                           <div

@@ -4,6 +4,7 @@ import {
   CalendarOutlined,
   HistoryOutlined,
   MailOutlined,
+  UnlockOutlined,
 } from "@ant-design/icons";
 
 import InfoUser from "./components/info-user";
@@ -12,6 +13,7 @@ import { userAtom } from "@/stores/auth";
 import MyAppointment from "./components/tab-my-appointment";
 import { useSearchParams } from "react-router-dom";
 import TabHistoryAppointment from "./components/tab-history-appointment";
+import TabChangePassword from "./components/tab-change-password";
 
 const { Content } = Layout;
 
@@ -19,7 +21,12 @@ export default function Profile() {
   const infoUser = useAtomValue(userAtom);
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const validTabs = ["info", "my-appointment", "history-appointment"];
+  const validTabs = [
+    "info",
+    "my-appointment",
+    "history-appointment",
+    "change-password",
+  ];
 
   const tabFromUrl = searchParams.get("tab");
   const activeTab = validTabs.includes(tabFromUrl || "") ? tabFromUrl! : "info";
@@ -59,6 +66,16 @@ export default function Profile() {
         </span>
       ),
       children: <TabHistoryAppointment />,
+    },
+    {
+      key: "change-password",
+      label: (
+        <span className="flex items-center font-semibold text-sm lg:text-base">
+          <UnlockOutlined className="mr-1 lg:mr-2" />
+          <span className="hidden sm:inline">Đổi mật khẩu</span>
+        </span>
+      ),
+      children: <TabChangePassword />,
     },
   ];
 

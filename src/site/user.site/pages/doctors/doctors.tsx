@@ -25,7 +25,7 @@ import { useGetDetailDoctor } from "./hooks/useDoctor";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getFirstLetter } from "@/helpers/helper";
-import TabSchedule from "./components/tab-schedule";
+import TabSchedule, { type IOption } from "./components/tab-schedule";
 import type { ISlot } from "../../types/schedule";
 import { accessTokenStore } from "@/stores/auth";
 import Cookies from "js-cookie";
@@ -44,6 +44,7 @@ const DoctorPage = () => {
   const { data, isLoading } = useGetDetailDoctor(Number(id));
   const [selectedSlot, setSelectedSlot] = useState<ISlot>();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [department, setDepartment] = useState<IOption | undefined>(undefined);
 
   const nav = useNavigate();
   const { mutate, isPending } = useCreateAppointment({
@@ -84,6 +85,7 @@ const DoctorPage = () => {
         slotId: values?.id as string,
         doctorId: Number(id),
         note: bookingForm.getFieldValue("note"),
+        departmentId: Number(department?.value),
       },
       {
         onSuccess: () => {
@@ -195,10 +197,12 @@ const DoctorPage = () => {
                 ),
                 children: (
                   <TabSchedule
+                    list_departments={data?.departments || []}
                     doctorId={Number(id)}
-                    onClickSlot={(slot) => {
+                    onClickSlot={(slot, departmentSlot) => {
                       setIsModalVisible(true);
                       setSelectedSlot(slot);
+                      setDepartment(departmentSlot);
                     }}
                   />
                 ),
@@ -292,6 +296,12 @@ const DoctorPage = () => {
                 {data?.facilities.map((item) => (
                   <span key={item.id}>{item.name}</span>
                 ))}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span>
+                  <strong>Phòng ban:</strong>
+                </span>
+                <span>{department?.label ?? "---"}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span>

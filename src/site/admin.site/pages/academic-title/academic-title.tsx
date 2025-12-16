@@ -184,7 +184,7 @@ export default function AcademicTitle() {
         onChange={handleTableChange}
         className="[&_.ant-table-cell]:py-0.5! [&_.ant-table-thead_.ant-table-cell]:py-3!"
       />
-      <ModalAcademic ref={modelAcademicRef} />
+      <ModalAcademic ref={modelAcademicRef} refetch={refetch} />
     </div>
   );
 }

@@ -153,6 +153,10 @@ export interface IAppointmentHistoryItem {
   heartRate: number | null;
   instruction: string | null;
   prescription: Prescription | null;
+  department: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface IFacilityMini {

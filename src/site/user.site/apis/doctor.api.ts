@@ -28,9 +28,10 @@ const doctorUser = {
   getDoctorSchedule: async (params: {
     doctorId: number;
     date: string;
+    departmentId: number;
   }): Promise<ResponseResult<ISchedule[]>> => {
     return axiosPublic.get(
-      `/user/get-schedule-doctor-day?doctorId=${params.doctorId}&date=${params.date}`
+      `/user/get-schedule-doctor-day?doctorId=${params.doctorId}&date=${params.date}&departmentId=${params.departmentId}`
     );
   },
 

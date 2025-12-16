@@ -61,6 +61,7 @@ export interface IWorkSchedule {
   facilityId?: number;
   departmentId?: number;
   id?: number;
+  date?: string;
 }
 
 export type Shift = {

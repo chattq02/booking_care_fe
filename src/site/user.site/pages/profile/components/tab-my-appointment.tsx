@@ -33,12 +33,10 @@ const ActionCell = React.memo(
           <MoreHorizontal size={30} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        hidden={Boolean(record.status === "CANCELED")}
-      >
+      <DropdownMenuContent align="end">
         <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator hidden={Boolean(record.status === "CANCELED")} />
+
         <DropdownMenuItem>
           <ButtonAnt className="w-full" onClick={() => onCancel(record)}>
             Hủy lịch
@@ -53,7 +51,6 @@ export default function MyAppointment() {
   const { data, isLoading, refetch } = useGetPatientAppointmentStatus({
     page: 1,
     per_page: 50,
-    status: "CONFIRMED",
   });
 
   const { mutate, isPending } = useUpadateStatusAppointmentUser();
@@ -111,11 +108,19 @@ export default function MyAppointment() {
     {
       title: "Bệnh viện",
       dataIndex: "facility",
-      render: (facility: { id: number; name: string; address: string }) => {
+      render: (
+        facility: { id: number; name: string; address: string },
+        record
+      ) => {
         return (
           <div className="flex flex-col">
             <span className="font-medium">{facility.name}</span>
-            <span className="text-gray-500 text-sm">{facility.address}</span>
+            <span className="font-medium">
+              Khoa khám: {record.department.name ?? "---"}
+            </span>
+            <span className="text-gray-500 text-sm">
+              Địa chỉ: {facility.address ?? "---"}
+            </span>
           </div>
         );
       },
@@ -161,7 +166,6 @@ export default function MyAppointment() {
   ];
 
   const handleCancel = async (data: IAppointmentHistoryItem) => {
-    console.log(data);
     mutate(
       {
         id: data.id,

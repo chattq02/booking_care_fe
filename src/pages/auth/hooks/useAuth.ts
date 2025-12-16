@@ -36,6 +36,13 @@ function useChangeStatusDoctor() {
   });
 }
 
+function useChangePassword() {
+  return useMutation({
+    mutationFn: (data: { old_password: string; new_password: string }) =>
+      authApi.changePassword(data),
+  });
+}
+
 async function getProfile() {
   try {
     const result = await authApi.getMe();
@@ -54,4 +61,5 @@ export {
   useForgotPassword,
   useForgotPasswordDoctor,
   useChangeStatusDoctor,
+  useChangePassword,
 };

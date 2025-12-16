@@ -85,6 +85,10 @@ const authApi = {
     return axiosPublic.post("/auth/forgot-password", { email });
   },
 
+  changePassword: (data: { old_password: string; new_password: string }) => {
+    return axiosPublic.post("/auth/change-password", data);
+  },
+
   forgotPasswordDoctor: (email: string) => {
     return axiosPublic.post("/auth/forgot-password-doctor", { email });
   },

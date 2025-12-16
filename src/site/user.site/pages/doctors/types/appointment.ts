@@ -6,6 +6,7 @@ export interface IAppointment {
   scheduleId: number;
   status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELED";
   note?: string | null;
+  departmentId: number;
 
   // Thông tin quan hệ (có thể optional nếu backend không trả đầy đủ)
   doctor?: {
@@ -40,4 +41,5 @@ export interface ICreateAppointment {
   doctorId: number;
   slotId: string;
   note?: string;
+  departmentId: number;
 }

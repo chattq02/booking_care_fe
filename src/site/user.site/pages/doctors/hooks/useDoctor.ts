@@ -60,6 +60,7 @@ export const useGetScheduleDoctor = (
   params: {
     doctorId: number;
     date: string;
+    departmentId: number;
   },
   enabled = true
 ) => {

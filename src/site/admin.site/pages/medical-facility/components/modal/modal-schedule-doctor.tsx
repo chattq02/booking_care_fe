@@ -32,6 +32,7 @@ export interface TimeSlot {
   startTime: string;
   endTime: string;
   selected: boolean;
+  isBlock: boolean;
 }
 
 export interface DaySchedule {
@@ -55,7 +56,8 @@ export interface DoctorScheduleRef {
   showModal: (
     schedule: ScheduleConfig[],
     doctorId: number,
-    scheduleId?: number
+    scheduleId?: number,
+    currentDay?: string
   ) => void;
   hideModal: () => void;
 }
@@ -78,6 +80,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     const [scheduleConfigs, setScheduleConfigs] = useState<ScheduleConfig[]>(
       []
     );
+    const [currentDay, setCurrentDay] = useState<string | undefined>("");
 
     const [showValidation, setShowValidation] = useState(false);
 
@@ -125,6 +128,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
             startTime: currentTime.format("HH:mm"),
             endTime: slotEndTime.format("HH:mm"),
             selected: false,
+            isBlock: false,
           });
 
           currentTime = slotEndTime;
@@ -535,6 +539,7 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
         doctorId: doctorId,
         facilityId: facilityId,
         id: scheduleId,
+        date: currentDay,
       };
 
       create.mutate(dataSave, {
@@ -562,11 +567,13 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
     const showModal = (
       schedule: ScheduleConfig[],
       doctorId: number,
-      scheduleId?: number
+      scheduleId?: number,
+      currentDay?: string
     ) => {
       setVisible(true);
       setDoctorId(doctorId);
       setScheduleId(scheduleId);
+      setCurrentDay(currentDay);
 
       // Xử lý dữ liệu doctor để chuyển đổi thành ScheduleConfig[]
       if (schedule) {
@@ -908,7 +915,13 @@ export const DoctorScheduleModal = forwardRef<DoctorScheduleRef, IProps>(
                               {daySchedule.slots.map((slot) => (
                                 <Tag
                                   key={`${config.id}-${daySchedule.date}-${slot.id}`}
-                                  color={slot.selected ? "blue" : "default"}
+                                  color={
+                                    slot.isBlock
+                                      ? "gold"
+                                      : slot.selected
+                                      ? "blue"
+                                      : "default"
+                                  }
                                   style={{
                                     cursor: "pointer",
                                     padding: "4px 8px",

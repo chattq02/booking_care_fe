@@ -112,17 +112,24 @@ export default function CalendarTask({
 
   // Hàm xử lý khi click vào task
   const handleTaskClick = async (day: Dayjs, doctorId: number) => {
+    const currentDay = day.format("YYYY-MM-DD");
     try {
       const result = await scheduleAdmin.getScheduleByDay({
         doctorId: doctorId,
         facilityId: Number(id),
         departmentId: departmentId || 0,
-        date: day.format("YYYY-MM-DD"),
+        date: currentDay,
       });
+
       if (result && result.schedule) {
         doctorScheduleRef.current?.showModal(
           result.schedule.length > 0
-            ? result.schedule
+            ? result.schedule.map((item) => {
+                return {
+                  ...item,
+                  id: v4(),
+                };
+              })
             : [
                 {
                   id: v4(),
@@ -136,7 +143,8 @@ export default function CalendarTask({
                 },
               ],
           doctorId,
-          result?.id
+          result?.id,
+          currentDay
         );
       }
     } catch (error) {
